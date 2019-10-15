@@ -1,2 +1,2 @@
-# varsom-regobs-common
+# Varsom Regobs Common
 Varsom Regobs Common Components and Services
