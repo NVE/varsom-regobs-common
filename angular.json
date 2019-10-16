@@ -53,6 +53,8 @@
             "main": "testapp/src/main.ts",
             "polyfills": "testapp/src/polyfills.ts",
             "tsConfig": "testapp/tsconfig.app.json",
+            "sourceMap": true,
+            "vendorSourceMap": true,
             "assets": [
               "testapp/src/favicon.ico",
               "testapp/src/assets"
