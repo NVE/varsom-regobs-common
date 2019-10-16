@@ -4,7 +4,7 @@ import { nSQL } from '@nano-sql/core';
 import { CreateRegistrationRequestDto } from '@varsom-regobs-common/regobs-api';
 import { tables, TABLE_NAMES, DB_NAME_TEMPLATE } from './db_config';
 import { AppMode, AppModeService, NSqlFullTableObservable } from '@varsom-regobs-common/core';
-import { switchMap, pairwise, map, tap, startWith } from 'rxjs/operators';
+import { switchMap, tap } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { InanoSQLTable, InanoSQLQuery } from '@nano-sql/core/lib/interfaces';
 
@@ -13,7 +13,7 @@ import { InanoSQLTable, InanoSQLQuery } from '@nano-sql/core/lib/interfaces';
 })
 export class RegistrationService {
 
-  private appModeInitStates = new Map<AppMode, { initialized: boolean, connected: boolean }>();
+  private appModeInitStates = new Map<AppMode, boolean>();
 
   public get registrationStorage$(): Observable<{ id: string, reg: CreateRegistrationRequestDto }[]> {
     return this.appModeInitialized$.pipe(
@@ -22,8 +22,8 @@ export class RegistrationService {
   }
 
   public get appModeInitialized$(): Observable<AppMode> {
-    return this.appModeService.appMode$.pipe(startWith(<AppMode>null), pairwise(),
-      switchMap(([prev, currentAppMode]) => from(this.initAppMode(prev, currentAppMode))));
+    return this.appModeService.appMode$.pipe(
+      switchMap((appMode) => from(this.initAppMode(appMode))));
   }
 
   constructor(private appModeService: AppModeService) { }
@@ -50,20 +50,13 @@ export class RegistrationService {
     return `${DB_NAME_TEMPLATE}_${appMode}`;
   }
 
-  private async initAppMode(prev: AppMode, currentAppMode: AppMode): Promise<AppMode> {
-    if (prev !== null) {
-      const prevState = this.appModeInitStates.get(prev);
-      if (prevState !== null && prevState.connected) {
-        await nSQL().disconnect(this.getDbName(prev));
-        prevState.connected = false;
-        this.appModeInitStates = this.appModeInitStates.set(prev, prevState);
-      }
-    }
-
-    const currentState = this.appModeInitStates.get(currentAppMode) || { initialized: false, connected: false };
-    if (!currentState.initialized) {
+  private async initAppMode(appMode: AppMode): Promise<AppMode> {
+    const appModeInitialized = this.appModeInitStates.get(appMode);
+    console.log('currentState is', appModeInitialized);
+    if (!appModeInitialized) {
+      console.log('createDatabase for app mode: ', appMode);
       await nSQL().createDatabase({
-        id: this.getDbName(currentAppMode),
+        id: this.getDbName(appMode),
         mode: 'PERM',
         tables: tables,
         plugins: [
@@ -84,14 +77,9 @@ export class RegistrationService {
           },
         ],
       });
-      currentState.initialized = true;
-      currentState.connected = true;
+      this.appModeInitStates = this.appModeInitStates.set(appMode, true);
     }
-    if (!currentState.connected) {
-      await nSQL().connect({ id: this.getDbName(currentAppMode) });
-      currentState.connected = true;
-    }
-    this.appModeInitStates = this.appModeInitStates.set(currentAppMode, currentState);
-    return currentAppMode;
+    await nSQL().useDatabase(this.getDbName(appMode));
+    return appMode;
   }
 }
