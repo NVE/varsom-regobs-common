@@ -10,7 +10,6 @@ import { tables } from './db_config';
 export class RegistrationService {
 
   public get RegistrationStorage(): Observable<{ id: string, reg: CreateRegistrationRequestDto }[]> {
-    // tslint:disable-next-line: deprecation
     return from(
       (nSQL('registration').query('select').exec() as Promise<{ id: string, reg: CreateRegistrationRequestDto }[]>));
   }

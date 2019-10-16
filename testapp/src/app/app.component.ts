@@ -11,7 +11,10 @@ import { CreateRegistrationRequestDto } from '@varsom-regobs-common/regobs-api';
 export class AppComponent {
 
   title: Observable<string>;
-  registrations: Observable<CreateRegistrationRequestDto[]>;
+  registrations: Observable<{
+    id: string;
+    reg: CreateRegistrationRequestDto;
+  }[]>;
 
   constructor(private registrationService: RegistrationService) {
     this.title = of('Test-app!!');
