@@ -18,6 +18,6 @@ export class AppComponent {
 
   constructor(private registrationService: RegistrationService) {
     this.title = of('Test-app!!');
-    this.registrations = registrationService.RegistrationStorage;
+    this.registrations = registrationService.registrationStorage$;
   }
 }

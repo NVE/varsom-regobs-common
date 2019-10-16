@@ -1,11 +1,12 @@
 {
   "name": "@varsom-regobs-common/registration",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "peerDependencies": {
-    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/core": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/common": "^8.0.0",
+    "@angular/core": "^8.0.0",
     "rxjs": "^6.0.0",
-    "@varsom-regobs-common/regobs-api": "^0.0.0"
+    "@varsom-regobs-common/core": "^1.0.0",
+    "@varsom-regobs-common/regobs-api": "^1.0.0"
   },
   "dependencies": {
     "@nano-sql/core": "^2.3.7",

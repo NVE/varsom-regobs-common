@@ -20,14 +20,8 @@
     "paths": {
       "@varsom-regobs-common/*": [
         "dist/varsom-regobs-common/*"
-      ],
-      // "@varsom-regobs-common/registration": [
-      //   "dist/varsom-regobs-common/registration"
-      // ],
-      // "@varsom-regobs-common/regobs-api": [
-      //   "dist/varsom-regobs-common/regobs-api"
-      // ],
-    },
+      ]
+    }
   },
   "exclude": [
     "dist"
