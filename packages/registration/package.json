@@ -8,6 +8,7 @@
     "@varsom-regobs-common/regobs-api": "^0.0.0"
   },
   "dependencies": {
+    "@nano-sql/core": "^2.3.7",
     "rxjs": "^6.5.3"
   }
 }
