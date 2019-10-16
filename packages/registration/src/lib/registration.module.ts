@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-// import { providerFactory } from './provider.factory';
 import { CoreModule } from '@varsom-regobs-common/core';
 
 @NgModule({
@@ -8,8 +7,6 @@ import { CoreModule } from '@varsom-regobs-common/core';
   ],
   declarations: [],
   exports: [],
-  providers: [
-    // providerFactory()
-  ]
+  providers: []
 })
 export class RegistrationModule { }
