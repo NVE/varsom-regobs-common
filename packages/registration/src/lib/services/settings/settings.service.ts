@@ -15,13 +15,15 @@ const DEFAULT_SETTINGS = { autoSync: true };
 })
 export class SettingsService {
 
+  private _registrationSettings$: Observable<IRegistrationSettings>;
+
   public get registrationSettings$(): Observable<IRegistrationSettings> {
-    return this.offlineDbService.appModeInitialized$.pipe(
-      switchMap(() => this.getRegistrationSettingsObservable()), shareReplay(1));
+    return this._registrationSettings$;
   }
 
   constructor(private offlineDbService: OfflineDbService) {
-
+    this._registrationSettings$ = this.offlineDbService.appModeInitialized$.pipe(
+      switchMap(() => this.getRegistrationSettingsObservable()), shareReplay(1));
   }
 
   public saveSettings(settings: IRegistrationSettings): Promise<any> {

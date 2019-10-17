@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AppMode, AppModeService } from '@varsom-regobs-common/core';
 import { NSQL_TABLE_NAME_PLUGIN } from '../../db/nSQL-table-name.plugin';
-import { Observable, from, defer, of, BehaviorSubject, ReplaySubject } from 'rxjs';
-import { switchMap, shareReplay, tap, distinctUntilChanged } from 'rxjs/operators';
+import { Observable, defer, BehaviorSubject } from 'rxjs';
+import { switchMap, shareReplay, tap, distinctUntilChanged, mergeMap, debounceTime, concatMap, take } from 'rxjs/operators';
 import { DB_NAME_TEMPLATE, DB_TABLE_CONFIG } from '../../db/nSQL-db.config';
 import { nSQL } from '@nano-sql/core';
 
@@ -11,7 +11,7 @@ import { nSQL } from '@nano-sql/core';
 })
 export class OfflineDbService {
 
-  private dbConnected = new ReplaySubject<Map<AppMode, boolean>>(1);
+  private dbConnected = new Map<AppMode, boolean>();
   private _appModeInitialized$: Observable<AppMode>;
 
   public get appModeInitialized$(): Observable<AppMode> {
@@ -19,8 +19,10 @@ export class OfflineDbService {
   }
 
   constructor(private appModeService: AppModeService) {
-    this._appModeInitialized$ = this.appModeService.appMode$.pipe(distinctUntilChanged(),
+    this._appModeInitialized$ = this.appModeService.appMode$.pipe(
+      distinctUntilChanged(),
       switchMap((appMode) => this.initAppMode(appMode)),
+      tap((val) => console.log('App mode initalized', val)),
       shareReplay(1));
   }
 
@@ -31,12 +33,13 @@ export class OfflineDbService {
 
   private initAppMode(appMode: AppMode) {
     console.log('initAppMode', appMode);
-    return this.dbConnected.pipe(switchMap((m) =>
-      m.get(appMode) ?
-        defer(() => this.useDatabase(appMode))
-        : defer(() => this.createDatabase(appMode)).pipe(tap(() => {
-          this.dbConnected.next(m.set(appMode, true));
-        }))));
+    const connected = this.dbConnected.get(appMode);
+    return connected ?
+      defer(() => this.useDatabase(appMode))
+      : defer(() => this.createDatabase(appMode)).pipe(tap(() => {
+        this.dbConnected = this.dbConnected.set(appMode, true);
+        console.log('dbConnected is ', this.dbConnected);
+      }));
   }
 
   private async useDatabase(appMode: AppMode): Promise<AppMode> {

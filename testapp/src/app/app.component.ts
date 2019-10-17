@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { RegistrationService, IRegistration } from '@varsom-regobs-common/registration';
+import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
 import { AppMode, AppModeService } from '@varsom-regobs-common/core';
-import { IRegistrationSettings } from '../../../packages/registration/src/lib/models/registration-settings.interface';
-import { SettingsService } from '../../../packages/registration/src/public_api';
 
 @Component({
   selector: 'app-root',
