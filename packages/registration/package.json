@@ -5,11 +5,10 @@
     "@angular/common": "^8.0.0",
     "@angular/core": "^8.0.0",
     "rxjs": "^6.0.0",
+    "moment": "^2.0.0",
     "@varsom-regobs-common/core": "^1.0.0",
     "@varsom-regobs-common/regobs-api": "^1.0.0"
   },
-  "dependencies": {
-    "@nano-sql/core": "^2.3.7",
-    "rxjs": "^6.5.3"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
