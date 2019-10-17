@@ -10,6 +10,7 @@ import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
 import * as momentImported from 'moment';
 import { SyncStatus } from '../../models/sync-status.enum';
+import { SettingsService } from '../settings/settings.service';
 const moment = momentImported;
 
 @Injectable({
@@ -23,7 +24,7 @@ export class RegistrationService {
     return this._registrationStorage$;
   }
 
-  constructor(private offlineDbService: OfflineDbService) {
+  constructor(private offlineDbService: OfflineDbService, private settingsService: SettingsService) {
     this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
       switchMap(() => this.getRegistrationObservable()), shareReplay(1));
     this.createRegistrationSyncObservable().subscribe();
@@ -55,14 +56,15 @@ export class RegistrationService {
 
   private createRegistrationSyncObservable() {
     const timerObservable = interval(10 * 1000);
-    return timerObservable.pipe(switchMap(() => this.getRegistrationsToSyncObservable(true)),
+    return timerObservable.pipe(switchMap(() => this.getRegistrationsToSyncObservable()),
       tap((records) => console.log('Records to sync: ', records)));
   }
 
-  private getRegistrationsToSyncObservable(autoSync: boolean) {
-    return this.registrationStorage$.pipe(map((records) =>
-      records.filter((row) => row.syncStatus === SyncStatus.Sync
-        || (autoSync === true && row.syncStatus === SyncStatus.Draft))
-    ));
+  private getRegistrationsToSyncObservable() {
+    return this.settingsService.registrationSettings$.pipe(
+      switchMap((settings) => this.registrationStorage$.pipe(map((records) =>
+        records.filter((row) => row.syncStatus === SyncStatus.Sync
+          || (settings.autoSync === true && row.syncStatus === SyncStatus.Draft))
+      ))));
   }
 }
