@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AppMode, AppModeService, NSqlFullTableObservable } from '@varsom-regobs-common/core';
+import { AppMode, AppModeService } from '@varsom-regobs-common/core';
 import { NSQL_TABLE_NAME_PLUGIN } from '../../db/nSQL-table-name.plugin';
 import { Observable, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
