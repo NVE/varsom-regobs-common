@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, interval } from 'rxjs';
+import { Observable, from, timer } from 'rxjs';
 import { nSQL } from '@nano-sql/core';
 import { CreateRegistrationRequestDto } from '@varsom-regobs-common/regobs-api';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { NSqlFullTableObservable } from '@varsom-regobs-common/core';
-import { switchMap, shareReplay, filter, map, tap } from 'rxjs/operators';
+import { switchMap, shareReplay, map, tap } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -55,8 +55,8 @@ export class RegistrationService {
   }
 
   private createRegistrationSyncObservable() {
-    const timerObservable = interval(10 * 1000);
-    return timerObservable.pipe(switchMap(() => this.getRegistrationsToSyncObservable()),
+    return this.getRegistrationsToSyncObservable().pipe(switchMap((records) =>
+      timer(0, 60 * 1000).pipe(map(() => records))),
       tap((records) => console.log('Records to sync: ', records)));
   }
 
