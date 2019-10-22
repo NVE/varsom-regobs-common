@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration } from '@varsom-regobs-common/registration';
+import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration, SyncProgress } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
 import { AppMode, AppModeService } from '@varsom-regobs-common/core';
 
@@ -14,6 +14,7 @@ export class AppComponent {
   registrations$: Observable<IRegistration[]>;
   appMode: AppMode;
   settings: IRegistrationSettings;
+  syncProgress$: Observable<SyncProgress>;
 
   constructor(
     private registrationService: RegistrationService,
@@ -28,6 +29,7 @@ export class AppComponent {
     settingsService.registrationSettings$.subscribe((settings) => {
       this.settings = settings;
     });
+    this.syncProgress$ = registrationService.syncProgress$;
   }
 
   addRegistration() {
@@ -50,5 +52,9 @@ export class AppComponent {
 
   saveSettings() {
     this.settingsService.saveSettings(this.settings);
+  }
+
+  cancelSync() {
+    this.registrationService.cancelAndRestartSyncListener();
   }
 }

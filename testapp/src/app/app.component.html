@@ -20,11 +20,17 @@
   <label for="autosync">Autosync</label>
   <input id="autosync" type="checkbox" [(ngModel)]="settings.autoSync" (change)="saveSettings()" />
 </span>
+<div *ngIf="syncProgress$ | async as syncProgress">
+  <div *ngIf="syncProgress.inProgress">
+    Sync in progress: {{syncProgress.percentageCompleteFormatted}} <a href="#" (click)="cancelSync()">Cancel</a>
+  </div>
+</div>
 <p>
   <button (click)="addRegistration()">Add registration</button>
 </p>
 <ul>
   <li *ngFor="let reg of registrations$ | async">
-    ID: {{ reg.id }} Env: {{ reg.request.Comment }} <a href="#" (click)="deleteRegistration(reg.id)">Slett</a>
+    ID: {{ reg.id }} {{ reg.syncStatus }} Env: {{ reg.request.Comment }} <a href="#"
+      (click)="deleteRegistration(reg.id)">Slett</a>
   </li>
 </ul>

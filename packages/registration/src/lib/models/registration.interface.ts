@@ -5,7 +5,7 @@ export interface IRegistration {
     id: string;
     changed: number;
     lastSync?: number;
-    syncError?: { statusCode: number, message: string };
+    syncError?: Error;
     syncStatus: SyncStatus;
     request: CreateRegistrationRequestDto;
 }
