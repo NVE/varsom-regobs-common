@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY } from 'rxjs';
+import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat } from 'rxjs';
 import { nSQL } from '@nano-sql/core';
 import { CreateRegistrationRequestDto } from '@varsom-regobs-common/regobs-api';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
@@ -11,9 +11,9 @@ import { OfflineDbService } from '../offline-db/offline-db.service';
 import * as momentImported from 'moment';
 import { SyncStatus } from '../../models/sync-status.enum';
 import { SettingsService } from '../settings/settings.service';
-import { OfflineSyncService } from '../offline-sync/offline-sync.service';
 import { SyncProgress } from '../../models/sync-progress';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
+import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 const moment = momentImported;
 
 @Injectable({
@@ -36,7 +36,7 @@ export class RegistrationService {
   constructor(
     private offlineDbService: OfflineDbService,
     private settingsService: SettingsService,
-    @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: OfflineSyncService<IRegistration>) {
+    @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>) {
     this._syncProgress$ = new BehaviorSubject(new SyncProgress());
     this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
       switchMap(() => this.getRegistrationObservable()), shareReplay(1));
@@ -95,29 +95,18 @@ export class RegistrationService {
     this._syncProgress$.next(progress);
   }
 
-  private updateRow(row: IRegistration) {
-    return from(nSQL(TABLE_NAMES.REGISTRATION).query('upsert', row).exec());
-  }
-
   private createRegistrationSyncObservable() {
     return this.getRegistrationsToSyncObservable().pipe(switchMap((records) =>
       timer(0, 60 * 1000).pipe(map(() => records))),
       skipWhile(() => this._syncProgress$.value.inProgress),
       tap((records) => this.resetSyncProgress(records)),
-      this.offlineRegistrationSyncService.syncOfflineRecords(),
+      this.flattenRegistrationsToSync(),
       concatMap((row) => of(this.setSyncProgress(row)).pipe(map(() => row))),
-      map((r) => ({
-        ...r.item,
-        lastSync: moment().unix(),
-        syncStatus: r.success ? SyncStatus.InSync : r.item.syncStatus,
-        syncError: r.error,
-      })),
-      concatMap((row) => this.updateRow(row).pipe(map(() => row))),
+      this.updateRowAndReturnItem(),
       toArray(),
-      // concatMap((rows) => from(nSQL(TABLE_NAMES.REGISTRATION).query('upsert', rows).exec())),
       catchError((error) => {
         console.log('Could not sync registrations', error);
-        return of([]);
+        return EMPTY;
       }),
       tap((t) => this.resetSyncProgress())
     );
@@ -129,5 +118,36 @@ export class RegistrationService {
         records.filter((row) => row.syncStatus === SyncStatus.Sync
           || (settings.autoSync === true && row.syncStatus === SyncStatus.Draft))
       ), debounceTime(5000))));
+  }
+
+  private flattenRegistrationsToSync() {
+    return (src: Observable<IRegistration[]>) =>
+      src.pipe(mergeMap((rows) =>
+        concat(rows.map((row) => (this.syncRecord(row)))),
+      ), mergeMap((r) => r));
+  }
+
+  private syncRecord(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
+    return this.offlineRegistrationSyncService.syncItem(item).pipe(
+      catchError((err) => of(({ item, success: false, error: err }))),
+      tap((result) => console.log('Record sync complete', result)));
+  }
+
+  private updateRowAndReturnItem(): (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
+    Observable<IRegistration> {
+    return (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
+      src.pipe(map((r) => ({
+        ...r.item,
+        lastSync: moment().unix(),
+        syncStatus: r.success ? SyncStatus.InSync : r.item.syncStatus,
+        syncError: r.error,
+      })),
+        concatMap((item) =>
+          from(nSQL(TABLE_NAMES.REGISTRATION).query('upsert', item).exec())
+            .pipe(catchError((err) => {
+              console.log('Could not update record in offline storage', err);
+              return of([]);
+            }), map(() => item)))
+      );
   }
 }

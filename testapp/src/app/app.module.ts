@@ -2,7 +2,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import {
   RegistrationModule,
-  OfflineSyncService,
   FakeItemSyncCallbackService,
   IRegistration,
 } from '@varsom-regobs-common/registration';
@@ -18,13 +17,9 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule,
     CoreModule,
-    RegistrationModule,
+    RegistrationModule, // TODO: Add options here
   ],
   providers: [
-    {
-      provide: 'OfflineRegistrationSyncService', useFactory: () =>
-        new OfflineSyncService(new FakeItemSyncCallbackService())
-    },
   ],
   bootstrap: [AppComponent]
 })
