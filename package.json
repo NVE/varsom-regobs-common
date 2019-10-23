@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --vendorSourceMap --open",
-    "build": "ng build",
+    "build": "ng build core && ng build regobs-api && ng build registration && ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
