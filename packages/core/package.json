@@ -4,7 +4,8 @@
   "peerDependencies": {
     "@angular/common": "^8.0.0",
     "@angular/core": "^8.0.0",
-    "rxjs": "^6.0.0"
+    "rxjs": "^6.0.0",
+    "@nano-sql/core": "^2.3.7"
   },
   "dependencies": {}
 }

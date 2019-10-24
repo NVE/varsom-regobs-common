@@ -25,3 +25,11 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+
+## How to link npm package while developing:
+
+It is useful to link library locally when developing.
+[https://docs.npmjs.com/cli/link]
+[https://angular.io/guide/creating-libraries]
+[https://medium.com/dailyjs/how-to-use-npm-link-7375b6219557]

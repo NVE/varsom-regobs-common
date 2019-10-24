@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration, SyncProgress } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
-import { AppMode, AppModeService } from '@varsom-regobs-common/core';
+import { AppMode, AppModeService, GeoHazard } from '@varsom-regobs-common/core';
 
 @Component({
   selector: 'app-root',
@@ -32,18 +32,14 @@ export class AppComponent {
     this.syncProgress$ = registrationService.syncProgress$;
   }
 
-  addRegistration() {
-    this.registrationService.addRegistration({
-      Id: null,
-      GeoHazardTID: 10,
-      DtObsTime: '',
-      ObserverGuid: 'testuser',
-      Comment: this.appMode
-    }).subscribe();
+  async addRegistration() {
+    const draft = this.registrationService.createNewEmptyDraft(GeoHazard.Snow);
+    draft.request.Comment = this.appMode;
+    await this.registrationService.saveRegistration(draft);
   }
 
-  deleteRegistration(id: string) {
-    return this.registrationService.deleteRegistration(id).subscribe();
+  async deleteRegistration(id: string) {
+    await this.registrationService.deleteRegistration(id);
   }
 
   changeAppMode(appMode: AppMode) {

@@ -3,8 +3,8 @@ import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, conc
 import { nSQL } from '@nano-sql/core';
 import { CreateRegistrationRequestDto } from '@varsom-regobs-common/regobs-api';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { NSqlFullTableObservable } from '@varsom-regobs-common/core';
-import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray } from 'rxjs/operators';
+import { NSqlFullTableObservable, GeoHazard } from '@varsom-regobs-common/core';
+import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray, take } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -43,22 +43,13 @@ export class RegistrationService {
     this.cancelAndRestartSyncListener();
   }
 
-  public addRegistration(reg: CreateRegistrationRequestDto): Observable<any> {
-    if (!reg.Id) {
-      reg.Id = uuid();
-    }
-    const dbRecord: IRegistration = {
-      id: reg.Id,
-      changed: moment().unix(),
-      syncStatus: SyncStatus.Draft,
-      lastSync: null,
-      request: reg
-    };
-    return from(nSQL(TABLE_NAMES.REGISTRATION).query('upsert', dbRecord).exec());
+  public saveRegistration(reg: IRegistration): Promise<any> {
+    reg.changed = moment().unix();
+    return nSQL(TABLE_NAMES.REGISTRATION).query('upsert', reg).exec();
   }
 
-  public deleteRegistration(id: string): Observable<any> {
-    return from(nSQL(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec());
+  public deleteRegistration(id: string): Promise<any> {
+    return nSQL(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec();
   }
 
   public cancelAndRestartSyncListener() {
@@ -67,6 +58,38 @@ export class RegistrationService {
     }
     this.resetSyncProgress();
     this._registrationSyncSubscription = this.createRegistrationSyncObservable().subscribe();
+  }
+
+  public getFirstDraftForGeoHazard(geoHazard: GeoHazard) {
+    return this.getDraftsForGeoHazardObservable(geoHazard)
+      .pipe(map((rows) => rows[0]), take(1)).toPromise();
+  }
+
+  public getDraftsForGeoHazardObservable(geoHazard: GeoHazard) {
+    return this.registrationStorage$.pipe(map((records) =>
+      records.filter((reg) =>
+        reg.request.GeoHazardTID === geoHazard &&
+        reg.syncStatus === SyncStatus.Draft
+      )));
+  }
+
+  public createNewEmptyDraft(geoHazard: GeoHazard) {
+    const id = uuid();
+    const draft: IRegistration = {
+      id,
+      geoHazard,
+      changed: moment().unix(),
+      syncStatus: SyncStatus.Draft,
+      request: {
+        Id: id,
+        GeoHazardTID: geoHazard,
+        ObserverGuid: undefined,
+        DtObsTime: undefined,
+        ObsLocation: {
+        },
+      },
+    };
+    return draft;
   }
 
   private getRegistrationObservable() {
