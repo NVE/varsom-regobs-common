@@ -1,6 +1,6 @@
 {
   "name": "@varsom-regobs-common/regobs-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "generate-swagger-api-module": "ng-swagger-gen -c ng-swagger-gen.json"
   },

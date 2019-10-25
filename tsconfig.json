@@ -18,8 +18,23 @@
       "dom"
     ],
     "paths": {
-      "@varsom-regobs-common/*": [
-        "dist/varsom-regobs-common/*"
+      "@varsom-regobs-common/core": [
+        "dist/varsom-regobs-common/core"
+      ],
+      "@varsom-regobs-common/core/*": [
+        "dist/varsom-regobs-common/core/*"
+      ],
+      "@varsom-regobs-common/regobs-api": [
+        "dist/varsom-regobs-common/regobs-api"
+      ],
+      "@varsom-regobs-common/regobs-api/*": [
+        "dist/varsom-regobs-common/regobs-api/*"
+      ],
+      "@varsom-regobs-common/registration": [
+        "dist/varsom-regobs-common/registration"
+      ],
+      "@varsom-regobs-common/registration/*": [
+        "dist/varsom-regobs-common/registration/*"
       ]
     }
   },

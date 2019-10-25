@@ -35,11 +35,13 @@ export class AppComponent {
   async addRegistration() {
     const draft = this.registrationService.createNewEmptyDraft(GeoHazard.Snow);
     draft.request.Comment = this.appMode;
-    await this.registrationService.saveRegistration(draft);
+    const result = await this.registrationService.saveRegistration(draft).toPromise();
+    console.log('Added registration', result);
   }
 
-  async deleteRegistration(id: string) {
-    await this.registrationService.deleteRegistration(id);
+  deleteRegistration(id: string) {
+    const result = this.registrationService.deleteRegistration(id).toPromise();
+    console.log('Deleted registration', result);
   }
 
   changeAppMode(appMode: AppMode) {
@@ -47,7 +49,7 @@ export class AppComponent {
   }
 
   saveSettings() {
-    this.settingsService.saveSettings(this.settings);
+    this.settingsService.saveSettings(this.settings).toPromise();
   }
 
   cancelSync() {
