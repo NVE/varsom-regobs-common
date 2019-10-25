@@ -1,10 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {
-  RegistrationModule,
-  FakeItemSyncCallbackService,
-  IRegistration,
-} from '@varsom-regobs-common/registration';
+import { RegistrationModule } from '@varsom-regobs-common/registration';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
@@ -17,7 +13,7 @@ import { AppComponent } from './app.component';
     BrowserModule,
     FormsModule,
     CoreModule,
-    RegistrationModule, // TODO: Add options here
+    RegistrationModule.forRoot({ useFakeSyncService: true }),
   ],
   providers: [
   ],
