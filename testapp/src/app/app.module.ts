@@ -15,8 +15,6 @@ import { AppComponent } from './app.component';
     CoreModule,
     RegistrationModule.forRoot({ useFakeSyncService: true }),
   ],
-  providers: [
-  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

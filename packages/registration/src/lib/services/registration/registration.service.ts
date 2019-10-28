@@ -1,8 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat } from 'rxjs';
-import { nSQL, InanoSQLInstance } from '@nano-sql/core';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { NSqlFullTableObservable, GeoHazard } from '@varsom-regobs-common/core';
+import { NSqlFullTableObservable, GeoHazard, AppMode } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray, take } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
@@ -38,7 +37,7 @@ export class RegistrationService {
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>) {
     this._syncProgress$ = new BehaviorSubject(new SyncProgress());
     this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
-      switchMap((dbInit) => this.getRegistrationObservable(dbInit.dbInstance)), shareReplay(1));
+      switchMap((appMode) => this.getRegistrationObservable(appMode)), shareReplay(1));
     this.cancelAndRestartSyncListener();
   }
 
@@ -46,15 +45,16 @@ export class RegistrationService {
     if (updateChangedTimestamp) {
       reg.changed = moment().unix();
     }
-    return this.offlineDbService.appModeInitialized$.pipe(concatMap((dbInit) =>
-      from(dbInit.dbInstance.selectTable(TABLE_NAMES.REGISTRATION).query('upsert', reg).exec())),
+    return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
+      from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('upsert', reg).exec())),
       take(1) // Important. Completes observable.
     );
   }
 
   public deleteRegistration(id: string) {
-    return this.offlineDbService.appModeInitialized$.pipe(concatMap((dbInit) =>
-      from(dbInit.dbInstance.selectTable(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec())),
+    return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
+      from(this.offlineDbService.getDbInstance(appMode)
+        .selectTable(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec())),
       take(1) // Important. Completes observable.
     );
   }
@@ -99,10 +99,10 @@ export class RegistrationService {
     return draft;
   }
 
-  private getRegistrationObservable(dbInstance: InanoSQLInstance) {
-    console.log('get registration observable. Db instance is: ', dbInstance);
+  private getRegistrationObservable(appMode: AppMode) {
+    console.log('get registration observable. Db instance is: ', appMode);
     return new NSqlFullTableObservable<IRegistration[]>(
-      dbInstance.selectTable(TABLE_NAMES.REGISTRATION).query('select').listen()
+      this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').listen()
     );
   }
 

@@ -5,7 +5,7 @@ import { Observable, from } from 'rxjs';
 import { switchMap, map, shareReplay, concatMap, take } from 'rxjs/operators';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { InanoSQLInstance } from '@nano-sql/core';
-import { NSqlFullTableObservable } from '@varsom-regobs-common/core';
+import { NSqlFullTableObservable, AppMode } from '@varsom-regobs-common/core';
 
 const SETTINGS_ROW_ID = 'registration_settings';
 const DEFAULT_SETTINGS = { autoSync: true };
@@ -23,18 +23,19 @@ export class SettingsService {
 
   constructor(private offlineDbService: OfflineDbService) {
     this._registrationSettings$ = this.offlineDbService.appModeInitialized$.pipe(
-      switchMap((dbConnected) => this.getRegistrationSettingsObservable(dbConnected.dbInstance)), shareReplay(1));
+      switchMap((appMode) => this.getRegistrationSettingsObservable(appMode)), shareReplay(1));
   }
 
   public saveSettings(settings: IRegistrationSettings) {
-    return this.offlineDbService.appModeInitialized$.pipe(concatMap((dbInit) =>
-      from(dbInit.dbInstance.selectTable(TABLE_NAMES.USER_SETTINGS).query('upsert', { id: SETTINGS_ROW_ID, ...settings }).exec())),
+    return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
+      from(this.offlineDbService.getDbInstance(appMode)
+        .selectTable(TABLE_NAMES.USER_SETTINGS).query('upsert', { id: SETTINGS_ROW_ID, ...settings }).exec())),
       take(1)); // Completes observable
   }
 
-  private getRegistrationSettingsObservable(dbInstance: InanoSQLInstance): Observable<IRegistrationSettings> {
+  private getRegistrationSettingsObservable(appMode: AppMode): Observable<IRegistrationSettings> {
     return new NSqlFullTableObservable<IRegistrationSettings[]>(
-      dbInstance.selectTable(TABLE_NAMES.USER_SETTINGS).query('select').listen()
+      this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.USER_SETTINGS).query('select').listen()
     ).pipe((map((rows) => (rows[0] || DEFAULT_SETTINGS))));
   }
 }
