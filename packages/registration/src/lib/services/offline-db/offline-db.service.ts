@@ -13,9 +13,9 @@ import { OfflineDbServiceOptions } from './offline-db-service.options';
 export class OfflineDbService {
 
   private dbConnected = new Map<AppMode, boolean>();
-  private _appModeInitialized$: Observable<{ appMode: AppMode, dbInstance: InanoSQLInstance }>;
+  private _appModeInitialized$: Observable<AppMode>;
 
-  public get appModeInitialized$(): Observable<{ appMode: AppMode, dbInstance: InanoSQLInstance }> {
+  public get appModeInitialized$(): Observable<AppMode> {
     return this._appModeInitialized$;
   }
 
@@ -23,7 +23,6 @@ export class OfflineDbService {
     this._appModeInitialized$ = this.appModeService.appMode$.pipe(
       distinctUntilChanged(),
       switchMap((appMode) => this.initAppMode(appMode)),
-      map((appMode) => ({ appMode, dbInstance: this.getDbInstance(appMode) })),
       tap((val) => console.log('App mode initalized', val)),
       shareReplay(1));
   }
@@ -38,7 +37,7 @@ export class OfflineDbService {
     return from(this.createDbIfNotExist(appMode));
   }
 
-  private getDbInstance(appMode: AppMode) {
+  public getDbInstance(appMode: AppMode) {
     return nSQL().useDatabase(this.getDbName(appMode));
   }
 
