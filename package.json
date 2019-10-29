@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --vendorSourceMap --open",
+    "start": "ng serve --open",
     "build": "ng build core && ng build regobs-api && ng build registration && ng build",
     "test": "ng test",
     "lint": "ng lint",
@@ -35,7 +35,7 @@
     "@angular/language-service": "^8.2.11",
     "@types/jasmine": "~3.4.4",
     "@types/jasminewd2": "~2.0.8",
-    "@types/node": "~12.11.1",
+    "@types/node": "^12.11.7",
     "codelyzer": "~5.1.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~4.2.1",

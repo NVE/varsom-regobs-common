@@ -6,13 +6,12 @@ import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, 
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
-import * as momentImported from 'moment';
 import { SyncStatus } from '../../models/sync-status.enum';
 import { SettingsService } from '../settings/settings.service';
 import { SyncProgress } from '../../models/sync-progress';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
-const moment = momentImported;
+import moment from 'moment';
 
 @Injectable({
   providedIn: 'root'

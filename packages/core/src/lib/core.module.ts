@@ -1,10 +1,10 @@
 import { NgModule, InjectionToken } from '@angular/core';
-import { AppConfig, AppMode } from './models';
-
+import { AppConfig, AppMode, LangKey } from './models';
 
 export const APP_CONFIG = new InjectionToken<AppConfig>('app.config');
 export const DEFAULT_APP_CONFIG: AppConfig = {
-  appMode: AppMode.Prod
+  appMode: AppMode.Prod,
+  language: LangKey.no,
 };
 
 @NgModule({

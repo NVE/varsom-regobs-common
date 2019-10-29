@@ -16,7 +16,7 @@ export interface IRegistrationModuleOptions {
 @NgModule({
   imports: [
     CoreModule,
-    RegobsApiModule,
+    RegobsApiModule.forRoot(),
   ],
   declarations: [],
   exports: []

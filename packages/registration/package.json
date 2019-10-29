@@ -11,5 +11,7 @@
     "@varsom-regobs-common/regobs-api": "^1.0.1"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^12.11.7"
+  }
 }
