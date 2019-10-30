@@ -10,7 +10,6 @@ const DEBUG_TAG = 'FakeItemSyncCallbackService';
 @Injectable()
 export class FakeItemSyncCallbackService implements ItemSyncCallbackService<IRegistration> {
     syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-        console.log(`[${DEBUG_TAG}] Sync item: `, item);
         return timer(Math.floor(Math.random() * 10) * 1000).pipe(map(() => ({ item, success: true, error: null })));
     }
 }

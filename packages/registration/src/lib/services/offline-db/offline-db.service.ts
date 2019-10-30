@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AppMode, AppModeService } from '@varsom-regobs-common/core';
+import { AppMode, AppModeService, LoggerService } from '@varsom-regobs-common/core';
 import { NSQL_TABLE_NAME_PLUGIN } from '../../db/nSQL-table-name.plugin';
 import { Observable, from } from 'rxjs';
 import { switchMap, shareReplay, tap, distinctUntilChanged, map } from 'rxjs/operators';
 import { DB_NAME_TEMPLATE, DB_TABLE_CONFIG } from '../../db/nSQL-db.config';
-import { nSQL, InanoSQLInstance } from '@nano-sql/core';
+import { nSQL } from '@nano-sql/core';
 import { OfflineDbServiceOptions } from './offline-db-service.options';
 
 @Injectable({
@@ -19,11 +19,11 @@ export class OfflineDbService {
     return this._appModeInitialized$;
   }
 
-  constructor(private appModeService: AppModeService, private options: OfflineDbServiceOptions) {
+  constructor(private appModeService: AppModeService, private options: OfflineDbServiceOptions, private logger: LoggerService) {
     this._appModeInitialized$ = this.appModeService.appMode$.pipe(
       distinctUntilChanged(),
       switchMap((appMode) => this.initAppMode(appMode)),
-      tap((val) => console.log('App mode initalized', val)),
+      tap((val) => logger.log('App mode initalized', val)),
       shareReplay(1));
   }
 
@@ -33,7 +33,7 @@ export class OfflineDbService {
   }
 
   private initAppMode(appMode: AppMode) {
-    console.log('initAppMode', appMode);
+    this.logger.log('initAppMode', appMode);
     return from(this.createDbIfNotExist(appMode));
   }
 

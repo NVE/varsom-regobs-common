@@ -6,7 +6,8 @@
   },
   "peerDependencies": {
     "@angular/common": "^8.0.0",
-    "@angular/core": "^8.0.0"
+    "@angular/core": "^8.0.0",
+    "@varsom-regobs-common/core": "^1.0.1"
   },
   "devDependencies": {
     "ng-swagger-gen": "^1.8.1"

@@ -40,3 +40,4 @@ Thumbs.db
 packages/registration/node_modules/
 packages/regobs-api/node_modules/
 packages/core/node_modules/
+test-reports/

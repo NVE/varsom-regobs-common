@@ -1,0 +1,7 @@
+<div *ngIf="languageService.language$ | async as language">
+    <label for="language">Language:</label>
+    <select id="language" [(ngModel)]="language" (ngModelChange)="languageService.setLanguage(getNumberValue($event))">
+        <option value="1">Norsk</option>
+        <option value="2">Engelsk</option>
+    </select>
+</div>

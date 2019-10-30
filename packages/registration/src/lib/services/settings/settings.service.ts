@@ -4,7 +4,6 @@ import { IRegistrationSettings } from '../../models/registration-settings.interf
 import { Observable, from } from 'rxjs';
 import { switchMap, map, shareReplay, concatMap, take } from 'rxjs/operators';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { InanoSQLInstance } from '@nano-sql/core';
 import { NSqlFullTableObservable, AppMode } from '@varsom-regobs-common/core';
 
 const SETTINGS_ROW_ID = 'registration_settings';

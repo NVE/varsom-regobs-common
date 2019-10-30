@@ -1,0 +1,16 @@
+<div *ngIf="appModeService.appMode$ | async as appMode">
+    <label for="appMode">App Mode:</label>
+    <select id="appMode" [(ngModel)]="appMode" (ngModelChange)="changeAppMode($event)">
+        <option value="PROD">Prod</option>
+        <option value="TEST">Test</option>
+        <option value="DEMO">Demo</option>
+    </select>
+</div>
+<app-language-select></app-language-select>
+<button (click)="updateKdvElements()">Tving oppdatering</button>
+<div *ngIf="kdvService.isUpdating$ | async as isUpdating">
+    Oppdaterer kdv elementer..
+</div>
+<div *ngIf="kdvService.kdvElements$ | async as kdvElements">
+    {{ getString(kdvElements) }}
+</div>

@@ -2,9 +2,14 @@
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/varsom-regobs-common/registration",
   "lib": {
-    "entryFile": "src/public_api.ts"
+    "entryFile": "src/public_api.ts",
+    "umdModuleIds": {
+      "moment": "moment",
+      "@varsom-regobs-common/core": "VarsomRegobsCommonCore",
+      "@varsom-regobs-common/regobs-api": "VarsomRegobsCommonRegobsApi",
+      "@nano-sql/core/lib/utilities": "NanoSqlUtilities",
+      "@nano-sql/core": "NanoSqlCore"
+    }
   },
-  "whitelistedNonPeerDependencies": [
-    "."
-  ]
+  "whitelistedNonPeerDependencies": []
 }
