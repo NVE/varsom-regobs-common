@@ -11,6 +11,7 @@ import { RegistrationComponent } from './registration/registration.component';
 import { LanguageSelectComponent } from './components/language-select/language-select.component';
 import { API_KEY_TOKEN } from '@varsom-regobs-common/regobs-api';
 import { LocalStorageApiKeyProvider } from './local-storage-api-key.provider';
+import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import { LocalStorageApiKeyProvider } from './local-storage-api-key.provider';
     CoreModule,
     RegistrationModule.forRoot({ useFakeSyncService: true }),
     AppRoutingModule,
+    LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
   ],
   providers: [
     {

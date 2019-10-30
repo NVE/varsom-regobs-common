@@ -3,99 +3,99 @@
         "Dirt_DangerSignKDV": [
             {
                 "Id": 200,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 201,
-                "Name": "Ingen faretegn observert",
+                "Name": "Inga tecken på fara",
                 "Description": null
             },
             {
                 "Id": 202,
-                "Name": "Intenst regnvær",
+                "Name": "Kraftigt regn",
                 "Description": null
             },
             {
                 "Id": 203,
-                "Name": "Intens snøsmelting",
+                "Name": "Intensiv snösmältning",
                 "Description": null
             },
             {
                 "Id": 212,
-                "Name": "Snødekke med mye vann",
+                "Name": "Snötäcke med mycket vatten",
                 "Description": null
             },
             {
                 "Id": 206,
-                "Name": "Stor vannføring i bekker/elver",
+                "Name": "Högt vattenflöde",
                 "Description": null
             },
             {
                 "Id": 207,
-                "Name": "Jordfarga bekker/elver",
+                "Name": "Jordfärgade bäckar/älvar",
                 "Description": null
             },
             {
                 "Id": 230,
-                "Name": "Erosjon langs bekker/elver",
+                "Name": "Erosion längs bäckar/älvar",
                 "Description": null
             },
             {
                 "Id": 214,
-                "Name": "Bekker tar nye løp",
+                "Name": "Bäckar hittar nya vägar",
                 "Description": null
             },
             {
                 "Id": 204,
-                "Name": "Overvann i terreng",
+                "Name": "Ytvatten i terrängen",
                 "Description": null
             },
             {
                 "Id": 205,
-                "Name": "Utilstrekkelig drenering",
+                "Name": "Otillräcklig dränering",
                 "Description": null
             },
             {
                 "Id": 208,
-                "Name": "Sprekker/sig i terrenget",
+                "Name": "Sprickor/krypning i terräng",
                 "Description": null
             },
             {
                 "Id": 209,
-                "Name": "Observert jordskred",
+                "Name": "Observerat jordskred",
                 "Description": null
             },
             {
                 "Id": 222,
-                "Name": "Massebevegelse langs skredkant",
+                "Name": "Rörelse i jordskredskanten",
                 "Description": null
             },
             {
                 "Id": 223,
-                "Name": "\"Fulle trær\"",
-                "Description": "Tre som bøyer seg"
+                "Name": "\"Lutande träd\"",
+                "Description": "Träd som böjs"
             },
             {
                 "Id": 299,
-                "Name": "Andre faretegn (spesifiser)",
+                "Name": "Andra tecken på fara",
                 "Description": null
             }
         ],
         "Dirt_ActivityInfluencedKDV": [
             {
                 "Id": 200,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 220,
-                "Name": "Veg",
+                "Name": "Väg",
                 "Description": null
             },
             {
                 "Id": 240,
-                "Name": "Jernbane",
+                "Name": "Järnväg",
                 "Description": null
             },
             {
@@ -105,24 +105,24 @@
             },
             {
                 "Id": 211,
-                "Name": "Personer",
+                "Name": "Människor",
                 "Description": null
             },
             {
                 "Id": 251,
-                "Name": "Skog og landbruk areal",
+                "Name": "Skogs- och jordbruksareal",
                 "Description": null
             },
             {
                 "Id": 290,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "Dirt_LandSlideKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
@@ -137,71 +137,71 @@
             },
             {
                 "Id": 4,
-                "Name": "Flomskred",
+                "Name": "Vattenskred",
                 "Description": null
             },
             {
                 "Id": 11,
-                "Name": "Steinskred",
+                "Name": "Stenras",
                 "Description": null
             },
             {
                 "Id": 6,
-                "Name": "Steinsprang",
+                "Name": "Stenslag",
                 "Description": null
             },
             {
                 "Id": 7,
-                "Name": "Sørpeskred",
+                "Name": "Slaskflöde",
                 "Description": null
             },
             {
                 "Id": 8,
-                "Name": "Leirskred",
+                "Name": "Lerskred",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Kvikkleireskred",
+                "Name": "Kvicklera-skred",
                 "Description": null
             }
         ],
         "Dirt_LandSlideTriggerKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Naturlig utløst",
+                "Name": "Naturlig utlöst",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Graving i området",
+                "Name": "Grävning i området",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Feil på drenering",
+                "Name": "Dräneringsfel",
                 "Description": null
             },
             {
                 "Id": 9,
-                "Name": "Annet (skriv i kommentar)",
+                "Name": "Annat (skriv kommentar)",
                 "Description": null
             }
         ],
         "Dirt_LandSlideSizeKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "< 100 m3",
+                "Name": "<100 m3",
                 "Description": null
             },
             {
@@ -211,86 +211,86 @@
             },
             {
                 "Id": 3,
-                "Name": "> 10000 m3",
+                "Name": ">10000 m3",
                 "Description": null
             },
             {
                 "Id": 9,
-                "Name": "Ukjent størrelse",
+                "Name": "Okänd storlek",
                 "Description": null
             }
         ],
         "Ice_DangerSignKDV": [
             {
                 "Id": 700,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 701,
-                "Name": "Ingen faretegn observert",
+                "Name": "Inga tecken på fara",
                 "Description": null
             },
             {
                 "Id": 705,
-                "Name": "Tynt isdekke",
+                "Name": "Tunn isbeläggning",
                 "Description": null
             },
             {
                 "Id": 711,
-                "Name": "Isen har løsnet fra land",
+                "Name": "Isen har lossnat från land",
                 "Description": null
             },
             {
                 "Id": 712,
-                "Name": "innløpsosen er åpen",
+                "Name": "Inloppet är isfritt",
                 "Description": null
             },
             {
                 "Id": 713,
-                "Name": "Utløpsosen er åpen",
+                "Name": "Utloppet är isfritt",
                 "Description": null
             },
             {
                 "Id": 714,
-                "Name": "Store sprekker eller råker",
+                "Name": "Stora sprickor eller råkar",
                 "Description": null
             },
             {
                 "Id": 720,
-                "Name": "Mye overvann",
+                "Name": "Kraftigt översvämmad is",
                 "Description": null
             },
             {
                 "Id": 730,
-                "Name": "økt vannføring",
+                "Name": "Ökat vattenflöde",
                 "Description": null
             },
             {
                 "Id": 799,
-                "Name": "Annet (bruk kommentar)",
+                "Name": "Annat (skriv kommentar)",
                 "Description": null
             }
         ],
         "Ice_ActivityInfluencedKDV": [
             {
                 "Id": 700,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 710,
-                "Name": "Gående",
+                "Name": "Till fots",
                 "Description": null
             },
             {
                 "Id": 711,
-                "Name": "Skøyteløper",
+                "Name": "Skridskoåkare",
                 "Description": null
             },
             {
                 "Id": 720,
-                "Name": "Scooter på isen",
+                "Name": "Snöskoter på isen",
                 "Description": null
             },
             {
@@ -305,17 +305,17 @@
             },
             {
                 "Id": 731,
-                "Name": "Gravemaskin e.l. på isen",
+                "Name": "Grävmaskin etc. på isen",
                 "Description": null
             },
             {
                 "Id": 772,
-                "Name": "Isgang",
+                "Name": "Isdrift",
                 "Description": null
             },
             {
                 "Id": 773,
-                "Name": "Svellis / Kjøving",
+                "Name": "Svallis/ovan isen",
                 "Description": null
             },
             {
@@ -325,308 +325,308 @@
             },
             {
                 "Id": 790,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "Ice_IceCoverKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Isfritt på målestedet",
+                "Name": "Isfritt vid mätpunkten",
                 "Description": null
             },
             {
                 "Id": 11,
-                "Name": "Islegging langs land",
+                "Name": "Is längs land",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Delvis islagt på målestedet",
+                "Name": "Delvis istäckt vid mätpunkten",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Helt islagt på målestedet",
+                "Name": "Helt istäckt vid mätpunkten",
                 "Description": null
             },
             {
                 "Id": 21,
-                "Name": "Hele sjøen islagt",
+                "Name": "Hela sjön istäckt",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Isløsning langs land",
+                "Name": "Islossning längs land",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Hele sjøen isfri",
+                "Name": "Hela sjön isfri",
                 "Description": null
             },
             {
                 "Id": 41,
-                "Name": "Drivende sarr på elv",
+                "Name": "Drivande kravis på älven",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Isgang i elv",
+                "Name": "Isrörelse i älv",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "Ice_IceCoverBeforeKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Isfritt, nå første is ved land",
-                "Description": "Ingen is hittil denne sesongen. I dag is langs land."
+                "Name": "Förr ingen is, nu vid stranden",
+                "Description": "Ingen is hittills den här säsongen. Idag är längs land."
             },
             {
                 "Id": 1,
-                "Name": "Isfritt, nå første is målested",
-                "Description": "Ingen is på målestedet før i dag. Det kan ha vært is langs land. Målested er som regel noe utpå vannet."
+                "Name": "Förr ingen is, nu vid mätplats",
+                "Description": "Ingen is på mätplatsen före idag. Det kan ha varit is längs stranden. Mätplatsen är vanligtvis något ute på vattnet."
             },
             {
                 "Id": 3,
-                "Name": "Isfritt, også isfritt nå",
-                "Description": "Ingen is hittil denne sesongen, også i dag er det isfritt."
+                "Name": "Förr ingen is, sä även idag",
+                "Description": "Ingen is hittills den här säsongen, även i dag är den isfri."
             },
             {
                 "Id": 10,
-                "Name": "Forrige obs gjelder til i går",
-                "Description": "Kontinuerlige observasjoner. Vi kan anta at forrige isdekning er gyldig til i går. Ny verdi i dag (eller samme dekning)."
+                "Name": "Sista obs giltig tills igår",
+                "Description": "Kontinuerliga observationer. Vi kan anta att istäcket från tidigare observationer är giltigt fram till idag. Idag är ett nytt värde (eller samma istäcke)"
             },
             {
                 "Id": 99,
-                "Name": "Brudd - Ukjent før nå",
-                "Description": "Det er brudd i målingene. Isforholdene fra forrige måling er neppe gyldige til i går."
+                "Name": "Uppbrutet - Okänd tills nu",
+                "Description": "Uppbrutet på mätplatsen. Isförhållandena från föregående mätning är knappast giltiga för i går."
             }
         ],
         "Ice_IceLayerKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Stålis",
+                "Name": "Kärnis",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Sørpeis",
+                "Name": "Stöpis",
                 "Description": null
             },
             {
                 "Id": 5,
-                "Name": "Vann/sørpe (mellomlag)",
+                "Name": "Vatten/issörja (mellan lager)",
                 "Description": null
             },
             {
                 "Id": 7,
-                "Name": "Trolig sørpeis+stålis",
+                "Name": "Troligtvis stöpis + kärnis",
                 "Description": null
             },
             {
                 "Id": 9,
-                "Name": "Sarr",
+                "Name": "Kravis",
                 "Description": null
             },
             {
                 "Id": 11,
-                "Name": "Stålis i nedbryting",
+                "Name": "Kärnis under nedbrytning",
                 "Description": null
             },
             {
                 "Id": 13,
-                "Name": "Sørpeis i nedbryting",
+                "Name": "Stöpis under nedbrytning",
                 "Description": null
             },
             {
                 "Id": 14,
-                "Name": "Stavis (våris)",
+                "Name": "Pipis (våris)",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Annet (spesifiser)",
+                "Name": "Annat (specificera)",
                 "Description": null
             }
         ],
         "Ice_IceSkateabilityKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": ""
             },
             {
                 "Id": 10,
-                "Name": "Ikke skøytbart",
+                "Name": "Ej åkbar",
                 "Description": ""
             },
             {
                 "Id": 20,
-                "Name": "Under tvil skøytbart",
+                "Name": "Tvivelaktiga förhållanden",
                 "Description": ""
             },
             {
                 "Id": 30,
-                "Name": "Normale skøyteforhold",
+                "Name": "Normala förhållanden",
                 "Description": ""
             },
             {
                 "Id": 40,
-                "Name": "Meget gode skøyteforhold",
+                "Name": "Mycket goda förhållanden",
                 "Description": ""
             },
             {
                 "Id": 50,
-                "Name": "Drømmeforhold",
+                "Name": "Drömförhållanden",
                 "Description": ""
             }
         ],
         "Ice_IceCapacityKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Liten fare for å gå igjennom",
+                "Name": "Liten fara att gå igenom",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Normal fare for å gå gjennom",
+                "Name": "Normal fara att gå igenom",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Stor fare for å gå gjennom",
+                "Name": "Stor fara att gå igenom",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Uten bæreevne",
+                "Name": "Isen håller inte för en person",
                 "Description": null
             }
         ],
         "Ice_IceProblemKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Isgang/ispropp",
+                "Name": "Drivis/ispropp",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Kjøving/svelling",
+                "Name": "Svallis/ovan isen",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Bunnisdam",
+                "Name": "Isdammar",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Sarr fryser på inntaksrister",
+                "Name": "Kravis fryser på inloppsgaller",
                 "Description": null
             },
             {
                 "Id": 50,
-                "Name": "Sarr pakkes under isen",
+                "Name": "Kravis samlas under isen",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Annet (bruk kommentar)",
+                "Name": "Annat (skriv kommentar)",
                 "Description": null
             }
         ],
         "Snow_DangerSignKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Ingen faretegn observert",
+                "Name": "Inga tecken på lavinfara",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Ferske skred",
+                "Name": "Färska laviner",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Drønn i snøen",
+                "Name": "Whumpf-ljud",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Ferske sprekker",
+                "Name": "Färska sprickor",
                 "Description": null
             },
             {
                 "Id": 5,
-                "Name": "Stort snøfall",
-                "Description": "Brukes i elrapp"
+                "Name": "Stort snöfall",
+                "Description": null
             },
             {
                 "Id": 6,
-                "Name": "Rimkrystaller",
+                "Name": "Rimfrost",
                 "Description": null
             },
             {
                 "Id": 7,
-                "Name": "Rask temperaturstigning",
+                "Name": "Snabb temperaturökning",
                 "Description": null
             },
             {
                 "Id": 8,
-                "Name": "Mye vann i snøen",
+                "Name": "Mycket vatten i snön",
                 "Description": null
             },
             {
                 "Id": 9,
-                "Name": "Fersk vindtransportert snø",
+                "Name": "Färsk drevsnö",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Annet faretegn (spesifiser)",
+                "Name": "Annat (skriv kommentar)",
                 "Description": null
             }
         ],
         "Snow_ActivityInfluencedKDV": [
             {
                 "Id": 100,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
@@ -636,47 +636,47 @@
             },
             {
                 "Id": 113,
-                "Name": "Ski offpist",
+                "Name": "Offpistskidåkning",
                 "Description": null
             },
             {
                 "Id": 112,
-                "Name": "Ski i anlegg",
+                "Name": "Skidåkning i anläggning",
                 "Description": null
             },
             {
                 "Id": 114,
-                "Name": "Fjellskitur",
+                "Name": "Turskidåkning",
                 "Description": null
             },
             {
                 "Id": 115,
-                "Name": "Skitur i løype",
+                "Name": "Längdskidåkning",
                 "Description": null
             },
             {
                 "Id": 116,
-                "Name": "Klatring",
+                "Name": "Klättring",
                 "Description": null
             },
             {
                 "Id": 117,
-                "Name": "Fottur",
+                "Name": "Vandring",
                 "Description": null
             },
             {
                 "Id": 130,
-                "Name": "Snøskuter",
+                "Name": "Snöskoteråkning",
                 "Description": null
             },
             {
                 "Id": 120,
-                "Name": "Vei",
+                "Name": "Väg",
                 "Description": null
             },
             {
                 "Id": 140,
-                "Name": "Jernbane",
+                "Name": "Järnväg",
                 "Description": null
             },
             {
@@ -686,61 +686,61 @@
             },
             {
                 "Id": 190,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "Snow_AvalancheKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 12,
-                "Name": "Tørt løssnøskred",
+                "Name": "Torr lössnölavin",
                 "Description": null
             },
             {
                 "Id": 11,
-                "Name": "Vått løssnøskred",
+                "Name": "Våt lössnölavin",
                 "Description": null
             },
             {
                 "Id": 22,
-                "Name": "Tørt flakskred",
+                "Name": "Torr flaklavin",
                 "Description": null
             },
             {
                 "Id": 21,
-                "Name": "Vått flakskred",
+                "Name": "Våt flaklavin",
                 "Description": null
             },
             {
                 "Id": 27,
-                "Name": "Glideskred",
+                "Name": "Glid lavin",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Sørpeskred",
+                "Name": "Slask lavin",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Skavlfall",
+                "Name": "Hängdriva",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "Snow_AvalancheDangerKDV": [
             {
                 "Id": 0,
-                "Name": "0 Ikke vurdert",
+                "Name": "0 Ej angivet",
                 "Description": null
             },
             {
@@ -750,12 +750,12 @@
             },
             {
                 "Id": 2,
-                "Name": "2 Moderat",
+                "Name": "2 Måttlig",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "3 Betydelig",
+                "Name": "3 Betydande",
                 "Description": null
             },
             {
@@ -765,440 +765,440 @@
             },
             {
                 "Id": 5,
-                "Name": "5 Meget stor",
+                "Name": "5 Extrem",
                 "Description": null
             }
         ],
         "Snow_AvalancheExtKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Tørre løssnøskred",
+                "Name": "Torr lössnölavin",
                 "Description": null
             },
             {
                 "Id": 15,
-                "Name": "Våte løssnøskred",
+                "Name": "Våt lössnölavin",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Tørre flakskred",
+                "Name": "Torr flaklavin",
                 "Description": null
             },
             {
                 "Id": 25,
-                "Name": "Våte flakskred",
+                "Name": "Våt flaklavin",
                 "Description": null
             },
             {
                 "Id": 27,
-                "Name": "Glideskred",
+                "Name": "Glid lavin",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Sørpeskred",
+                "Name": "Slask lavin",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Skavl",
+                "Name": "Hängdriva",
                 "Description": null
             }
         ],
         "Snow_AvalCauseKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
-                "Description": "Ikke gitt"
+                "Name": "Ej angivet",
+                "Description": "Ej angivet"
             },
             {
                 "Id": 10,
-                "Name": "Nedføyket løs nysnø",
-                "Description": "Nedføyket løs nysnø"
+                "Name": "Svagt lager av nysnö",
+                "Description": "Svagt lager av nysnö"
             },
             {
                 "Id": 11,
-                "Name": "Nedsnødd overflaterim",
-                "Description": "Nedsnødd overflaterim"
+                "Name": "Svagt lager av rimfrost",
+                "Description": "Svagt lager av rimfrost"
             },
             {
                 "Id": 13,
-                "Name": "Nedsnødd kantkornet snø",
-                "Description": "Nedsnødd kantkornet snø"
+                "Name": "Svagt skikt av facetterad snö",
+                "Description": "Svagt skikt av fasetterad snö"
             },
             {
                 "Id": 14,
-                "Name": "Dårlig binding mot skare",
-                "Description": "Dårlig binding mot skare"
+                "Name": "Svaga bindningar mot skare",
+                "Description": "Svaga bindningar mot skare"
             },
             {
                 "Id": 15,
-                "Name": "Dårlig binding i fokksnøen",
-                "Description": "Dårlig binding i fokksnøen"
+                "Name": "Svaga bindningar i drevsnön",
+                "Description": "Svaga bindningar i drevsnön"
             },
             {
                 "Id": 16,
-                "Name": "Kantkornet ved bakken",
-                "Description": "Kantkornet ved bakken"
+                "Name": "Facetterad snö nära marken",
+                "Description": "Facetterad snö nära marken"
             },
             {
                 "Id": 19,
-                "Name": "Kantkornet under skare",
-                "Description": "Kantkornet under skare"
+                "Name": "Fasetterad snö under skare",
+                "Description": "Fasetterad snö under skare"
             },
             {
                 "Id": 18,
-                "Name": "Kantkornet over skare",
-                "Description": "Kantkornet over skare"
+                "Name": "Facetterad snö över skare",
+                "Description": "Facetterad snö över skare"
             },
             {
                 "Id": 22,
-                "Name": "Opphopning av vann over lag",
-                "Description": "Opphopning av vann over lag"
+                "Name": "Ackumulering av vatten över lager",
+                "Description": "Ackumulering av vatten över lager"
             },
             {
                 "Id": 20,
-                "Name": "Smelting fra bakken",
-                "Description": "Smelting fra bakken"
+                "Name": "Smälter nära marken",
+                "Description": "Smälter nära marken"
             },
             {
                 "Id": 24,
-                "Name": "Ubunden snø",
-                "Description": "Ubunden snø"
+                "Name": "Obunden snö",
+                "Description": "Obunden snö"
             }
         ],
         "Snow_AvalCauseDepthKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Innen en halv meter",
+                "Name": "Inom en halv meter",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Innen en meter",
+                "Name": "Inom en meter",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Over en meter",
+                "Name": "Över en meter",
                 "Description": null
             }
         ],
         "Snow_AvalCauseAttributeFlags": [
             {
                 "Id": 1,
-                "Name": "Det svake laget bryter lett og glatt (bruddforplantningen skjer lett).",
+                "Name": "Det svaga lagret kollapsar lätt och rent (sprickutbredning sker lätt).",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Laget der bruddet skjer er tynt < 3 cm.",
+                "Name": "Det kollapsande svaga lagret är tunt <3 cm.",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Det overliggende laget er mykt.",
+                "Name": "Det överliggande lagret är mjuk",
                 "Description": null
             },
             {
                 "Id": 8,
-                "Name": "Stor, tydelig gjenkjennbar krystall i det svake laget.",
+                "Name": "En stor och identifierbar kristall i det svaga skiktet.",
                 "Description": null
             }
         ],
         "Snow_AvalProbabilityKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Lite sannsynlig",
+                "Name": "Osannolikt",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Mulig",
+                "Name": "Möjligt",
                 "Description": null
             },
             {
                 "Id": 5,
-                "Name": "Sannsynlig",
+                "Name": "Trolig",
                 "Description": null
             },
             {
                 "Id": 7,
-                "Name": "Meget sannsynlig",
+                "Name": "Mycket trolig",
                 "Description": null
             }
         ],
         "Snow_AvalPropagationKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Få bratte heng",
+                "Name": "Isolerade branta sluttningar",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Noen bratte heng",
+                "Name": "Specifika branta sluttningar",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Mange bratte heng",
+                "Name": "Utbredda branta sluttningar",
                 "Description": null
             }
         ],
         "Snow_AvalReleaseHeightKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "I nysnøen",
-                "Description": "Skred vil løsne i nysnøen."
+                "Name": "I den nya snön",
+                "Description": "Laviner kommer att gå in den nya snön."
             },
             {
                 "Id": 2,
-                "Name": "Mellom gammel og ny snø",
-                "Description": "I overgangen mellom gammelt snødekke og nytt snølag"
+                "Name": "Mellan gammal och nysnö",
+                "Description": "Laviner kommer att gå mellan gammal och nysnö."
             },
             {
                 "Id": 3,
-                "Name": "Nede ved bakken",
-                "Description": "Skred vil løsne nede ved bakken."
+                "Name": "Vid marken",
+                "Description": "Laviner kommer att gå vid marken."
             },
             {
                 "Id": 4,
-                "Name": "I det gamle snødekket",
-                "Description": "Skred løsner sannsynligvis innad i det gamle snødekket (under nysnøen)."
+                "Name": "I den gamla snön",
+                "Description": "Laviner kommer att gå i den gamla snön (under nysnön)."
             },
             {
                 "Id": 6,
-                "Name": "Fuktig helt til bakken",
-                "Description": "Hele snødekket er gjennomfuktet og ustabilt."
+                "Name": "Fuktigt hela vägen till marken",
+                "Description": "Hela snötäcket är fuktigt och instabilt."
             },
             {
                 "Id": 7,
-                "Name": "Snøen er overmettet med vann",
-                "Description": "Snøskred løsner sannsynglivis på grunn av at det øverste laget er gjennomfuktet av vann, bindingene i dette laget har smeltet og laget blir dermed ustabilt"
+                "Name": "Snön är övermättad med vatten",
+                "Description": "Laviner startat antagligen på grund av att det översta skiktet är genomblött av vatten, bindningarna i detta skikt har smält och skiktet blir således instabilt."
             },
             {
                 "Id": 8,
-                "Name": "Bare i gammel snø",
-                "Description": "Snøskred løsner sannsynligvis innad i den gamle snøen"
+                "Name": "Endast i gammal snö",
+                "Description": "Laviner kommer förmodligen att starta i den gamla snön."
             }
         ],
         "Snow_AvalTriggerSimpleKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Svært vanskelig å løse ut",
+                "Name": "Mycket svårt att utlösa",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Vanskelig å løse ut",
+                "Name": "Svårt att utlösa",
                 "Description": null
             },
             {
                 "Id": 50,
-                "Name": "Lett å løse ut",
+                "Name": "Lätt att utlösa",
                 "Description": null
             },
             {
                 "Id": 60,
-                "Name": "Svært lett å løse ut",
+                "Name": "Mycket lätt att utlösa",
                 "Description": null
             },
             {
                 "Id": 22,
-                "Name": "Naturlig utløst",
+                "Name": "Naturligt utlöst",
                 "Description": null
             }
         ],
         "Snow_DestructiveSizeKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
                 "Name": "1 - Små",
-                "Description": "Minimal fare for å begrave et menneske (fare for fall)"
+                "Description": "Minsta fara för att begrava en människa (risk för att falla)"
             },
             {
                 "Id": 2,
-                "Name": "2 - Middels",
-                "Description": "Kan begrave, skade eller drepe et menneske"
+                "Name": "2 - Medel",
+                "Description": "Kan begrava, skada eller döda en människa"
             },
             {
                 "Id": 3,
-                "Name": "3 - Store",
-                "Description": "Kan begrave og ødelegge biler, ødelegge hus eller knekke trær"
+                "Name": "3 - Stor",
+                "Description": "Kan begrava och förstöra bilar, förstöra hus eller bryta träd"
             },
             {
                 "Id": 4,
-                "Name": "4 - Svært store",
-                "Description": "Kan ødelegge tog, flere hus eller skog"
+                "Name": "4 - Mycket stor",
+                "Description": "Kan förstöra tåg, flera hus eller skogar"
             },
             {
                 "Id": 5,
-                "Name": "5 - Ekstremt store",
-                "Description": "Stort skadepotensial. Kan endre landskap, ødelegge bebyggelse og skog"
+                "Name": "5 - Extremt stor",
+                "Description": "Stor potential för skador. Kan ändra landskap, förstöra bebyggelse och skogar"
             },
             {
                 "Id": 9,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "Snow_SnowDriftKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke observert",
+                "Name": "Ej observerad",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Ikke snøfokk",
+                "Name": "Inget snödrev",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Lett snøfokk",
+                "Name": "Svagt snödrev",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Moderat snøfokk",
+                "Name": "Måttligt snödrev",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Kraftig snøfokk",
+                "Name": "Kraftigt snödrev",
                 "Description": null
             }
         ],
         "Snow_EstimatedNumKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Ingen skredaktivitet",
+                "Name": "Ingen lavinaktivitet",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Ett (1)",
+                "Name": "En (1)",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Noen (2-5)",
+                "Name": "Få (2-5)",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Flere (6-10)",
+                "Name": "Flera (6-10)",
                 "Description": null
             },
             {
                 "Id": 5,
-                "Name": "Mange (10 eller mer)",
+                "Name": "Många (10 eller mer)",
                 "Description": null
             }
         ],
         "Snow_ExposedHeightComboKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Hvit nederst",
+                "Name": "Vitt i botten",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Svart nederst",
+                "Name": "Svart i botten",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Hvit i midten",
+                "Name": "Vitt i mitten",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Svart i midten",
+                "Name": "Svart i mitten",
                 "Description": null
             }
         ],
         "Snow_ForecastCorrectKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Varslet faregrad er riktig",
+                "Name": "Prognosen är korrekt",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Varslet faregrad er for lav",
+                "Name": "Prognosen är för låg",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Varslet faregrad er for høy",
+                "Name": "Prognosen är för hög",
                 "Description": null
             }
         ],
         "Snow_PrecipitationKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke observert",
+                "Name": "Ej observerad",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Ikke nedbør",
+                "Name": "Ingen nederbörd",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Yr",
+                "Name": "Duggregn",
                 "Description": null
             },
             {
@@ -1208,101 +1208,101 @@
             },
             {
                 "Id": 4,
-                "Name": "Sludd",
+                "Name": "Snöblandat regn",
                 "Description": null
             },
             {
                 "Id": 5,
-                "Name": "Snø",
+                "Name": "Snö",
                 "Description": null
             },
             {
                 "Id": 6,
-                "Name": "Hagl",
+                "Name": "Hagel",
                 "Description": null
             },
             {
                 "Id": 8,
-                "Name": "Underkjølt regn",
+                "Name": "Underkylt regn",
                 "Description": null
             }
         ],
         "Snow_AvalancheTriggerKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Naturlig utløst",
+                "Name": "Naturligt utlöst",
                 "Description": null
             },
             {
                 "Id": 26,
-                "Name": "Personutløst",
+                "Name": "Mänskligt utlöst",
                 "Description": null
             },
             {
                 "Id": 27,
-                "Name": "Skuterutløst",
+                "Name": "Utlöst av snöskoter",
                 "Description": null
             },
             {
                 "Id": 22,
-                "Name": "Fjernutløst",
+                "Name": "Fjärrutlöst",
                 "Description": null
             },
             {
                 "Id": 23,
-                "Name": "Kunstig utløst testheng",
+                "Name": "Lavin utlöst på testsluttning",
                 "Description": null
             },
             {
                 "Id": 25,
-                "Name": "Utløst med sprengstoff",
+                "Name": "Utlöst med sprängämnen",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "Snow_TerrainStartZoneKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Brattheng",
+                "Name": "Brant sluttning",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Leområder",
+                "Name": "Läsida",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Nær rygg",
+                "Name": "Nära rygg",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "I renne eller forsenkning",
+                "Name": "I ränna eller försänkning",
                 "Description": null
             },
             {
                 "Id": 50,
-                "Name": "Svaberg",
+                "Name": "Svahäll",
                 "Description": null
             },
             {
                 "Id": 60,
-                "Name": "Skål",
+                "Name": "Skålformation",
                 "Description": null
             },
             {
@@ -1312,54 +1312,54 @@
             },
             {
                 "Id": 75,
-                "Name": "Hogstfelt",
+                "Name": "Kalhygge",
                 "Description": null
             },
             {
                 "Id": 95,
-                "Name": "Overalt i terrenget",
+                "Name": "Överallt i terrängen",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "Snow_SnowSurfaceKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke observert",
+                "Name": "Ej observerad",
                 "Description": null
             },
             {
                 "Id": 101,
-                "Name": "Svært mye tørr løssnø (>30cm)",
+                "Name": "Väldigt mycket lös snö (> 30 cm)",
                 "Description": null
             },
             {
                 "Id": 102,
-                "Name": "Mye tørr løssnø (10-30cm)",
+                "Name": "Mycket lös snö (10-30 cm)",
                 "Description": null
             },
             {
                 "Id": 103,
-                "Name": "Litt tørr løssnø (1-10cm)",
+                "Name": "Viss lös snö (10-30 cm)",
                 "Description": null
             },
             {
                 "Id": 104,
-                "Name": "Våt løssnø",
+                "Name": "Våt lössnö",
                 "Description": null
             },
             {
                 "Id": 105,
-                "Name": "Vindpakket hard",
+                "Name": "Vindflak (hårt)",
                 "Description": null
             },
             {
                 "Id": 106,
-                "Name": "Vindpakket myk",
+                "Name": "Stormflak (mjukt)",
                 "Description": null
             },
             {
@@ -1369,24 +1369,24 @@
             },
             {
                 "Id": 108,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "Snow_SurfaceWaterContentKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke observert",
+                "Name": "Ej observerad",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Ikke snø",
+                "Name": "Ingen snö",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Tørr",
+                "Name": "Torr",
                 "Description": null
             },
             {
@@ -1401,19 +1401,19 @@
             },
             {
                 "Id": 5,
-                "Name": "Meget våt",
+                "Name": "Mycket våt",
                 "Description": null
             },
             {
                 "Id": 6,
-                "Name": "Sørpe",
+                "Name": "Slask",
                 "Description": null
             }
         ],
         "Snow_StabilityEvalKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
@@ -1423,19 +1423,19 @@
             },
             {
                 "Id": 2,
-                "Name": "Middels",
+                "Name": "Medel",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Dårlig",
+                "Name": "Dålig",
                 "Description": null
             }
         ],
         "Snow_ComprTestFractureKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
@@ -1457,7 +1457,7 @@
         "Snow_PropagationKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
@@ -1910,76 +1910,76 @@
         "Snow_CriticalLayerKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 11,
-                "Name": "Øvre del",
+                "Name": "Övre delen",
                 "Description": null
             },
             {
                 "Id": 12,
-                "Name": "Nedre del",
+                "Name": "Nedre delen",
                 "Description": null
             },
             {
                 "Id": 13,
-                "Name": "Hele laget",
+                "Name": "Hela lagret",
                 "Description": null
             }
         ],
         "Water_DangerSignKDV": [
             {
                 "Id": 600,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 601,
-                "Name": "Ingen faretegn observert",
+                "Name": "Inga tecken på fara",
                 "Description": null
             },
             {
                 "Id": 611,
-                "Name": "Tette stikkrenner pga is",
+                "Name": "Is blockerad vattendrag",
                 "Description": null
             },
             {
                 "Id": 612,
-                "Name": "Tette stikkrenner pga rusk",
+                "Name": "Sediment blockerar vattendrag",
                 "Description": null
             },
             {
                 "Id": 621,
-                "Name": "Moderat vannstandsauke",
+                "Name": "Måttlig vattennivåökning",
                 "Description": null
             },
             {
                 "Id": 622,
-                "Name": "Kraftig vannstandsauke",
+                "Name": "Kraftfull vattennivåökning",
                 "Description": null
             },
             {
                 "Id": 623,
-                "Name": "Høy vannstand/flom",
+                "Name": "Hög vattennivå/översvämning",
                 "Description": null
             },
             {
                 "Id": 699,
-                "Name": "Annet (bruk kommentar)",
+                "Name": "Annat (skriv kommentar)",
                 "Description": null
             }
         ],
         "Water_ActivityInfluencedKDV": [
             {
                 "Id": 600,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 610,
-                "Name": "Friluftsliv",
+                "Name": "Fritidsaktivitet",
                 "Description": null
             },
             {
@@ -1989,12 +1989,12 @@
             },
             {
                 "Id": 620,
-                "Name": "Veg",
+                "Name": "Väg",
                 "Description": null
             },
             {
                 "Id": 640,
-                "Name": "Jernbane",
+                "Name": "Järnväg",
                 "Description": null
             },
             {
@@ -2004,104 +2004,104 @@
             },
             {
                 "Id": 690,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "Water_WaterLevelRefKDV": [
             {
                 "Id": 100,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 110,
-                "Name": "Vannmerke på stasjon",
-                "Description": "Omdøpt fra \"Offisielt metermål\" 20140104"
+                "Name": "Skala på vattennivåmätare",
+                "Description": null
             },
             {
                 "Id": 120,
-                "Name": "Kjent landemerke (spesifiser)",
+                "Name": "Känt landmärke (ange)",
                 "Description": null
             },
             {
                 "Id": 130,
-                "Name": "Flomstøtte",
+                "Name": "Märke tidigare översvämningar",
                 "Description": null
             },
             {
                 "Id": 140,
-                "Name": "Vist i vedlagt bilde",
+                "Name": "Visas i bifogad bild",
                 "Description": null
             },
             {
                 "Id": 200,
-                "Name": "Ikke gitt",
+                "Name": "Ej angivet",
                 "Description": null
             },
             {
                 "Id": 210,
-                "Name": "Vannmerke på stasjon",
-                "Description": "Omdøpt fra \"Offisielt mål\" 20140104"
+                "Name": "Skala på vattennivåmätare",
+                "Description": null
             },
             {
                 "Id": 211,
-                "Name": "Metermål",
+                "Name": "Måttstock",
                 "Description": null
             },
             {
                 "Id": 212,
-                "Name": "HRV/LRV merke",
+                "Name": "Max/min-märke för regleringen",
                 "Description": null
             },
             {
                 "Id": 220,
-                "Name": "Kjent landemerke (spesifiser)",
+                "Name": "Känt landmärke (ange)",
                 "Description": null
             },
             {
                 "Id": 221,
-                "Name": "Flomstøtte",
+                "Name": "Översvämningsstötta",
                 "Description": null
             },
             {
                 "Id": 240,
-                "Name": "Vist i vedlagt bilde",
+                "Name": "Visas i bifogad bild",
                 "Description": null
             }
         ],
         "Water_WaterLevelStateKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent vannstand"
+                "Name": "Okänt",
+                "Description": "Okänd vattennivå"
             },
             {
                 "Id": 1,
-                "Name": "Vannstand er synkende",
-                "Description": "Vannstand er synkende"
+                "Name": "Vattennivå är sjunkande",
+                "Description": "Vattennivå är sjunkande"
             },
             {
                 "Id": 2,
-                "Name": "Vannstand er stigende",
-                "Description": "Vannstand er stigende"
+                "Name": "Vattennivå är stigande",
+                "Description": "Vattennivå är stigande"
             },
             {
                 "Id": 3,
-                "Name": "Vannstand er stabil",
-                "Description": "Ukjent vannstand"
+                "Name": "Vattennivå är stabil",
+                "Description": "Vattennivå är stabil"
             },
             {
                 "Id": 4,
-                "Name": "Det kan jeg ikke ta stilling til nå",
-                "Description": "Det kan jeg ikke ta stilling til nå"
+                "Name": "Vattennivån kan inte fastställa",
+                "Description": "Vattennivån kan inte fastställa"
             }
         ],
         "Water_WaterAstrayKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
@@ -2110,86 +2110,86 @@
             },
             {
                 "Id": 2,
-                "Name": "Nei",
-                "Description": "Nei"
+                "Name": "Nej",
+                "Description": "Nej"
             }
         ],
         "Water_ObservationTimingKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
-                "Name": "Spor av vannet der det var",
-                "Description": "Spor av vannet der det var"
+                "Name": "Spår av tidigare vattennivå",
+                "Description": "Spår av tidigare vattennivå"
             },
             {
                 "Id": 2,
-                "Name": "Vannet der det er nå",
-                "Description": "Vannet der det er nå"
+                "Name": "Nuvarande vattennivå",
+                "Description": "Nuvarande vattennivå"
             }
         ],
         "Water_WaterLevelMethodKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
-                "Name": "Markerer vannstand",
-                "Description": "Markerer vannstand"
+                "Name": "Vattennivåmarkering",
+                "Description": "Vattennivåmarkering"
             },
             {
                 "Id": 2,
-                "Name": "Måler vannstand",
-                "Description": "måler vannstand"
+                "Name": "Vattennivåmätning",
+                "Description": "Vattennivåmätning"
             }
         ],
         "Water_MeasurementTypeKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
-                "Name": "Relativt til merke",
-                "Description": "Relativt til merke"
+                "Name": "I förhållande till märkning",
+                "Description": "I förhållande till märkning"
             },
             {
                 "Id": 2,
-                "Name": "Målestav",
-                "Description": "Målestav"
+                "Name": "Mätsticka",
+                "Description": "Mätsticka"
             },
             {
                 "Id": 3,
-                "Name": "Måleinstrument",
-                "Description": "Måleinstrument"
+                "Name": "Mätinstrument",
+                "Description": "Mätinstrument"
             }
         ],
         "Water_MeasurementReferenceKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
-                "Name": "Bakken",
-                "Description": "Bakken"
+                "Name": "Marken",
+                "Description": "Marken"
             },
             {
                 "Id": 2,
-                "Name": "Flomvoll",
-                "Description": "Flomvoll"
+                "Name": "Översvämningsbank",
+                "Description": "Översvämningsbank"
             },
             {
                 "Id": 3,
-                "Name": "Gulv",
-                "Description": "Gulv"
+                "Name": "Golv",
+                "Description": "Golv"
             },
             {
                 "Id": 4,
@@ -2198,20 +2198,20 @@
             },
             {
                 "Id": 5,
-                "Name": "Annet",
-                "Description": "Annet"
+                "Name": "Annat",
+                "Description": "Annat"
             }
         ],
         "Water_MarkingReferenceKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
-                "Name": "i terreng",
-                "Description": "Terreng"
+                "Name": "i terrängen",
+                "Description": "terrängen"
             },
             {
                 "Id": 2,
@@ -2220,13 +2220,13 @@
             },
             {
                 "Id": 3,
-                "Name": "på flomstøtte",
-                "Description": "Flomstøtte"
+                "Name": "på översvämningsbank",
+                "Description": "Översvämningsbank"
             },
             {
                 "Id": 4,
-                "Name": "på bygning",
-                "Description": "Bygning"
+                "Name": "på byggnad",
+                "Description": "Byggnad"
             },
             {
                 "Id": 5,
@@ -2235,15 +2235,15 @@
             },
             {
                 "Id": 6,
-                "Name": "på noe annet",
-                "Description": "på noe annet"
+                "Name": "på något annat",
+                "Description": "på något annat"
             }
         ],
         "Water_MarkingTypeKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent"
+                "Name": "Okänt",
+                "Description": "Okänt"
             },
             {
                 "Id": 1,
@@ -2252,34 +2252,34 @@
             },
             {
                 "Id": 2,
-                "Name": "Tusj",
-                "Description": "Tusj"
+                "Name": "Märke",
+                "Description": "Märke"
             },
             {
                 "Id": 3,
-                "Name": "Spiker",
-                "Description": "Spiker"
+                "Name": "Spikar",
+                "Description": "Spikar"
             },
             {
                 "Id": 4,
-                "Name": "Innriss",
-                "Description": "Innriss"
+                "Name": "Inristning",
+                "Description": "Inristning"
             },
             {
                 "Id": 5,
-                "Name": "Annet",
-                "Description": "Annet"
+                "Name": "Annat",
+                "Description": "Annat"
             }
         ],
         "Water_DamageTypeKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Bygninger og eiendeler",
+                "Name": "Byggnader och ägodelar",
                 "Description": null
             },
             {
@@ -2289,12 +2289,12 @@
             },
             {
                 "Id": 3,
-                "Name": "Innmark",
+                "Name": "Odlad mark",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Utmark",
+                "Name": "Annan mark",
                 "Description": null
             },
             {
@@ -2304,12 +2304,12 @@
             },
             {
                 "Id": 6,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             },
             {
                 "Id": 7,
-                "Name": "Ingen skade observert",
+                "Name": "Ingen skada observerad",
                 "Description": null
             }
         ],
@@ -2317,7 +2317,7 @@
             {
                 "Id": 0,
                 "Name": "0",
-                "Description": "Ikke gitt"
+                "Description": "Ej specificerat"
             },
             {
                 "Id": 10,
@@ -2383,54 +2383,54 @@
         "ForecastAccurateKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej specificerat",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Varsel ikke gitt",
+                "Name": "Ingen varning utfärdad",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Varsel for lavt",
+                "Name": "Varning för låg",
                 "Description": null
             },
             {
                 "Id": 3,
-                "Name": "Varsel stemte",
+                "Name": "Varning stämmer",
                 "Description": null
             },
             {
                 "Id": 4,
-                "Name": "Varsel for høyt",
+                "Name": "Varningen för hög",
                 "Description": null
             },
             {
                 "Id": 9,
-                "Name": "Varsel ikke kjent",
+                "Name": "Varningen är inte känd",
                 "Description": null
             }
         ],
         "DamageExtentKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej specificerat",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Påvirket ingenting",
+                "Name": "Ingen påverkan",
                 "Description": null
             },
             {
                 "Id": 13,
-                "Name": "Leteaksjon igangsatt",
+                "Name": "Initierad sökning och räddning",
                 "Description": null
             },
             {
                 "Id": 15,
-                "Name": "Trafikk hindret",
+                "Name": "Trafiken hindras",
                 "Description": null
             },
             {
@@ -2440,266 +2440,266 @@
             },
             {
                 "Id": 20,
-                "Name": "Kun materielle skader",
+                "Name": "Endast materiell skada",
                 "Description": null
             },
             {
                 "Id": 27,
-                "Name": "Ingen skredtatt, men nære på",
+                "Name": "Ingen begravd, men nära",
                 "Description": null
             },
             {
                 "Id": 28,
-                "Name": "Person skredtatt, uten skader",
+                "Name": "Person begravd, utan skador",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Personer skadet",
+                "Name": "Personer skadade",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Personer omkommet",
+                "Name": "Personer omkomna",
                 "Description": null
             },
             {
                 "Id": 99,
-                "Name": "Annet",
+                "Name": "Annat",
                 "Description": null
             }
         ],
         "CompetenceLevelKDV": [
             {
                 "Id": 0,
-                "Name": "Ukjent",
-                "Description": "Ukjent kompetanse."
+                "Name": "Okänd",
+                "Description": "Okänd kompetens."
             },
             {
                 "Id": 100,
                 "Name": "-",
-                "Description": "Ukjent kompetanse på snø."
+                "Description": "Okänd kompetens om snö."
             },
             {
                 "Id": 110,
                 "Name": "*",
-                "Description": "Observatøren kan det grunnleggende for å vurdere snøskredfare. Observatøren er ikke kurset om hvordan regObs og Varsom formidler snøskredfare. Kompetansen tilsvarer NVE sitt nivå 4ai."
+                "Description": "Observatören har grundläggande färdigheter för att bedöma lavinfaran. Observatören är inte utbildad i hur regObs och Varsom kommunicerar lavinfara."
             },
             {
                 "Id": 115,
                 "Name": "**",
-                "Description": "Erfaren observatør uten kurs. Observatøren har erfaring med å vurdere snøskredfare. Observatøren er ikke kurset om hvordan regObs og Varsom formidler snøskredfare."
+                "Description": "Erfaren observatör utan kurs. Observatören har erfarenhet av att bedöma lavinfara. Observatören är inte utbildad i hur regObs och Varsom kommunicerar lavinfara."
             },
             {
                 "Id": 120,
                 "Name": "***",
-                "Description": "Kurset observatør. Observatøren har erfaring med å vurdere snøskredfare. Observatøren har grunnleggende kurs eller tilsvarende erfaring om bruk av regObs og Varsom. Kompetansen tilsvarer NVE sitt nivå 4a."
+                "Description": "Observatören är utbildad och har avancerade färdigheter i att bedöma lavinfara. Observatören har en grundläggande kurs i hur regObs och Varsom kommunicerar lavinfara"
             },
             {
                 "Id": 130,
                 "Name": "****",
-                "Description": "Observatører med videregående observatørkurs. Observatøren har mye erfaring med å vurdere skredfare. Observatøren har viderekommende kurs eller tilsvarende erfaring om bruk av regObs og Varsom. Kompetansen tilsvarer NVE sitt nivå 4b."
+                "Description": "Observatör med avancerad observatörskurs. Observatören har mycket erfarenhet av att bedöma lavinrisk. Observatören har avancerade kurser eller liknande erfarenheter avseende användning av regObs och Varsom."
             },
             {
                 "Id": 150,
                 "Name": "*****",
-                "Description": "Observatøren tilhører en varslingstjeneste. Kompetansen tilsvarer NVE sitt nivå 4c."
+                "Description": "Observatören tillhör en varningstjänst."
             },
             {
                 "Id": 105,
                 "Name": "A",
-                "Description": "Automatisert tjeneste"
+                "Description": "Automatiserad service."
             },
             {
                 "Id": 200,
                 "Name": "-",
-                "Description": "Ukjent kompetanse."
+                "Description": "Okänd kompetens."
             },
             {
                 "Id": 210,
                 "Name": "*",
-                "Description": "Observatør kan vise til noen relevante observasjoner."
+                "Description": "Observatören har lämnat relevanta observationer."
             },
             {
                 "Id": 220,
                 "Name": "**",
-                "Description": "Observatør som kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Observatören har lämnat in relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 230,
                 "Name": "***",
-                "Description": "Observatør med god faglig forståelse og kan vise til relevante observasjoner."
+                "Description": "Professionell observatören som lämnat flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 240,
                 "Name": "****",
-                "Description": "Observatør med svært god faglig forståelse og kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Erfaren professionell observatör med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 250,
                 "Name": "*****",
-                "Description": "Fagperson fra NVE eller lignende, som kan vise til flere relevante observasjoner med regObs-skjema."
+                "Description": "Professionell observatör från NVE eller motsvarande med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 300,
                 "Name": "-",
-                "Description": "Ukjent kompetanse."
+                "Description": "Okänd kompetens."
             },
             {
                 "Id": 310,
                 "Name": "*",
-                "Description": "Observatør kan vise til noen relevante observasjoner."
+                "Description": "Observatören har lämnat relevanta observationer."
             },
             {
                 "Id": 320,
                 "Name": "**",
-                "Description": "Observatør som kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Observatören har lämnat in relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 330,
                 "Name": "***",
-                "Description": "Observatør med god faglig forståelse og kan vise til relevante observasjoner."
+                "Description": "Professionell observatören som lämnat flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 340,
                 "Name": "****",
-                "Description": "Observatør med svært god faglig forståelse og kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Erfaren professionell observatör med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 350,
                 "Name": "*****",
-                "Description": "Fagperson fra NVE eller lignende, som kan vise til flere relevante observasjoner med regObs-skjema."
+                "Description": "Professionell observatör från NVE eller motsvarande med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 400,
                 "Name": "-",
-                "Description": "Ukjent kompetanse."
+                "Description": "Okänd kompetens."
             },
             {
                 "Id": 410,
                 "Name": "*",
-                "Description": "Observatør kan vise til noen relevante observasjoner."
+                "Description": "Observatören har lämnat relevanta observationer."
             },
             {
                 "Id": 420,
                 "Name": "**",
-                "Description": "Observatør som kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Observatören har lämnat in relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 430,
                 "Name": "***",
-                "Description": "Observatør med god faglig forståelse og kan vise til relevante observasjoner."
+                "Description": "Professionell observatören som lämnat flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 440,
                 "Name": "****",
-                "Description": "Observatør med svært god faglig forståelse og kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Erfaren professionell observatör med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 450,
                 "Name": "*****",
-                "Description": "Fagperson fra NVE eller lignende, som kan vise til flere relevante observasjoner med regObs-skjema."
+                "Description": "Professionell observatör från NVE eller motsvarande med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 600,
                 "Name": "-",
-                "Description": "Ukjent kompetanse."
+                "Description": "Okänd kompetens."
             },
             {
                 "Id": 610,
                 "Name": "*",
-                "Description": "Observatør kan vise til noen relevante observasjoner."
+                "Description": "Observatören har lämnat relevanta observationer."
             },
             {
                 "Id": 620,
                 "Name": "**",
-                "Description": "Observatør som kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Observatören har lämnat in relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 630,
                 "Name": "***",
-                "Description": "Observatør med god faglig forståelse og kan vise til relevante observasjoner."
+                "Description": "Professionell observatören som lämnat flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 640,
                 "Name": "****",
-                "Description": "Observatør med svært god faglig forståelse og kan vise til relevante observasjoner med regObs-skjema."
+                "Description": "Erfaren professionell observatör med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 650,
                 "Name": "*****",
-                "Description": "Fagperson fra NVE eller lignende, som kan vise til flere relevante observasjoner med regObs-skjema."
+                "Description": "Professionell observatör från NVE eller motsvarande med flera relevanta observationer med korrekt användning av Regobs-formulär."
             },
             {
                 "Id": 700,
                 "Name": "-",
-                "Description": "Ukjent på is."
+                "Description": "Okänd på is."
             },
             {
                 "Id": 710,
                 "Name": "*",
-                "Description": "Nybegynner."
+                "Description": "Nybörjare."
             },
             {
                 "Id": 720,
                 "Name": "**",
-                "Description": "Erfaren obervatør."
+                "Description": "Erfaren observatör."
             },
             {
                 "Id": 730,
                 "Name": "***",
-                "Description": "Kurset erfaren observatør."
+                "Description": "Utbildad observatör med fält erfarenhet."
             },
             {
                 "Id": 740,
                 "Name": "****",
-                "Description": "Kurset fagperson."
+                "Description": "Utbildad personal."
             },
             {
                 "Id": 750,
                 "Name": "*****",
-                "Description": "Fagperson NVE eller lignende."
+                "Description": "Utbildad personal vid NV eller motsvarande."
             }
         ],
         "UTMSourceKDV": [
             {
                 "Id": 0,
                 "Name": null,
-                "Description": "Ukjent"
+                "Description": "Okänt"
             },
             {
                 "Id": 10,
                 "Name": null,
-                "Description": "Lest fra GPS"
+                "Description": "Läst från GPS"
             },
             {
                 "Id": 20,
                 "Name": null,
-                "Description": "Lest fra kart"
+                "Description": "Läst från kartan"
             },
             {
                 "Id": 30,
                 "Name": null,
-                "Description": "Klikk i kart på regObs"
+                "Description": "Klicka på kartan på regObs"
             },
             {
                 "Id": 35,
                 "Name": null,
-                "Description": "Klikk i kart i regObs-app"
+                "Description": "Klicka på kartan i regObs-appen"
             },
             {
                 "Id": 40,
                 "Name": null,
-                "Description": "GPS i smartPhone"
+                "Description": "GPS i smartphone"
             },
             {
                 "Id": 45,
-                "Name": "Posisjon fra smarttelefon som er lagret. Brukes når ny posisjon ikke er tilgjengenlig (eldre en noen ms)",
-                "Description": "Gammel posisjon i smPhone"
+                "Name": "Position från lagrad i smartphone. Används när aktuell position inte är tillgänglig",
+                "Description": "Gammal position i smartphone"
             },
             {
                 "Id": 50,
-                "Name": "Nasjonal veidatabank",
+                "Name": "Nationell vägdatabas",
                 "Description": "NVDB"
             },
             {
@@ -2711,7 +2711,7 @@
         "TripTypeKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke gitt",
+                "Name": "",
                 "Description": null
             },
             {
@@ -2721,45 +2721,45 @@
             },
             {
                 "Id": 55,
-                "Name": "Undervisning og kurs",
+                "Name": "Undervisning och kurser",
                 "Description": null
             },
             {
                 "Id": 70,
-                "Name": "Føring og guiding",
+                "Name": "Guidning",
                 "Description": null
             },
             {
                 "Id": 50,
-                "Name": "Oppdrag for arbeidsgiver",
+                "Name": "Uppdrag för arbetsgivaren",
                 "Description": null
             },
             {
                 "Id": 20,
-                "Name": "Ordinært oppdrag for skredvarslinga",
+                "Name": "Vanligt uppdrag för lavinvarningstjänsten",
                 "Description": null
             },
             {
                 "Id": 30,
-                "Name": "Tilleggsoppdrag for skredvarslinga",
+                "Name": "Ytterligare uppdrag för lavinvarningstjänsten",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Bestilt oppdrag for skredvarslinga",
+                "Name": "Beställt uppdrag för lavinvarningstjänsten",
                 "Description": null
             }
         ],
         "GeoHazardKDV": [
             {
                 "Id": 0,
-                "Name": "Ikke spesifisert",
+                "Name": "Ej specificerat",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Snø",
-                "Description": "Snøskred"
+                "Name": "Snö",
+                "Description": "Lavin"
             },
             {
                 "Id": 20,
@@ -2769,22 +2769,22 @@
             {
                 "Id": 30,
                 "Name": "Våt jord",
-                "Description": "Flomskred"
+                "Description": "Översvämningskred"
             },
             {
                 "Id": 33,
-                "Name": "Leire",
+                "Name": "Lera",
                 "Description": null
             },
             {
                 "Id": 36,
-                "Name": "Sørpe",
+                "Name": "Slask",
                 "Description": null
             },
             {
                 "Id": 40,
-                "Name": "Stein",
-                "Description": "Steinsprang"
+                "Name": "Sten",
+                "Description": "Stenslag"
             },
             {
                 "Id": 50,
@@ -2793,75 +2793,75 @@
             },
             {
                 "Id": 60,
-                "Name": "Vann",
-                "Description": "Flom"
+                "Name": "Vatten",
+                "Description": "Översvämning"
             },
             {
                 "Id": 70,
                 "Name": "Is",
-                "Description": "Svekket is"
+                "Description": "Försvagad is"
             },
             {
                 "Id": 100,
-                "Name": "Hendelse på bre",
+                "Name": "Händelse på glaciärer",
                 "Description": null
             },
             {
                 "Id": 110,
-                "Name": "Jøkulhlaup",
+                "Name": "Jökellopp",
                 "Description": null
             },
             {
                 "Id": 200,
-                "Name": "Vannmangel",
+                "Name": "Torka",
                 "Description": null
             },
             {
                 "Id": 999,
-                "Name": "Ukjent",
+                "Name": "Okänt",
                 "Description": null
             }
         ],
         "UsageFlagKDV": [
             {
                 "Id": 0,
-                "Name": "Ingen flagg gitt",
+                "Name": "Ingen flagga ges",
                 "Description": null
             },
             {
                 "Id": 1,
-                "Name": "Klar for historisk db",
+                "Name": "Redo för historisk db",
                 "Description": null
             },
             {
                 "Id": 2,
-                "Name": "Videresendt til historisk db",
+                "Name": "Skickad till historisk db",
                 "Description": null
             },
             {
                 "Id": 10,
-                "Name": "Godkjent av dataforvalter",
+                "Name": "Godkänd av datahanteraren",
                 "Description": null
             },
             {
                 "Id": 51,
-                "Name": "Slettet av bruker",
+                "Name": "Raderad av användaren",
                 "Description": null
             },
             {
                 "Id": 61,
-                "Name": "Underkjent av dataforvalter",
+                "Name": "Underkänd av datahanteraren",
                 "Description": null
             },
             {
                 "Id": 52,
-                "Name": "Slettet av admin",
+                "Name": "Raderad av admin",
                 "Description": null
             },
             {
                 "Id": 101,
-                "Name": "Til administrativ bruk",
-                "Description": "Observasjon eller gruppe har en admin funksjon. Den skjules som om den er slettet."
+                "Name": "För administrativt bruk",
+                "Description": "Observation eller grupp har en admin-funktion. Det är dold som om det raderades."
             }
         ]
     },

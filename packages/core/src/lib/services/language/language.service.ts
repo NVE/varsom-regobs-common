@@ -20,6 +20,9 @@ export class LanguageService {
   }
 
   public setLanguage(langKey: LangKey) {
+    if (typeof langKey !== 'number') {
+      throw new Error('Lang key must be a number!');
+    }
     this.langKeySubject.next(langKey);
   }
 }

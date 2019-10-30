@@ -7,6 +7,7 @@
     </select>
 </div>
 <app-language-select></app-language-select>
+<button (click)="updateKdvElements()">Tving oppdatering</button>
 <div *ngIf="kdvService.isUpdating$ | async as isUpdating">
     Oppdaterer kdv elementer..
 </div>

@@ -13,4 +13,8 @@ export class LanguageSelectComponent implements OnInit {
   ngOnInit() {
   }
 
+  getNumberValue(input: string) {
+    return parseInt(input, 10);
+  }
+
 }

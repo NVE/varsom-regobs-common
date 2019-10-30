@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration, SyncProgress } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
-import { AppMode, AppModeService, GeoHazard } from '@varsom-regobs-common/core';
+import { AppMode, AppModeService, GeoHazard, LoggerService } from '@varsom-regobs-common/core';
 
 @Component({
   templateUrl: './registration.component.html',
@@ -17,7 +17,9 @@ export class RegistrationComponent implements OnInit {
   constructor(
     private registrationService: RegistrationService,
     private appModeService: AppModeService,
-    private settingsService: SettingsService) {
+    private settingsService: SettingsService,
+    private loggerService: LoggerService
+  ) {
   }
 
   ngOnInit(): void {
@@ -36,13 +38,13 @@ export class RegistrationComponent implements OnInit {
     const draft = this.registrationService.createNewEmptyDraft(GeoHazard.Snow);
     draft.request.Comment = this.appMode;
     const result = await this.registrationService.saveRegistration(draft).toPromise();
-    console.log('Added registration', result);
+    this.loggerService.log('Added registration', result);
   }
 
   deleteRegistration(event: Event, id: string) {
     event.preventDefault();
     const result = this.registrationService.deleteRegistration(id).toPromise();
-    console.log('Deleted registration', result);
+    this.loggerService.log('Deleted registration', result);
   }
 
   changeAppMode(appMode: AppMode) {

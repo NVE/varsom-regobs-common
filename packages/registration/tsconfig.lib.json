@@ -4,9 +4,7 @@
     "outDir": "../../out-tsc/lib",
     "declaration": true,
     "inlineSources": true,
-    "types": [
-      "node"
-    ],
+    "types": [],
   },
   "angularCompilerOptions": {
     "annotateForClosureCompiler": true,

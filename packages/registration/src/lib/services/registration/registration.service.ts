@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { NSqlFullTableObservable, GeoHazard, AppMode } from '@varsom-regobs-common/core';
+import { NSqlFullTableObservable, GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray, take } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
@@ -33,6 +33,7 @@ export class RegistrationService {
   constructor(
     private offlineDbService: OfflineDbService,
     private settingsService: SettingsService,
+    private loggerService: LoggerService,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>) {
     this._syncProgress$ = new BehaviorSubject(new SyncProgress());
     this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
@@ -99,7 +100,7 @@ export class RegistrationService {
   }
 
   private getRegistrationObservable(appMode: AppMode) {
-    console.log('get registration observable. Db instance is: ', appMode);
+    this.loggerService.log('get registration observable. Db instance is: ', appMode);
     return new NSqlFullTableObservable<IRegistration[]>(
       this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').listen()
     );
@@ -108,14 +109,14 @@ export class RegistrationService {
   private resetSyncProgress(records?: IRegistration[]) {
     const progress = new SyncProgress();
     if (records !== undefined) {
-      console.log('Records to sync: ', records);
+      this.loggerService.log('Records to sync: ', records);
       progress.start(records.map((r) => r.id));
     }
     this._syncProgress$.next(progress);
   }
 
   private setSyncProgress(item: ItemSyncCompleteStatus<IRegistration>) {
-    console.log('Sync record item complete', item);
+    this.loggerService.log('Sync record item complete', item);
     const progress = this._syncProgress$.value;
     if (item.success) {
       progress.setRecordComplete(item.item.id);
@@ -135,7 +136,7 @@ export class RegistrationService {
       this.updateRowAndReturnItem(),
       toArray(),
       catchError((error) => {
-        console.log('Could not sync registrations', error);
+        this.loggerService.warn('Could not sync registrations', error);
         return EMPTY;
       }),
       tap((t) => this.resetSyncProgress())
@@ -160,7 +161,7 @@ export class RegistrationService {
   private syncRecord(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
     return this.offlineRegistrationSyncService.syncItem(item).pipe(
       catchError((err) => of(({ item, success: false, error: err }))),
-      tap((result) => console.log('Record sync complete', result)));
+      tap((result) => this.loggerService.log('Record sync complete', result)));
   }
 
   private updateRowAndReturnItem(): (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
@@ -175,7 +176,7 @@ export class RegistrationService {
         concatMap((item) =>
           this.saveRegistration(item, false)
             .pipe(catchError((err) => {
-              console.log('Could not update record in offline storage', err);
+              this.loggerService.error('Could not update record in offline storage', err);
               return of([]);
             }), map(() => item)))
       );

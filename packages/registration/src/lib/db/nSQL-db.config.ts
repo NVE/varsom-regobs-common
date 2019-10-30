@@ -26,7 +26,7 @@ export const DB_TABLE_CONFIG: InanoSQLTableConfig[] = [
     {
         name: TABLE_NAMES.KDV_ELEMENTS,
         model: {
-            'langKey:string': { pk: true },
+            'langKey:number': { pk: true },
             'lastUpdated:number': {},
             'kdvElements:any': {}
         }

@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AppModeService } from './app-mode.service';
+import { LoggerService } from './logger.service';
 
-xdescribe('AppModeService', () => {
+describe('LoggerService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: AppModeService = TestBed.get(AppModeService);
+    const service: LoggerService = TestBed.get(LoggerService);
     expect(service).toBeTruthy();
   });
 });
