@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { AppMode, NSqlFullTableObservable, LanguageService, LangKey, getLangKeyString, LoggerService } from '@varsom-regobs-common/core';
 import { combineLatest, of, Observable, BehaviorSubject, Subscription, from } from 'rxjs';
 import { switchMap, shareReplay, map, tap, concatMap, withLatestFrom, filter, catchError, take, debounceTime } from 'rxjs/operators';
-import { KdvElementsResponseDto, KdvElementsService } from '@varsom-regobs-common/regobs-api';
+import { KdvElementsResponseDto, KdvElementsService, KdvElement } from '@varsom-regobs-common/regobs-api';
 import { OfflineDbService } from '../offline-db/offline-db.service';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import moment from 'moment';
@@ -50,7 +50,7 @@ export class KdvService implements OnDestroy {
     return this.getUpdateKdvElementsObservable(force).pipe(take(1));
   }
 
-  public getKdvRepositoryByKeyObservable(key: string) {
+  public getKdvRepositoryByKeyObservable(key: string): Observable<KdvElement[]> {
     return this.kdvElements$.pipe(map((val) => val.KdvRepositories[key]));
   }
 
