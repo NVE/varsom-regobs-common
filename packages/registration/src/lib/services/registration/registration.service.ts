@@ -13,6 +13,7 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
+import { PictureRequestDto } from '@varsom-regobs-common/regobs-api';
 
 @Injectable({
   providedIn: 'root'
@@ -200,7 +201,7 @@ export class RegistrationService {
     return this.getImages(reg, registrationTid).length > 0;
   }
 
-  public getImages(reg: IRegistration, registrationTid: RegistrationTid) {
+  public getImages(reg: IRegistration, registrationTid: RegistrationTid): PictureRequestDto[] {
     if (!reg) {
       return [];
     }
