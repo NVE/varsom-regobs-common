@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { NSqlFullTableObservable, GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
+import { NSqlFullTableObservable, GeoHazard, AppMode, LoggerService, isEmpty } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray, take } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
@@ -12,6 +12,7 @@ import { SyncProgress } from '../../models/sync-progress';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
+import { RegistrationTid } from '../../models/registration-tid.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -146,9 +147,70 @@ export class RegistrationService {
   private getRegistrationsToSyncObservable() {
     return this.settingsService.registrationSettings$.pipe(
       switchMap((settings) => this.registrationStorage$.pipe(map((records) =>
-        records.filter((row) => row.syncStatus === SyncStatus.Sync
-          || (settings.autoSync === true && row.syncStatus === SyncStatus.Draft))
+        records.filter((row) => this.shouldSync(row, settings.autoSync))
       ), debounceTime(5000))));
+  }
+
+  private shouldSync(reg: IRegistration, autoSync: boolean) {
+    if (reg.syncStatus === SyncStatus.Sync || (autoSync === true && reg.syncStatus === SyncStatus.Draft)) {
+      if (reg.regId !== undefined && reg.regId !== null) {
+        return true; // Edit existing registration should sync even if empty (deleted observation)
+      }
+      return this.hasAnyObservations(reg); // Only sync if any observations is added (not only obs location and time)
+    }
+    return false;
+  }
+
+  private hasAnyObservations(reg: IRegistration) {
+    if (reg === undefined || reg === null) {
+      return false;
+    }
+    const registrationTids = this.getRegistrationTids();
+    return registrationTids.some((x) => !this.isObservationEmptyForRegistrationTid(reg, x));
+  }
+
+  public getRegistrationTids(): RegistrationTid[] {
+    return Object.keys(RegistrationTid)
+      .map((key) => RegistrationTid[key]).filter((val: RegistrationTid) => typeof (val) !== 'string');
+  }
+
+  public isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: number) {
+    if (reg && registrationTid) {
+      const hasRegistration = !isEmpty(this.getRegistationProperty(reg, registrationTid));
+      const hasImages = this.hasImages(reg, registrationTid);
+      if (hasRegistration || hasImages) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid) {
+    if (reg && reg.request && registrationTid) {
+      return reg.request[this.getPropertyName(registrationTid)];
+    }
+    return null;
+  }
+
+  public getPropertyName(registrationTid: RegistrationTid) {
+    return RegistrationTid[registrationTid];
+  }
+
+  public hasImages(reg: IRegistration, registrationTid: RegistrationTid) {
+    return this.getImages(reg, registrationTid).length > 0;
+  }
+
+  public getImages(reg: IRegistration, registrationTid: RegistrationTid) {
+    if (!reg) {
+      return [];
+    }
+    const pictures = (reg.request.Picture || []).filter((p) => p.RegistrationTID === registrationTid);
+    if (registrationTid === RegistrationTid.DamageObs) {
+      for (const damageObs of (reg.request.DamageObs || [])) {
+        pictures.push(...(damageObs.Pictures || []));
+      }
+    }
+    return pictures;
   }
 
   private flattenRegistrationsToSync() {
