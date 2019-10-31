@@ -60,7 +60,12 @@
             },
             "assets": [
               "testapp/src/favicon.ico",
-              "testapp/src/assets"
+              "testapp/src/assets",
+              {
+                "glob": "**/*",
+                "input": "dist/varsom-regobs-common/registration/assets",
+                "output": "assets"
+              }
             ],
             "styles": [
               "testapp/src/styles.css"
