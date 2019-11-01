@@ -14,6 +14,8 @@ import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callbac
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 import { PictureRequestDto } from '@varsom-regobs-common/regobs-api';
+import { ValidRegistrationType } from '../../models/valid-registration.type';
+
 
 @Injectable({
   providedIn: 'root'
@@ -101,6 +103,38 @@ export class RegistrationService {
     return draft;
   }
 
+  public getOrCreateNewRegistrationForm(reg: IRegistration, tid: RegistrationTid): ValidRegistrationType {
+    if (this.isObservationEmptyForRegistrationTid(reg, tid)) {
+      return this.isArrayType(tid) ? [] : {};
+    }
+    return this.getRegistationProperty(reg, tid);
+  }
+
+  public getSummary(reg: IRegistration, registrationTid: RegistrationTid) {
+    if (!this.isObservationEmptyForRegistrationTid(reg, registrationTid)) {
+      if (registrationTid === RegistrationTid.GeneralObservation) {
+        return [{
+          header: 'Varsom.Regobs.Common.Registration.Summary.GeneralObservation.Header',
+          value: reg.request.GeneralObservation.ObsComment
+        }];
+      }
+    }
+    return [];
+  }
+
+  public isArrayType(tid: RegistrationTid) {
+    return [
+      RegistrationTid.AvalancheActivityObs,
+      RegistrationTid.AvalancheActivityObs2,
+      RegistrationTid.AvalancheDangerObs,
+      RegistrationTid.AvalancheEvalProblem2,
+      RegistrationTid.CompressionTest,
+      RegistrationTid.DangerObs,
+      RegistrationTid.Picture,
+      RegistrationTid.DamageObs
+    ].indexOf(tid) >= 0;
+  }
+
   private getRegistrationObservable(appMode: AppMode) {
     this.loggerService.log('get registration observable. Db instance is: ', appMode);
     return new NSqlFullTableObservable<IRegistration[]>(
@@ -186,7 +220,7 @@ export class RegistrationService {
     return true;
   }
 
-  public getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid) {
+  public getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
     if (reg && reg.request && registrationTid) {
       return reg.request[this.getPropertyName(registrationTid)];
     }
