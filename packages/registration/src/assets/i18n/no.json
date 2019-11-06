@@ -1,0 +1,252 @@
+{
+    "Observations": {
+        "AvalancheActivityObs": {
+            "Aspect": "Eksposisjon",
+            "AvalancheTID": "Type",
+            "AvalancheTriggerTID": "Skredutløser",
+            "Comment": "Kommentar",
+            "DtAvalancheTime": "Tid",
+            "HeigthStartZone": "Høyde løsneområde",
+            "MetersOverSeaLevel": "moh",
+            "NumberAndSize": "Antall og størrelse",
+            "ObsName": "Skredaktivitet"
+        },
+        "AvalancheActivityObs2": {
+            "AvalancheExtTID": "Type",
+            "AvalancheTID": "Type",
+            "Comment": "Kommentar",
+            "DtAvalancheTime": "Tid",
+            "DuringTheDay": "I løpet av dagen",
+            "MetersOverSeaLevel": "moh",
+            "NumberAndSizeAndTrigger": "Antall, størrelse og skredutløser",
+            "ObsName": "Skredaktivitet",
+            "Prevalence": "Utbredelse"
+        },
+        "AvalancheDangerObs": {
+            "Comment": "Kommentar",
+            "DangerSignTID": "Type",
+            "ObsName": "Skredfaretegn"
+        },
+        "AvalancheEvalProblem2": {
+            "AvalCauseAttributeLightTID": "Ugunstige egenskaper på det svake laget",
+            "AvalCauseDepthTID": "Avstand fra overflaten til det svake laget",
+            "AvalCauseTID": "Type svakt lag",
+            "AvalProbabilityTID": "Sannsynlighet for skred",
+            "AvalTriggerSimpleTID": "Sannsynlig belasting for å løse ut skred",
+            "AvalancheExtTID": "Skredtype",
+            "Comment": "Kommentar",
+            "DestructiveSizeTID": "Størrelse på forventet skred",
+            "ObsName": "Skredproblem",
+            "PrevalenceArea": "Utbredelse løsneområder"
+        },
+        "AvalancheEvaluation": {
+            "AvalancheDangerTID": "Faregrad",
+            "AvalancheEvaluation1": "Skredvurdering",
+            "AvalancheProblemTID1": "Skredfareproblem 1",
+            "AvalancheProblemTID2": "Skredfareproblem 2",
+            "AvalancheProblemTID3": "Skredfareproblem 3",
+            "Comment": "Utvikling",
+            "ObsName": "Skredfarevurdering",
+            "ValidExposition": "Eksposisjon"
+        },
+        "AvalancheEvaluation2": {
+            "AvalancheDangerTID": "Faregrad",
+            "AvalancheDevelopment": "Utvikling",
+            "AvalancheEvaluation": "Skredfarevurdering",
+            "AvalancheProblem": "Skredproblem",
+            "ExposedTerrain": "Utsatt terreng",
+            "ObsName": "Skredfarevurdering"
+        },
+        "AvalancheEvaluation3": {
+            "AvalancheDangerTID": "Faregrad",
+            "AvalancheDevelopment": "Utvikling",
+            "AvalancheEvaluation": "Skredfarevurdering",
+            "ForecastComment": "Kommentar",
+            "ForecastCorrectTID": "Varselets riktighet",
+            "ObsName": "Skredfarevurdering"
+        },
+        "AvalancheObs": {
+            "AvalCauseTID": "Svakt lag",
+            "Avalanche": "Skredet",
+            "AvalancheTID": "Skredtype",
+            "AvalancheTriggerTID": "Skredutløser",
+            "Comment": "Kommentar",
+            "DestructiveSizeTID": "Størrelse",
+            "DtAvalancheTime": "Tid",
+            "Facing": "vendt",
+            "Fracture": "Bruddkant",
+            "FractureHeigth": "høy",
+            "FractureWidth": "bred",
+            "HeightStartZoneText": "startet på",
+            "HeigthStartZone": "Løsneområdet",
+            "HeigthStopZone": "Stoppområdet",
+            "HeigthStopZoneText": "sluttet på",
+            "ObsName": "Skredhendelse",
+            "TerrainStartZoneTID": "Terreng i løsneområdet",
+            "Trajectory": "Skredbanenavn",
+            "ValidExposition": "Eksposisjon"
+        },
+        "CompressionTest": {
+            "Comment": "Kommentar",
+            "ObsName": "Test",
+            "StabilityEvalTID": "Stabilitet",
+            "Test": "Test"
+        },
+        "DamageObs": {
+            "Comment": "Kommentar",
+            "DamageTypeTID": "Type",
+            "ObsName": "Skader"
+        },
+        "DangerObs": {
+            "Comment": "Kommentar",
+            "DangerSignTName": "Type",
+            "ObsName": "Faretegn"
+        },
+        "GeneralObservation": {
+            "Comment": "Kommentar",
+            "ObsComment": "Tekst",
+            "ObsHeader": "Overskrift",
+            "ObsName": "Notater",
+            "Urls": "Lenker"
+        },
+        "IceCoverObs": {
+            "Comment": "Kommentar",
+            "IceCapacityTName": "Bæreevne",
+            "IceCoverAfterTName": "Isdekningsgrad etter observasjon",
+            "IceCoverBeforeTName": "Isdekningsgrad før observasjon",
+            "IceCoverTName": "Isdekning",
+            "IceSkateabilityTName": "Skøytbarhet",
+            "ObsName": "Isdekningsgrad"
+        },
+        "IceThickness": {
+            "BeforeDrilling": "før borring",
+            "Comment": "Kommentar",
+            "IceThicknessLayers": "Islag (ovenfra og ned)",
+            "IceThicknessSum": "Total istykkelse",
+            "IsEqualToIceSurface": "Vannflaten er likt med isoverflaten",
+            "LowerThanIceSurface": "fra isoverflaten til vannflaten i borehullet",
+            "ObsName": "Istykkelse",
+            "OverIce": "Over isen ",
+            "OverWater": "overvann",
+            "OverWaterAfterDrilling": "overvann etter borring",
+            "SlushSnow": "sørpe",
+            "Snow": "snø",
+            "Total": "totalt",
+            "UnknownIceLayer": "ukjent islag",
+            "WaterSurfaceInHole": "Vannflaten i hullet"
+        },
+        "Incident": {
+            "ActivityInfluencedTID": "Aktivitet",
+            "Comment": "Kommentar",
+            "DamageExtentTID": "Skadeomfang",
+            "GeoHazardTID": "Observasjonstype",
+            "IncidentHeader": "Overskrift",
+            "IncidentIngress": "Ingress",
+            "IncidentText": "Beskrivelse",
+            "ObsName": "Ulykke / Hendelse",
+            "Urls": "Lenker"
+        },
+        "LandslideObs": {
+            "ActivityInfluencedTName": "Hva ble påvirket?",
+            "And": " og ",
+            "Between": "Mellom",
+            "Comment": "Kommentar",
+            "DamageExtentTName": "Omfang",
+            "ForecastAccurateTName": "Stemte varsel på varsom.no?",
+            "LandSlideSizeTName": "Størrelse",
+            "LandSlideTName": "Skredtype",
+            "LandSlideTriggerTName": "Trigger",
+            "ObsName": "Skredhendelse",
+            "Time": "Tid",
+            "Urls": "Lenker"
+        },
+        "Picture": {
+            "Aspect": "Himmelretning",
+            "Comment": "Kommentar",
+            "Copyright": "Copyright",
+            "ObsName": "Bildet",
+            "Photographer": "Fotograf",
+            "PictureComment": "Kommentar",
+            "RegistrationTID": "Av"
+        },
+        "SnowCover": {
+            "CriticalLayer": "Svakt lag",
+            "CriticalLayerFound": "Svakt lag finnes ",
+            "CriticalLayerLocation": "Plassering",
+            "CriticalLayerNotFound": "Svakt lag finnes ikke.",
+            "CriticalLayerTID": "Type",
+            "DepthHoar": "Begerkrystaller",
+            "DepthHoarInSnowCover": "med begerkrystaller nederst i snødekke",
+            "ObsName": "Snøprofil",
+            "SnowPilotRefTID": "Snøprofil",
+            "UnderSurface": "under overflaten"
+        },
+        "SnowProfile": {
+            "Comment": "Kommentar",
+            "CompressionTest": "Test",
+            "CompressionTestPlural": "Tester",
+            "ConnectedToProfile": "knyttet til snøprofilen",
+            "LayersObserved": "lag observert",
+            "ObsName": "Snøprofil",
+            "SnowDensity": "Snøtetthet",
+            "SnowDensityLayersObserved": "tetthetslag observert",
+            "SnowTemperature": "Temperatur",
+            "SnowTemperatureLayersObserved": "temperaturpunkter observert",
+            "StartProfileLayersObserved": "lagdelinger observert",
+            "StratLayers": "Lagdeling"
+        },
+        "SnowSurfaceObservation": {
+            "FootPenetration": "Innsynkning fot",
+            "HeightLimitLayeredSnow": "Grense for lagdelt snø er på",
+            "Kommentar": "Kommentar",
+            "NewSnow": "nysnø",
+            "NewSnowDepth24": "Siste døgn",
+            "NewSnowLine": "Nysnøgrense på",
+            "ObsName": "Snødekke",
+            "SnowDepth": "Snødybde",
+            "SnowDriftTName": "Snøfokk",
+            "SnowLine": "Snøgrense på",
+            "SnowLines": "Snøgrenser",
+            "SnowSurfaceTName": "Snødekkehardhet",
+            "SurfaceRougnessTName": "Overflate",
+            "SurfaceWaterContentTName": "Snøfuktighet",
+            "Total": "totalt"
+        },
+        "WaterLevel": {
+            "AppliesFor": "Gjelder for",
+            "Comment": "Kommentar",
+            "Lake": "Innsjø",
+            "MeasuredDischarge": "Målt vannføring",
+            "ObsName": "Vannstand",
+            "River": "elv",
+            "WaterLevelDescribed": "Vannstand beskrivelse",
+            "WaterLevelRefTName": "Referansenivå",
+            "WaterLevelValue": "Størrelse"
+        },
+        "WaterLevel2": {
+            "Comment": "Kommentar",
+            "DtMeasurementTime": "Tid",
+            "MeasuredRelativeTo": "Måling relativt til",
+            "MeasurementReferenceTName": "Vannmarkering på/i",
+            "MeasurementTypeTName": "Måleinstrument",
+            "ObsName": "Vannstand",
+            "ObservationTimingTName": "Hva registrerer du?",
+            "WaterAstrayTName": "Vann på avveie",
+            "WaterLevelStateTName": "Situasjon",
+            "WaterMarking": "Vannmarkering",
+            "WaterMeasurement": "Vannmåling",
+            "WaterMeasurementValue": "Verdi",
+            "With": "med"
+        },
+        "WeatherObservation": {
+            "AirTemperature": "Temperatur",
+            "CloudCover": "Skydekke",
+            "Clouds": "skyer",
+            "Comment": "Kommentar",
+            "ObsName": "Vær",
+            "PrecipitationTID": "Nedbørstype",
+            "Wind": "Vind",
+            "WindDirection": "fra"
+        }
+    }
+}

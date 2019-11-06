@@ -1,0 +1,252 @@
+{
+    "Observations": {
+        "AvalancheActivityObs": {
+            "Aspect": "Aspect",
+            "AvalancheTID": "Type",
+            "AvalancheTriggerTID": "Trigger",
+            "Comment": "Comment",
+            "DtAvalancheTime": "Time",
+            "HeigthStartZone": "Height of release area",
+            "MetersOverSeaLevel": "msal",
+            "NumberAndSize": "Number of occurences and size",
+            "ObsName": "Avalanche Activity"
+        },
+        "AvalancheActivityObs2": {
+            "AvalancheExtTID": "Type",
+            "AvalancheTID": "Type",
+            "Comment": "Comment",
+            "DtAvalancheTime": "Time",
+            "DuringTheDay": "During the day",
+            "MetersOverSeaLevel": "masl",
+            "NumberAndSizeAndTrigger": "Number, size and trigger",
+            "ObsName": "Avalanche Activity",
+            "Prevalence": "Hazard distribution"
+        },
+        "AvalancheDangerObs": {
+            "Comment": "Comment",
+            "DangerSignTID": "Type",
+            "ObsName": "Avalanche Danger Sign"
+        },
+        "AvalancheEvalProblem2": {
+            "AvalCauseAttributeLightTID": "Unfavorable properties of the weak layer",
+            "AvalCauseDepthTID": "Distance from surface to weak layer",
+            "AvalCauseTID": "Type of weak layer",
+            "AvalProbabilityTID": "Probablity for avalanche",
+            "AvalTriggerSimpleTID": "Expected load to trigger avalanche",
+            "AvalancheExtTID": "Avalanche Type",
+            "Comment": "Comment",
+            "DestructiveSizeTID": "Size of expected avalanche",
+            "ObsName": "Avalanche Problem",
+            "PrevalenceArea": "Hazard distribution"
+        },
+        "AvalancheEvaluation": {
+            "AvalancheDangerTID": "Danger level",
+            "AvalancheEvaluation1": "Evaluation",
+            "AvalancheProblemTID1": "Avalanche problem 1",
+            "AvalancheProblemTID2": "Avalanche problem 2",
+            "AvalancheProblemTID3": "Avalanche problem 3",
+            "Comment": "Development",
+            "ObsName": "Avalanche Evaluation",
+            "ValidExposition": "Aspect"
+        },
+        "AvalancheEvaluation2": {
+            "AvalancheDangerTID": "Danger level",
+            "AvalancheDevelopment": "Development",
+            "AvalancheEvaluation": "Evaluation",
+            "AvalancheProblem": "Avalanche problem",
+            "ExposedTerrain": "Exposed terrain",
+            "ObsName": "Avalanche Evaluation"
+        },
+        "AvalancheEvaluation3": {
+            "AvalancheDangerTID": "Danger level",
+            "AvalancheDevelopment": "Development",
+            "AvalancheEvaluation": "Evaluation",
+            "ForecastComment": "Comment",
+            "ForecastCorrectTID": "Forecast feedback",
+            "ObsName": "Avalanche Evaluation"
+        },
+        "AvalancheObs": {
+            "AvalCauseTID": "Weak layer",
+            "Avalanche": "Avalanche",
+            "AvalancheTID": "Type",
+            "AvalancheTriggerTID": "Trigger",
+            "Comment": "Comment",
+            "DestructiveSizeTID": "Size",
+            "DtAvalancheTime": "Time",
+            "Facing": "facing",
+            "Fracture": "Fracture",
+            "FractureHeigth": "high",
+            "FractureWidth": "wide",
+            "HeightStartZoneText": "release at",
+            "HeigthStartZone": "Height of release area",
+            "HeigthStopZone": "Height og deposit area",
+            "HeigthStopZoneText": "ended at",
+            "ObsName": "Avalanche Observation",
+            "TerrainStartZoneTID": "Terrain start zone",
+            "Trajectory": "Avalanche path",
+            "ValidExposition": "Exposition"
+        },
+        "CompressionTest": {
+            "Comment": "Comment",
+            "ObsName": "Test",
+            "StabilityEvalTID": "Stability",
+            "Test": "Test"
+        },
+        "DamageObs": {
+            "Comment": "Comment",
+            "DamageTypeTID": "Type",
+            "ObsName": "Damage Observation"
+        },
+        "DangerObs": {
+            "Comment": "Comment",
+            "DangerSignTName": "Danger type",
+            "ObsName": "Danger Observation"
+        },
+        "GeneralObservation": {
+            "Comment": "Comment",
+            "ObsComment": "Text",
+            "ObsHeader": "Header",
+            "ObsName": "General Observation",
+            "Urls": "Links"
+        },
+        "IceCoverObs": {
+            "Comment": "Comment",
+            "IceCapacityTName": "Strength",
+            "IceCoverAfterTName": "Ice coverage after observation",
+            "IceCoverBeforeTName": "Ice coverage before observation",
+            "IceCoverTName": "Ice coverage",
+            "IceSkateabilityTName": "Skateability",
+            "ObsName": "Ice Cover Observation"
+        },
+        "IceThickness": {
+            "BeforeDrilling": "before drilling",
+            "Comment": "Comment",
+            "IceThicknessLayers": "Layers (from top to bottom)",
+            "IceThicknessSum": "Total thickness",
+            "IsEqualToIceSurface": "Surface water is equal to the ice surface",
+            "LowerThanIceSurface": "from the surface to the water in the hole",
+            "ObsName": "Ice Thickness",
+            "OverIce": "Above the ice",
+            "OverWater": "surface water",
+            "OverWaterAfterDrilling": "surface water after drilling",
+            "SlushSnow": "slush",
+            "Snow": "snow",
+            "Total": "in total",
+            "UnknownIceLayer": "unknown ice layer",
+            "WaterSurfaceInHole": "Water level in hole"
+        },
+        "Incident": {
+            "ActivityInfluencedTID": "Activity",
+            "Comment": "Comment",
+            "DamageExtentTID": "Extent",
+            "GeoHazardTID": "Observation type",
+            "IncidentHeader": "Headder",
+            "IncidentIngress": "Ingress",
+            "IncidentText": "Description",
+            "ObsName": "Incident",
+            "Urls": "Links"
+        },
+        "LandslideObs": {
+            "ActivityInfluencedTName": "What was affected?",
+            "And": " and ",
+            "Between": "Between",
+            "Comment": "Comment",
+            "DamageExtentTName": "Damage extent",
+            "ForecastAccurateTName": "Was warning on varsom.no accurate?",
+            "LandSlideSizeTName": "Size",
+            "LandSlideTName": "Landslide type",
+            "LandSlideTriggerTName": "Trigger",
+            "ObsName": "Landslide Observation",
+            "Time": "Time",
+            "Urls": "Links"
+        },
+        "Picture": {
+            "Aspect": "Orientation",
+            "Comment": "Comment",
+            "Copyright": "Copyright",
+            "ObsName": "Picture",
+            "Photographer": "Photographer",
+            "PictureComment": "Comment",
+            "RegistrationTID": "Picture of"
+        },
+        "SnowCover": {
+            "CriticalLayer": "Weak layer",
+            "CriticalLayerFound": "Weak layer observed.",
+            "CriticalLayerLocation": "Location",
+            "CriticalLayerNotFound": "No weak layer observed.",
+            "CriticalLayerTID": "Type",
+            "DepthHoar": "Depth hoar",
+            "DepthHoarInSnowCover": "depth hoar observed.",
+            "ObsName": "Snow profile",
+            "SnowPilotRefTID": "Snow profile",
+            "UnderSurface": "under the surface"
+        },
+        "SnowProfile": {
+            "Comment": "Comment",
+            "CompressionTest": "Test",
+            "CompressionTestPlural": "Tests",
+            "ConnectedToProfile": "connected to snow profile",
+            "LayersObserved": "layers observed",
+            "ObsName": "Snow Profile",
+            "SnowDensity": "Snow density",
+            "SnowDensityLayersObserved": "snow density layers observed",
+            "SnowTemperature": "Temperature",
+            "SnowTemperatureLayersObserved": "temperature points observed",
+            "StartProfileLayersObserved": "stratigraphy layers observed",
+            "StratLayers": "Stratigraphy layers"
+        },
+        "SnowSurfaceObservation": {
+            "FootPenetration": "Foot penetration",
+            "HeightLimitLayeredSnow": "Layered snow begins at",
+            "Kommentar": "Comment",
+            "NewSnow": "new snow",
+            "NewSnowDepth24": "New snow in last 24 hours",
+            "NewSnowLine": "Elevation of new snow",
+            "ObsName": "Snow Surface",
+            "SnowDepth": "Snow depth",
+            "SnowDriftTName": "Snow drift",
+            "SnowLine": "Snow line at",
+            "SnowLines": "Snow lines",
+            "SnowSurfaceTName": "Snow surface hardness",
+            "SurfaceRougnessTName": "Surface roughness",
+            "SurfaceWaterContentTName": "Snow water content",
+            "Total": "in total"
+        },
+        "WaterLevel": {
+            "AppliesFor": "Applies for",
+            "Comment": "Comment",
+            "Lake": "lake",
+            "MeasuredDischarge": "Measured discharge",
+            "ObsName": "Water Level",
+            "River": "river",
+            "WaterLevelDescribed": "Waterlevel description",
+            "WaterLevelRefTName": "Waterlevel measurement reference",
+            "WaterLevelValue": "Value"
+        },
+        "WaterLevel2": {
+            "Comment": "Comment",
+            "DtMeasurementTime": "Time",
+            "MeasuredRelativeTo": "Measurement relative to",
+            "MeasurementReferenceTName": "Watermarking on/with",
+            "MeasurementTypeTName": "Measurement instrument",
+            "ObsName": "Water Level",
+            "ObservationTimingTName": "What is registered?",
+            "WaterAstrayTName": "Is there any water astray?",
+            "WaterLevelStateTName": "Situation",
+            "WaterMarking": "Water marking",
+            "WaterMeasurement": "Water measurement",
+            "WaterMeasurementValue": "Value",
+            "With": "with"
+        },
+        "WeatherObservation": {
+            "AirTemperature": "Air Temperature",
+            "CloudCover": "Cloud cover",
+            "Clouds": "clouds",
+            "Comment": "Comment",
+            "ObsName": "Weather",
+            "PrecipitationTID": "Precipitation type",
+            "Wind": "Wind",
+            "WindDirection": "from"
+        }
+    }
+}

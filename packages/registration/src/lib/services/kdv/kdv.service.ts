@@ -7,6 +7,7 @@ import { OfflineDbService } from '../offline-db/offline-db.service';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import moment from 'moment';
 import { HttpClient } from '@angular/common/http';
+import { KdvKey } from '../../models/kdv-key.type';
 
 export interface KdvDbElementsRow { langKey: LangKey; lastUpdated: number; kdvElements: KdvElementsResponseDto; }
 const AUTO_UPDATE_KDV_ELEMENTS = true; // TODO: Add this to module config?
@@ -50,11 +51,11 @@ export class KdvService implements OnDestroy {
     return this.getUpdateKdvElementsObservable(force).pipe(take(1));
   }
 
-  public getKdvRepositoryByKeyObservable(key: string): Observable<KdvElement[]> {
+  public getKdvRepositoryByKeyObservable(key: KdvKey): Observable<KdvElement[]> {
     return this.kdvElements$.pipe(map((val) => val.KdvRepositories[key]));
   }
 
-  public getViewRepositoryByKeyObservable(key: string) {
+  public getViewRepositoryByKeyObservable(key: KdvKey) {
     return this.kdvElements$.pipe(map((val) => val.ViewRepositories[key]));
   }
 
