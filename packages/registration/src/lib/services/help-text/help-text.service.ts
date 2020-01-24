@@ -1,24 +1,46 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { HelptextDto } from '../../../../../../dist/varsom-regobs-common/regobs-api';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { HelptextDto } from '@varsom-regobs-common/regobs-api';
+import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
+import { AppMode, LoggerService, LangKey, getLangKeyString } from '@varsom-regobs-common/core';
+import { LanguageService } from '@varsom-regobs-common/core';
+import { TABLE_NAMES } from '../../db/nSQL-db.config';
+import { HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
+import { HttpClient } from '@angular/common/http';
+import { catchError, map } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { OfflineDbService } from '../offline-db/offline-db.service';
+
+const VALID_HELP_TEXT_SECONDS = 604800; // 7 days
+const HELP_TEXTS_ASSETS_FOLDER = '/assets/helptexts';
 
 @Injectable({
   providedIn: 'root'
 })
-export class HelpTextService {
+export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
 
-  private _helpTexts$: Observable<HelptextDto[]>;
-  private _isUpdating$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-  private updateHelpTextsSubscription: Subscription;
-
-  public get helpTexts$(): Observable<HelptextDto[]> {
-    return this._helpTexts$;
+  constructor(protected offlineDbService: OfflineDbService,
+    protected languageService: LanguageService,
+    protected logger: LoggerService,
+    private helpTextApiService: HelpTextApiService,
+    private httpClient: HttpClient) {
+    super({
+      offlineTableName: TABLE_NAMES.HELP_TEXTS,
+      useLangKeyAsDbKey: true,
+      validSeconds: VALID_HELP_TEXT_SECONDS
+    }, offlineDbService, languageService, logger);
   }
 
-  public get isUpdating$(): Observable<boolean> {
-    return this._isUpdating$.asObservable();
+  public getUpdatedData(_: AppMode, langKey: LangKey): Observable<HelptextDto[]> {
+    return this.helpTextApiService.HelptextGet(langKey);
   }
 
-  constructor() { }
+  public getFallbackData(_: AppMode, langKey: LangKey): Observable<HelptextDto[]> {
+    return this.httpClient.get<HelptextDto[]>
+      (`${HELP_TEXTS_ASSETS_FOLDER}/helptexts.${getLangKeyString(langKey)}.json`)
+      .pipe(catchError((err) => {
+        this.logger.warn(`Helptexts for language ${getLangKeyString(langKey)} not found in assets/kdvelements folder`, err);
+        return of([]);
+      }));
+  }
 }

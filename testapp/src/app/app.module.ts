@@ -9,9 +9,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './home/home.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { LanguageSelectComponent } from './components/language-select/language-select.component';
-import { API_KEY_TOKEN } from '@varsom-regobs-common/regobs-api';
+import { API_KEY_TOKEN, RegobsApiModule } from '@varsom-regobs-common/regobs-api';
 import { LocalStorageApiKeyProvider } from './local-storage-api-key.provider';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
+import { HelptextsComponent } from './helptexts/helptexts.component';
 
 
 @NgModule({
@@ -20,12 +21,14 @@ import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
     KdvElementsComponent,
     HomeComponent,
     RegistrationComponent,
-    LanguageSelectComponent
+    LanguageSelectComponent,
+    HelptextsComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     CoreModule,
+    RegobsApiModule.forRoot(),
     RegistrationModule.forRoot({ useFakeSyncService: true }),
     AppRoutingModule,
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
