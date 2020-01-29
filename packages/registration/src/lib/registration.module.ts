@@ -5,8 +5,6 @@ import { RegobsApiSyncCallbackService } from './services/item-sync-callback/rego
 import { RegobsApiModule, RegistrationService } from '@varsom-regobs-common/regobs-api';
 import { InanoSQLAdapter } from '@nano-sql/core/lib/interfaces';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { ISummaryProvider } from './services/summary-providers/summary-provider.interface';
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
@@ -19,21 +17,11 @@ export interface IRegistrationModuleOptions {
   useFakeSyncService?: boolean;
 }
 
-export function createTranslateLoader(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/varsom-regobs-registration/i18n', '.json');
-}
-
 @NgModule({
   imports: [
     CoreModule,
     RegobsApiModule,
-    TranslateModule.forChild({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: createTranslateLoader,
-        deps: [HttpClient]
-      }
-    })
+    TranslateModule,
   ],
   declarations: [],
   exports: []

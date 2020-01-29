@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { HelptextDto } from '@varsom-regobs-common/regobs-api';
 import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
-import { AppMode, LoggerService, LangKey, getLangKeyString } from '@varsom-regobs-common/core';
-import { LanguageService } from '@varsom-regobs-common/core';
+import { AppMode, LoggerService, LangKey, getLangKeyString, LanguageService, GeoHazard } from '@varsom-regobs-common/core';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
 import { HttpClient } from '@angular/common/http';
@@ -42,5 +41,15 @@ export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
         this.logger.warn(`Helptexts for language ${getLangKeyString(langKey)} not found in assets/kdvelements folder`, err);
         return of([]);
       }));
+  }
+
+  public getHelpTextObservable(geoHazard: GeoHazard, registrationTid: number): Observable<string> {
+    return this.data$.pipe(map((helptexts: HelptextDto[]) =>
+      helptexts.find((data) => data.GeoHazardTID === geoHazard && data.RegistrationTID === registrationTid)),
+      map((helpText) => !!helpText ? helpText.Text : undefined));
+  }
+
+  public hasHelpTextObservable(geoHazard: GeoHazard, registrationTid: number) {
+    return this.getHelpTextObservable(geoHazard, registrationTid).pipe(map((val) => !!val));
   }
 }

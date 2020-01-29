@@ -1,7 +1,7 @@
 import { OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, from, of, EMPTY, Subject } from 'rxjs';
 import { LanguageService, LoggerService, AppMode, LangKey } from '@varsom-regobs-common/core';
-import { map, switchMap, shareReplay, skipWhile, catchError, take, tap, takeUntil, filter } from 'rxjs/operators';
+import { map, switchMap, shareReplay, catchError, take, tap, takeUntil, filter, distinctUntilChanged } from 'rxjs/operators';
 import { OfflineSyncMeta } from '../../models/offline-sync-meta.interface';
 import moment from 'moment';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -49,7 +49,8 @@ export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
         this.getOfflineData(appModeAndLanguage.appMode, appModeAndLanguage.langKey).pipe(
           map((offlineData) => ({ appMode: appModeAndLanguage.appMode, langKey: appModeAndLanguage.langKey, offlineData })))),
       switchMap((appLangOfflineData) => !this.isValid(appLangOfflineData.offlineData) ?
-        this.updateDataOrGetFallback(appLangOfflineData.appMode, appLangOfflineData.langKey) : EMPTY),
+        this.updateDataOrGetFallback(appLangOfflineData.appMode, appLangOfflineData.langKey) :
+        of(this.saveUpdatedDataInMemory(appLangOfflineData.appMode, appLangOfflineData.langKey, appLangOfflineData.offlineData.data))),
       takeUntil(this.ngDestroy$))
       .subscribe();
   }
