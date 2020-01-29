@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat } from 'rxjs';
+import { Observable, from, timer, BehaviorSubject, Subscription, of, EMPTY, concat, combineLatest } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { NSqlFullTableObservable, GeoHazard, AppMode, LoggerService, isEmpty } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, concatMap, catchError, debounceTime, skipWhile, mergeMap, toArray, take } from 'rxjs/operators';
@@ -13,7 +13,11 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { PictureRequestDto } from '@varsom-regobs-common/regobs-api';
+import { PictureRequestDto, Summary } from '@varsom-regobs-common/regobs-api';
+import { ValidRegistrationType } from '../../models/valid-registration.type';
+import { SUMMARY_PROVIDER_TOKEN } from '../../registration.module';
+import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
+
 
 @Injectable({
   providedIn: 'root'
@@ -36,7 +40,9 @@ export class RegistrationService {
     private offlineDbService: OfflineDbService,
     private settingsService: SettingsService,
     private loggerService: LoggerService,
-    @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>) {
+    @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
+    @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
+  ) {
     this._syncProgress$ = new BehaviorSubject(new SyncProgress());
     this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
       switchMap((appMode) => this.getRegistrationObservable(appMode)), shareReplay(1));
@@ -99,6 +105,75 @@ export class RegistrationService {
       },
     };
     return draft;
+  }
+
+  public getOrCreateNewRegistrationForm(reg: IRegistration, tid: RegistrationTid): ValidRegistrationType {
+    if (this.isObservationEmptyForRegistrationTid(reg, tid)) {
+      return this.isArrayType(tid) ? [] : {};
+    }
+    return this.getRegistationProperty(reg, tid);
+  }
+
+  /**
+   * Converts a registration draft to summary as the same model as generated from the API
+   * @param reg Registration draft
+   * @param registrationTid Registration tid
+   */
+  public getDraftSummary(reg: IRegistration, registrationTid: RegistrationTid): Observable<Summary> {
+    if (!this.isObservationEmptyForRegistrationTid(reg, registrationTid)) {
+      const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
+      if (provider) {
+        return provider.generateSummary(reg);
+      }
+    }
+    return of({});
+  }
+
+  public getDraftSummaries(reg: IRegistration) {
+    return combineLatest(this.getRegistrationTidsForGeoHazard(reg.geoHazard)
+      .map((tid) => this.getDraftSummary(reg, tid)));
+  }
+
+  /**
+   * Returns true if Registration Tid is of Array type
+   * @param tid RegistrationTid
+   */
+  public isArrayType(tid: RegistrationTid) {
+    return [
+      RegistrationTid.AvalancheActivityObs,
+      RegistrationTid.AvalancheActivityObs2,
+      RegistrationTid.AvalancheDangerObs,
+      RegistrationTid.AvalancheEvalProblem2,
+      RegistrationTid.CompressionTest,
+      RegistrationTid.DangerObs,
+      RegistrationTid.Picture,
+      RegistrationTid.DamageObs
+    ].indexOf(tid) >= 0;
+  }
+
+  /**
+   * Get valid registration Tids (types) for given GeoHazard
+   * @param geoHazard GeoHazard
+   */
+  public getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
+    const goHazardTids = new Map<GeoHazard, Array<RegistrationTid>>([
+      [GeoHazard.Snow, [
+        RegistrationTid.DangerObs,
+        RegistrationTid.AvalancheObs,
+        RegistrationTid.AvalancheActivityObs2,
+        RegistrationTid.WeatherObservation,
+        RegistrationTid.SnowSurfaceObservation,
+        RegistrationTid.CompressionTest,
+        RegistrationTid.SnowProfile2,
+        RegistrationTid.AvalancheEvalProblem2,
+        RegistrationTid.AvalancheEvaluation3
+      ]],
+      [GeoHazard.Ice, [RegistrationTid.IceCoverObs, RegistrationTid.IceThickness, RegistrationTid.DangerObs, RegistrationTid.Incident]],
+      [GeoHazard.Water, [RegistrationTid.WaterLevel2, RegistrationTid.DamageObs]],
+      [GeoHazard.Soil, [RegistrationTid.DangerObs, RegistrationTid.LandSlideObs]]
+    ]);
+    const generalObs = [RegistrationTid.GeneralObservation];
+    return goHazardTids.get(geoHazard).concat(generalObs);
   }
 
   private getRegistrationObservable(appMode: AppMode) {
@@ -186,7 +261,7 @@ export class RegistrationService {
     return true;
   }
 
-  public getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid) {
+  public getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
     if (reg && reg.request && registrationTid) {
       return reg.request[this.getPropertyName(registrationTid)];
     }

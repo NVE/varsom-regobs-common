@@ -4,11 +4,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { KdvElementsComponent } from './kdv-elements/kdv-elements.component';
 import { HomeComponent } from './home/home.component';
 import { RegistrationComponent } from './registration/registration.component';
+import { HelptextsComponent } from './helptexts/helptexts.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'registration', component: RegistrationComponent },
-  { path: 'kdv', component: KdvElementsComponent }
+  { path: 'kdv', component: KdvElementsComponent },
+  { path: 'helptexts', component: HelptextsComponent }
 ];
 
 @NgModule({
