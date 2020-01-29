@@ -18,11 +18,6 @@ export class KdvElementsComponent implements OnInit {
   getString(kdvElements: KdvElementsResponseDto) {
     return JSON.stringify(kdvElements);
   }
-
-  updateKdvElements() {
-    this.kdvService.updateKdvElements(true).subscribe();
-  }
-
   ngOnInit() {
   }
 

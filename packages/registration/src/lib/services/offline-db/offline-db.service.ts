@@ -6,6 +6,7 @@ import { switchMap, shareReplay, tap, distinctUntilChanged, map } from 'rxjs/ope
 import { DB_NAME_TEMPLATE, DB_TABLE_CONFIG } from '../../db/nSQL-db.config';
 import { nSQL } from '@nano-sql/core';
 import { OfflineDbServiceOptions } from './offline-db-service.options';
+import moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,14 @@ export class OfflineDbService {
 
   public getDbInstance(appMode: AppMode) {
     return nSQL().useDatabase(this.getDbName(appMode));
+  }
+
+  public getOfflineRecords<T>(appMode: AppMode, table: string, key: string, keyValue: string | number): Promise<T[]> {
+    return this.getDbInstance(appMode).selectTable(table).query('select').where([`${key}`, '=', keyValue]).exec() as Promise<T[]>;
+  }
+
+  public saveOfflineRecords<T>(appMode: AppMode, table: string, data: T | T[]): Promise<T[]> {
+    return this.getDbInstance(appMode).selectTable(table).query('upsert', data).exec() as Promise<T[]>;
   }
 
   private async createDbIfNotExist(appMode: AppMode): Promise<AppMode> {

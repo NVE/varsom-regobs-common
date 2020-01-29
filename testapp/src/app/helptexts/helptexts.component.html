@@ -7,10 +7,10 @@
     </select>
 </div>
 <app-language-select></app-language-select>
-<button (click)="kdvService.update()">Tving oppdatering</button>
-<div *ngIf="kdvService.isUpdating$ | async as isUpdating">
-    Oppdaterer kdv elementer..
+<button (click)="helpTextService.update()">Tving oppdatering</button>
+<div *ngIf="helpTextService.isUpdating$ | async as isUpdating">
+    Oppdaterer hjelpetekster..
 </div>
-<div *ngIf="kdvService.data$ | async as kdvElements">
-    {{ getString(kdvElements) }}
+<div *ngIf="helpTextService.data$ | async as helptexts">
+    {{ getString(helptexts) }}
 </div>
