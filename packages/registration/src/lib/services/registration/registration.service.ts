@@ -13,11 +13,10 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { PictureRequestDto, Summary } from '@varsom-regobs-common/regobs-api';
+import { AttachmentEditModel, Summary } from '@varsom-regobs-common/regobs-api';
 import { ValidRegistrationType } from '../../models/valid-registration.type';
 import { SUMMARY_PROVIDER_TOKEN } from '../../registration.module';
 import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
-
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +54,7 @@ export class RegistrationService {
     }
     return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
       from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('upsert', reg).exec())),
-      take(1) // Important. Completes observable.
+    take(1) // Important. Completes observable.
     );
   }
 
@@ -63,7 +62,7 @@ export class RegistrationService {
     return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
       from(this.offlineDbService.getDbInstance(appMode)
         .selectTable(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec())),
-      take(1) // Important. Completes observable.
+    take(1) // Important. Completes observable.
     );
   }
 
@@ -96,9 +95,7 @@ export class RegistrationService {
       changed: moment().unix(),
       syncStatus: SyncStatus.Draft,
       request: {
-        Id: id,
         GeoHazardTID: geoHazard,
-        ObserverGuid: undefined,
         DtObsTime: undefined,
         ObsLocation: {
         },
@@ -206,17 +203,17 @@ export class RegistrationService {
   private createRegistrationSyncObservable() {
     return this.getRegistrationsToSyncObservable().pipe(switchMap((records) =>
       timer(0, 60 * 1000).pipe(map(() => records))),
-      skipWhile(() => this._syncProgress$.value.inProgress),
-      tap((records) => this.resetSyncProgress(records)),
-      this.flattenRegistrationsToSync(),
-      concatMap((row) => of(this.setSyncProgress(row)).pipe(map(() => row))),
-      this.updateRowAndReturnItem(),
-      toArray(),
-      catchError((error) => {
-        this.loggerService.warn('Could not sync registrations', error);
-        return EMPTY;
-      }),
-      tap((t) => this.resetSyncProgress())
+    skipWhile(() => this._syncProgress$.value.inProgress),
+    tap((records) => this.resetSyncProgress(records)),
+    this.flattenRegistrationsToSync(),
+    concatMap((row) => of(this.setSyncProgress(row)).pipe(map(() => row))),
+    this.updateRowAndReturnItem(),
+    toArray(),
+    catchError((error) => {
+      this.loggerService.warn('Could not sync registrations', error);
+      return EMPTY;
+    }),
+    tap(() => this.resetSyncProgress())
     );
   }
 
@@ -276,14 +273,14 @@ export class RegistrationService {
     return this.getImages(reg, registrationTid).length > 0;
   }
 
-  public getImages(reg: IRegistration, registrationTid: RegistrationTid): PictureRequestDto[] {
+  public getImages(reg: IRegistration, registrationTid: RegistrationTid): AttachmentEditModel[] {
     if (!reg) {
       return [];
     }
-    const pictures = (reg.request.Picture || []).filter((p) => p.RegistrationTID === registrationTid);
+    const pictures = (reg.request.Attachments || []).filter((p) => p.RegistrationTID === registrationTid);
     if (registrationTid === RegistrationTid.DamageObs) {
       for (const damageObs of (reg.request.DamageObs || [])) {
-        pictures.push(...(damageObs.Pictures || []));
+        pictures.push(...(damageObs.Attachments || []));
       }
     }
     return pictures;
@@ -311,12 +308,12 @@ export class RegistrationService {
         syncStatus: r.success ? SyncStatus.InSync : r.item.syncStatus,
         syncError: r.error,
       })),
-        concatMap((item) =>
-          this.saveRegistration(item, false)
-            .pipe(catchError((err) => {
-              this.loggerService.error('Could not update record in offline storage', err);
-              return of([]);
-            }), map(() => item)))
+      concatMap((item) =>
+        this.saveRegistration(item, false)
+          .pipe(catchError((err) => {
+            this.loggerService.error('Could not update record in offline storage', err);
+            return of([]);
+          }), map(() => item)))
       );
   }
 }

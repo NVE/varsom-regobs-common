@@ -1,11 +1,11 @@
 /* tslint:disable */
 export interface WeatherViewModel {
-  PrecipitationTID?: number;
   PrecipitationName?: string;
+  WindDirectionName?: string;
+  PrecipitationTID?: number;
   AirTemperature?: number;
   WindSpeed?: number;
   WindDirection?: number;
-  WindDirectionName?: string;
   CloudCover?: number;
   Comment?: string;
 }

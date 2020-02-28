@@ -1,15 +1,12 @@
 /* tslint:disable */
 import { StratProfileViewModel } from './strat-profile-view-model';
-import { SnowTempViewModel } from './snow-temp-view-model';
-import { SnowDensityViewModel } from './snow-density-view-model';
-import { CompressionTestViewModel } from './compression-test-view-model';
+import { SnowTempModel } from './snow-temp-model';
+import { SnowDensityModel } from './snow-density-model';
 export interface SnowProfileViewModel {
   TotalDepth?: number;
-  AttachmentID?: number;
+  StratProfile?: StratProfileViewModel;
   Comment?: string;
   IsProfileToGround?: boolean;
-  StratProfile?: StratProfileViewModel;
-  SnowTemp?: SnowTempViewModel;
-  SnowDensity?: Array<SnowDensityViewModel>;
-  CompressionTest?: Array<CompressionTestViewModel>;
+  SnowTemp?: SnowTempModel;
+  SnowDensity?: Array<SnowDensityModel>;
 }

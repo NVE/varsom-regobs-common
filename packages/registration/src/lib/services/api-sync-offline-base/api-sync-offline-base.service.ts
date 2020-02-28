@@ -1,7 +1,7 @@
 import { OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, from, of, EMPTY, Subject } from 'rxjs';
 import { LanguageService, LoggerService, AppMode, LangKey } from '@varsom-regobs-common/core';
-import { map, switchMap, shareReplay, catchError, take, tap, takeUntil, filter, distinctUntilChanged } from 'rxjs/operators';
+import { map, switchMap, shareReplay, catchError, take, tap, takeUntil, filter } from 'rxjs/operators';
 import { OfflineSyncMeta } from '../../models/offline-sync-meta.interface';
 import moment from 'moment';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -9,7 +9,7 @@ import { OfflineDbService } from '../offline-db/offline-db.service';
 export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
   private isUpdatingSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private inMemoryData: BehaviorSubject<{ [appMode: string]: { [langKey: number]: T } }> = new BehaviorSubject({});
-  private readonly appModeAndLanguage$: Observable<{ appMode: AppMode, langKey: LangKey }>;
+  private readonly appModeAndLanguage$: Observable<{ appMode: AppMode; langKey: LangKey }>;
   private readonly ngDestroySubject = new Subject();
 
   public get isUpdating$() {
@@ -24,11 +24,11 @@ export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
 
   constructor(
     protected options: {
-      offlineTableName: string,
-      useLangKeyAsDbKey: boolean,
-      validSeconds: number,
-      offlineTableKey?: string | number,
-      offlineTableKeyname?: string,
+      offlineTableName: string;
+      useLangKeyAsDbKey: boolean;
+      validSeconds: number;
+      offlineTableKey?: string | number;
+      offlineTableKeyname?: string;
     },
     protected offlineDbService: OfflineDbService,
     protected languageService: LanguageService,

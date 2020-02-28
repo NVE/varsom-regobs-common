@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import { AppMode, AppModeService, LoggerService } from '@varsom-regobs-common/core';
 import { NSQL_TABLE_NAME_PLUGIN } from '../../db/nSQL-table-name.plugin';
 import { Observable, from } from 'rxjs';
-import { switchMap, shareReplay, tap, distinctUntilChanged, map } from 'rxjs/operators';
+import { switchMap, shareReplay, tap, distinctUntilChanged } from 'rxjs/operators';
 import { DB_NAME_TEMPLATE, DB_TABLE_CONFIG } from '../../db/nSQL-db.config';
 import { nSQL } from '@nano-sql/core';
 import { OfflineDbServiceOptions } from './offline-db-service.options';
-import moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +26,6 @@ export class OfflineDbService {
       tap((val) => logger.log('App mode initalized', val)),
       shareReplay(1));
   }
-
 
   private getDbName(appMode: AppMode): string {
     return `${DB_NAME_TEMPLATE}_${appMode}`;

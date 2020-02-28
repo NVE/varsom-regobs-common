@@ -1,51 +1,40 @@
 import {
-    AvalancheActivityObsDto,
-    AvalancheActivityObs2Dto,
-    AvalancheDangerObsDto,
-    AvalancheEvalProblem2Dto,
-    AvalancheEvaluation3Dto,
-    AvalancheObsDto,
-    CompressionTestDto,
-    DangerObsDto,
-    GeneralObservationEditModel,
-    IceCoverObsDto,
-    IceThicknessDto,
-    IncidentDto,
-    LandSlideObsDto,
-    ObsLocationDto,
-    PictureRequestDto,
-    SnowCoverObsDto,
-    SnowProfileDto,
-    SnowSurfaceObservationDto,
-    WaterLevelDto,
-    WeatherObservationDto,
-    WaterLevel2Dto,
-    DamageObsDto,
-    DensityProfileDto,
-
+  AvalancheActivityObs2EditModel,
+  AvalancheEvalProblem2EditModel,
+  AvalancheEvaluation3EditModel,
+  AvalancheObsEditModel,
+  CompressionTestEditModel,
+  DangerObsEditModel,
+  GeneralObservationEditModel,
+  IceCoverEditModel,
+  IceThicknessEditModel,
+  IncidentEditModel,
+  LandslideEditModel,
+  ObsLocationEditModel,
+  AttachmentEditModel,
+  SnowProfileEditModel,
+  SnowSurfaceEditModel,
+  WeatherEditModel,
+  Waterlevel2EditModel,
+  DamageObsEditModel
 } from '@varsom-regobs-common/regobs-api';
 
 export type ValidRegistrationType =
-    Array<AvalancheActivityObsDto> |
-    Array<AvalancheActivityObs2Dto> |
-    Array<AvalancheDangerObsDto> |
-    Array<AvalancheEvalProblem2Dto> |
-    AvalancheEvaluation3Dto |
-    AvalancheObsDto |
-    Array<CompressionTestDto> |
-    Array<DangerObsDto> |
-    GeneralObservationEditModel |
-    IceCoverObsDto |
-    IceThicknessDto |
-    IncidentDto |
-    LandSlideObsDto |
-    ObsLocationDto |
-    Array<PictureRequestDto> |
-    SnowCoverObsDto |
-    SnowProfileDto |
-    SnowSurfaceObservationDto |
-    WaterLevelDto |
-    WeatherObservationDto |
-    WaterLevel2Dto |
-    Array<DamageObsDto> |
-    DensityProfileDto;
+  | Array<AvalancheActivityObs2EditModel>
+  | Array<AvalancheEvalProblem2EditModel>
+  | AvalancheEvaluation3EditModel
+  | AvalancheObsEditModel
+  | Array<CompressionTestEditModel>
+  | Array<DangerObsEditModel>
+  | GeneralObservationEditModel
+  | IceCoverEditModel
+  | IceThicknessEditModel
+  | IncidentEditModel
+  | LandslideEditModel
+  | ObsLocationEditModel
+  | Array<AttachmentEditModel>
+  | SnowProfileEditModel
+  | SnowSurfaceEditModel
+  | WeatherEditModel
+  | Waterlevel2EditModel
+  | Array<DamageObsEditModel>;

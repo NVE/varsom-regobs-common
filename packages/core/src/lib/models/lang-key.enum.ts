@@ -7,6 +7,6 @@ export enum LangKey {
 }
 
 export function getLangKeyString(langKey: LangKey) {
-    return LangKey[langKey];
+  return LangKey[langKey];
 }
 

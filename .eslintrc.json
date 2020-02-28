@@ -1,0 +1,65 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "overrides": [{
+      "files":[
+        "packages/core/src/*.ts", 
+        "packages/registration/src/*.ts"
+      ]
+    }],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "tsconfig.json",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-unused-vars": "error", // TODO Ubrukte funksjoner?
+        "curly": "error",
+        "indent": [
+            "warn",
+            2
+        ],
+        "@typescript-eslint/interface-name-prefix": "off",
+        "max-len": [
+            "error",
+            {
+                "ignorePattern": "^import |// import",
+                "code": 200
+            }
+        ],
+        "no-multiple-empty-lines": [
+            "warn",
+            {
+                "max": 1
+            }
+        ],
+        "no-throw-literal": "error",
+        "no-trailing-spaces": [
+            "error"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ]
+    }
+}

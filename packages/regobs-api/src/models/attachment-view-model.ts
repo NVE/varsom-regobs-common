@@ -1,16 +1,16 @@
 /* tslint:disable */
 export interface AttachmentViewModel {
-  RegID?: number;
-  PictureID?: number;
+  AttachmentId?: number;
+  GeoHazardName?: string;
+  RegistrationName?: string;
+  UrlFormats?: {Raw?: string, Original?: string, Thumbnail?: string, Large?: string, Medium?: string};
+  Url?: string;
   Photographer?: string;
   Copyright?: string;
   Aspect?: number;
   GeoHazardTID?: number;
-  GeoHazardName?: string;
   RegistrationTID?: number;
-  RegistrationName?: string;
   Comment?: string;
-  AttachmentFileName?: string;
   AttachmentMimeType?: string;
   IsMainAttachment?: boolean;
 }

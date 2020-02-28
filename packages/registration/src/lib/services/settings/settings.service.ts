@@ -29,7 +29,7 @@ export class SettingsService {
     return this.offlineDbService.appModeInitialized$.pipe(concatMap((appMode) =>
       from(this.offlineDbService.getDbInstance(appMode)
         .selectTable(TABLE_NAMES.USER_SETTINGS).query('upsert', { id: SETTINGS_ROW_ID, ...settings }).exec())),
-      take(1)); // Completes observable
+    take(1)); // Completes observable
   }
 
   private getRegistrationSettingsObservable(appMode: AppMode): Observable<IRegistrationSettings> {
