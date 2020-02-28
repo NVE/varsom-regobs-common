@@ -1,16 +1,14 @@
 import { HttpRequest, HttpInterceptor, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { settings } from './settings';
-import { IRegobsApiKeyProvider } from './regobs-api.module';
+import { IRegobsApiKeyProvider } from './regobs-api-with-config.module';
+import { RegobsApiConfiguration } from './regobs-api-configuration';
 
 export class ApiInterceptor implements HttpInterceptor {
-    constructor(private apiKeyProvider: IRegobsApiKeyProvider) {
+    constructor(private apiKeyProvider: IRegobsApiKeyProvider, private regobsApiConfiguration: RegobsApiConfiguration) {
     }
 
     private isRegObsApi(url: string) {
-        return url.startsWith(settings.regObsApi.baseUrl['TEST'])
-            || url.startsWith(settings.regObsApi.baseUrl['DEMO'])
-            || url.startsWith(settings.regObsApi.baseUrl['PROD']);
+        return url.startsWith(this.regobsApiConfiguration.rootUrl);
     }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

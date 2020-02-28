@@ -36,7 +36,7 @@ export class RegistrationComponent implements OnInit {
 
   async addRegistration() {
     const draft = this.registrationService.createNewEmptyDraft(GeoHazard.Snow);
-    draft.request.Comment = this.appMode;
+    // draft.request.Comment = this.appMode;
     const result = await this.registrationService.saveRegistration(draft).toPromise();
     this.loggerService.log('Added registration', result);
   }

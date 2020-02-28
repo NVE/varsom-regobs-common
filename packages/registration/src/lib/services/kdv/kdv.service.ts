@@ -9,7 +9,6 @@ import { HttpClient } from '@angular/common/http';
 import { KdvKey } from '../../models/kdv-key.type';
 import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
 
-
 const KDV_ASSETS_FOLDER = '/assets/kdvelements'; // TODO: Add this to module config?
 const VALID_KDV_ELEMENTS_SECONDS = 604800; // 7 days
 
@@ -36,7 +35,7 @@ export class KdvService extends ApiSyncOfflineBaseService<KdvElementsResponseDto
 
   public getFallbackData(_: AppMode, langKey: LangKey): Observable<KdvElementsResponseDto> {
     return this.httpClient.get<KdvElementsResponseDto>
-      (`${KDV_ASSETS_FOLDER}/kdvelements.${getLangKeyString(langKey)}.json`)
+    (`${KDV_ASSETS_FOLDER}/kdvelements.${getLangKeyString(langKey)}.json`)
       .pipe(catchError((err) => {
         this.logger.warn(`Kdv elements for language ${getLangKeyString(langKey)} not found in assets/kdvelements folder`, err);
         return of({

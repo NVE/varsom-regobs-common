@@ -36,7 +36,7 @@ export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
 
   public getFallbackData(_: AppMode, langKey: LangKey): Observable<HelptextDto[]> {
     return this.httpClient.get<HelptextDto[]>
-      (`${HELP_TEXTS_ASSETS_FOLDER}/helptexts.${getLangKeyString(langKey)}.json`)
+    (`${HELP_TEXTS_ASSETS_FOLDER}/helptexts.${getLangKeyString(langKey)}.json`)
       .pipe(catchError((err) => {
         this.logger.warn(`Helptexts for language ${getLangKeyString(langKey)} not found in assets/kdvelements folder`, err);
         return of([]);
@@ -46,7 +46,7 @@ export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
   public getHelpTextObservable(geoHazard: GeoHazard, registrationTid: number): Observable<string> {
     return this.data$.pipe(map((helptexts: HelptextDto[]) =>
       helptexts.find((data) => data.GeoHazardTID === geoHazard && data.RegistrationTID === registrationTid)),
-      map((helpText) => !!helpText ? helpText.Text : undefined));
+    map((helpText) => helpText ? helpText.Text : undefined));
   }
 
   public hasHelpTextObservable(geoHazard: GeoHazard, registrationTid: number) {

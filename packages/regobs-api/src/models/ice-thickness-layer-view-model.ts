@@ -1,8 +1,7 @@
 /* tslint:disable */
 export interface IceThicknessLayerViewModel {
-  IceLayerID?: number;
-  IceLayerTID?: number;
   IceLayerName?: string;
+  IceLayerTID?: number;
   IceLayerThickness?: number;
   Comment?: string;
 }

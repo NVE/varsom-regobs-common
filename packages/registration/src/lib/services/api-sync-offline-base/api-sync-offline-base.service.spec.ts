@@ -6,7 +6,7 @@ xdescribe('ApiSyncOfflineBaseService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: ApiSyncOfflineBaseService<any> = TestBed.get(ApiSyncOfflineBaseService);
+    const service: ApiSyncOfflineBaseService<unknown> = TestBed.get(ApiSyncOfflineBaseService);
     expect(service).toBeTruthy();
   });
 });

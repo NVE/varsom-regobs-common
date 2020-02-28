@@ -1,11 +1,12 @@
 /* tslint:disable */
-import { PositionDto } from './position-dto';
+import { AttachmentViewModel } from './attachment-view-model';
+import { LatLng } from './lat-lng';
 export interface DamageObsViewModel {
-  GeoHazardTID?: number;
   GeoHazardName?: string;
-  DamageTypeTID?: number;
   DamageTypeName?: string;
-  DamagePosition?: PositionDto;
+  Attachments?: Array<AttachmentViewModel>;
+  GeoHazardTID?: number;
+  DamageTypeTID: number;
+  DamagePosition?: LatLng;
   Comment?: string;
-  Attachments?: Array<number>;
 }

@@ -8,43 +8,43 @@ export class LoggerService {
 
   constructor(@Optional() private logger: NGXLogger) { }
 
-  log(message: any, ...additional: any[]) {
+  log(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.log(message, additional);
     }
   }
 
-  trace(message: any, ...additional: any[]) {
+  trace(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.trace(message, additional);
     }
   }
 
-  debug(message: any, ...additional: any[]) {
+  debug(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.debug(message, additional);
     }
   }
 
-  info(message: any, ...additional: any[]) {
+  info(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.info(message, additional);
     }
   }
 
-  warn(message: any, ...additional: any[]) {
+  warn(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.warn(message, additional);
     }
   }
 
-  error(message: any, ...additional: any[]) {
+  error(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.error(message, additional);
     }
   }
 
-  fatal(message: any, ...additional: any[]) {
+  fatal(message: unknown, ...additional: unknown[]) {
     if (this.logger) {
       this.logger.fatal(message, additional);
     }

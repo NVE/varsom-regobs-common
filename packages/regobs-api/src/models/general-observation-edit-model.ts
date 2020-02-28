@@ -1,10 +1,9 @@
 /* tslint:disable */
-import { UrlViewModel } from './url-view-model';
+import { UrlEditModel } from './url-edit-model';
 export interface GeneralObservationEditModel {
   GeoHazardTID?: number;
   ObsComment?: string;
   ObsHeader?: string;
-  UsageFlagTID?: number;
   Comment?: string;
-  Urls?: Array<UrlViewModel>;
+  Urls?: Array<UrlEditModel>;
 }

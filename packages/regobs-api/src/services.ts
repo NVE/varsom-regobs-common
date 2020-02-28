@@ -1,5 +1,5 @@
 export { AccountService } from './services/account.service';
-export { GeneralObsService } from './services/general-obs.service';
+export { AttachmentService } from './services/attachment.service';
 export { GeoCodeService } from './services/geo-code.service';
 export { HelptextService } from './services/helptext.service';
 export { KdvElementsService } from './services/kdv-elements.service';

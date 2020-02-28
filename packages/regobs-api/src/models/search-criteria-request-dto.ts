@@ -9,8 +9,6 @@ export interface SearchCriteriaRequestDto {
   ObserverId?: number;
   ObserverGuid?: string;
   GroupId?: number;
-  FromDate?: string;
-  ToDate?: string;
   FromDtObsTime?: string;
   ToDtObsTime?: string;
   FromDtChangeTime?: string;

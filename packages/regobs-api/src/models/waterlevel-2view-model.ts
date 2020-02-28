@@ -8,6 +8,8 @@ export interface Waterlevel2ViewModel {
   MeasurementTypeName?: string;
   WaterLevelMethodName?: string;
   MarkingReferenceName?: string;
+  MarkingTypeName?: string;
+  WaterLevelMeasurement?: Array<WaterLevelMeasurementViewModel>;
   WaterAstrayTID?: number;
   ObservationTimingTID?: number;
   MeasurementReferenceTID?: number;
@@ -16,8 +18,6 @@ export interface Waterlevel2ViewModel {
   MarkingReferenceTID?: number;
   WaterLevelStateTID?: number;
   MarkingTypeTID?: number;
-  MarkingTypeName?: string;
   MeasuringToolDescription?: string;
-  WaterLevelMeasurement?: Array<WaterLevelMeasurementViewModel>;
   Comment?: string;
 }

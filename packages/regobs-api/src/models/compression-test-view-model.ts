@@ -1,17 +1,16 @@
 /* tslint:disable */
 export interface CompressionTestViewModel {
-  CompressionTestID?: number;
-  CompressionTestTID?: number;
   CompressionTestName?: string;
+  PropagationName?: string;
+  StabilityEvalName?: string;
+  ComprTestFractureName?: string;
+  CompressionTestTID?: number;
   TapsFracture?: number;
   TapsFullPropagation?: number;
   PropagationTID?: number;
-  PropagationName?: string;
   FractureDepth?: number;
   StabilityEvalTID?: number;
-  StabilityEvalName?: string;
   ComprTestFractureTID?: number;
-  ComprTestFractureName?: string;
   Comment?: string;
   IncludeInSnowProfile?: boolean;
 }

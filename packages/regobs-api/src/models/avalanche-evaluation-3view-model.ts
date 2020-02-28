@@ -1,10 +1,10 @@
 /* tslint:disable */
 export interface AvalancheEvaluation3ViewModel {
-  AvalancheDangerTID?: number;
   AvalancheDangerName?: string;
+  ForecastCorrectName?: string;
+  AvalancheDangerTID?: number;
   AvalancheEvaluation?: string;
   AvalancheDevelopment?: string;
   ForecastCorrectTID?: number;
-  ForecastCorrectName?: string;
   ForecastComment?: string;
 }

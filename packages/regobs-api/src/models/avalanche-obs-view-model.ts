@@ -1,25 +1,21 @@
 /* tslint:disable */
 export interface AvalancheObsViewModel {
-  DtAvalancheTime?: string;
+  DestructiveSizeName?: string;
+  AvalancheTriggerName?: string;
+  AvalancheName?: string;
+  TerrainStartZoneName?: string;
+  AvalCauseName?: string;
+  DtAvalancheTime: string;
   Aspect?: number;
   HeightStartZone?: number;
   HeightStopZone?: number;
   DestructiveSizeTID?: number;
-  DestructiveSizeName?: string;
   AvalancheTriggerTID?: number;
-  AvalancheTriggerName?: string;
   AvalancheTID?: number;
-  AvalancheName?: string;
   TerrainStartZoneTID?: number;
-  TerrainStartZoneName?: string;
-  UTMZoneStop?: number;
-  UTMEastStop?: number;
-  UTMNorthStop?: number;
-  UTMEastStart?: number;
   SnowLine?: number;
   ValidExposition?: string;
   AvalCauseTID?: number;
-  AvalCauseName?: string;
   FractureHeight?: number;
   FractureWidth?: number;
   Trajectory?: string;
@@ -28,5 +24,4 @@ export interface AvalancheObsViewModel {
   StopLat?: number;
   StopLong?: number;
   Comment?: string;
-  UTMNorthStart?: number;
 }

@@ -8,8 +8,7 @@ import { Observable as __Observable } from 'rxjs';
 import { map as __map, filter as __filter } from 'rxjs/operators';
 
 import { RegistrationViewModel } from '../models/registration-view-model';
-import { CreateRegistrationRequestDto } from '../models/create-registration-request-dto';
-import { CreateRegistrationResponseDto } from '../models/create-registration-response-dto';
+import { RegistrationEditModel } from '../models/registration-edit-model';
 @Injectable({
   providedIn: 'root',
 })
@@ -17,8 +16,10 @@ class RegistrationService extends __BaseService {
   static readonly RegistrationGetPath = '/Registration/{regId}/{langKey}';
   static readonly RegistrationGetCaamlPath = '/Registration/Caaml/{regId}';
   static readonly RegistrationPlotPreviewPngPath = '/Registration/PlotPreviewPng';
+  static readonly RegistrationInsertOrUpdatePath = '/Registration/{id}';
+  static readonly RegistrationDeletePath = '/Registration/{id}';
   static readonly RegistrationInsertPath = '/Registration';
-  static readonly RegistrationValidatePath = '/Registration/Validate';
+  static readonly RegistrationValidatePath = '/Registration/Validate/{id}';
 
   constructor(
     config: __Configuration,
@@ -179,14 +180,114 @@ class RegistrationService extends __BaseService {
   }
 
   /**
-   * @param registration Registration data
+   * @param params The `RegistrationService.RegistrationInsertOrUpdateParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `id`: Set to regId if update existing registration, else leave blank
+   *
+   * - `langKey`: 1 = norwegian, 2 = english
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
    * @return OK
    */
-  RegistrationInsertResponse(registration: CreateRegistrationRequestDto): __Observable<__StrictHttpResponse<CreateRegistrationResponseDto>> {
+  RegistrationInsertOrUpdateResponse(params: RegistrationService.RegistrationInsertOrUpdateParams): __Observable<__StrictHttpResponse<RegistrationViewModel>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    __body = registration;
+    __body = params.registration;
+
+    if (params.langKey != null) __params = __params.set('langKey', params.langKey.toString());
+    if (params.externalReferenceId != null) __params = __params.set('externalReferenceId', params.externalReferenceId.toString());
+    let req = new HttpRequest<any>(
+      'PUT',
+      this.rootUrl + `/Registration/${params.id}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<RegistrationViewModel>;
+      })
+    );
+  }
+  /**
+   * @param params The `RegistrationService.RegistrationInsertOrUpdateParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `id`: Set to regId if update existing registration, else leave blank
+   *
+   * - `langKey`: 1 = norwegian, 2 = english
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
+   * @return OK
+   */
+  RegistrationInsertOrUpdate(params: RegistrationService.RegistrationInsertOrUpdateParams): __Observable<RegistrationViewModel> {
+    return this.RegistrationInsertOrUpdateResponse(params).pipe(
+      __map(_r => _r.body as RegistrationViewModel)
+    );
+  }
+
+  /**
+   * @param id undefined
+   */
+  RegistrationDeleteResponse(id: number): __Observable<__StrictHttpResponse<null>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/Registration/${id}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<null>;
+      })
+    );
+  }
+  /**
+   * @param id undefined
+   */
+  RegistrationDelete(id: number): __Observable<null> {
+    return this.RegistrationDeleteResponse(id).pipe(
+      __map(_r => _r.body as null)
+    );
+  }
+
+  /**
+   * @param params The `RegistrationService.RegistrationInsertParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `langKey`: 1 = norwegian, 2 = english
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
+   * @return OK
+   */
+  RegistrationInsertResponse(params: RegistrationService.RegistrationInsertParams): __Observable<__StrictHttpResponse<RegistrationViewModel>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = params.registration;
+    if (params.langKey != null) __params = __params.set('langKey', params.langKey.toString());
+    if (params.externalReferenceId != null) __params = __params.set('externalReferenceId', params.externalReferenceId.toString());
     let req = new HttpRequest<any>(
       'POST',
       this.rootUrl + `/Registration`,
@@ -200,32 +301,48 @@ class RegistrationService extends __BaseService {
     return this.http.request<any>(req).pipe(
       __filter(_r => _r instanceof HttpResponse),
       __map((_r) => {
-        return _r as __StrictHttpResponse<CreateRegistrationResponseDto>;
+        return _r as __StrictHttpResponse<RegistrationViewModel>;
       })
     );
   }
   /**
-   * @param registration Registration data
+   * @param params The `RegistrationService.RegistrationInsertParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `langKey`: 1 = norwegian, 2 = english
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
    * @return OK
    */
-  RegistrationInsert(registration: CreateRegistrationRequestDto): __Observable<CreateRegistrationResponseDto> {
-    return this.RegistrationInsertResponse(registration).pipe(
-      __map(_r => _r.body as CreateRegistrationResponseDto)
+  RegistrationInsert(params: RegistrationService.RegistrationInsertParams): __Observable<RegistrationViewModel> {
+    return this.RegistrationInsertResponse(params).pipe(
+      __map(_r => _r.body as RegistrationViewModel)
     );
   }
 
   /**
-   * @param registration Registration data
+   * @param params The `RegistrationService.RegistrationValidateParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `id`: RegId if existing registration else null if new
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
    * @return OK
    */
-  RegistrationValidateResponse(registration: CreateRegistrationRequestDto): __Observable<__StrictHttpResponse<CreateRegistrationResponseDto>> {
+  RegistrationValidateResponse(params: RegistrationService.RegistrationValidateParams): __Observable<__StrictHttpResponse<RegistrationEditModel>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    __body = registration;
+    __body = params.registration;
+
+    if (params.externalReferenceId != null) __params = __params.set('externalReferenceId', params.externalReferenceId.toString());
     let req = new HttpRequest<any>(
       'POST',
-      this.rootUrl + `/Registration/Validate`,
+      this.rootUrl + `/Registration/Validate/${params.id}`,
       __body,
       {
         headers: __headers,
@@ -236,17 +353,24 @@ class RegistrationService extends __BaseService {
     return this.http.request<any>(req).pipe(
       __filter(_r => _r instanceof HttpResponse),
       __map((_r) => {
-        return _r as __StrictHttpResponse<CreateRegistrationResponseDto>;
+        return _r as __StrictHttpResponse<RegistrationEditModel>;
       })
     );
   }
   /**
-   * @param registration Registration data
+   * @param params The `RegistrationService.RegistrationValidateParams` containing the following parameters:
+   *
+   * - `registration`: Registration data
+   *
+   * - `id`: RegId if existing registration else null if new
+   *
+   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   *
    * @return OK
    */
-  RegistrationValidate(registration: CreateRegistrationRequestDto): __Observable<CreateRegistrationResponseDto> {
-    return this.RegistrationValidateResponse(registration).pipe(
-      __map(_r => _r.body as CreateRegistrationResponseDto)
+  RegistrationValidate(params: RegistrationService.RegistrationValidateParams): __Observable<RegistrationEditModel> {
+    return this.RegistrationValidateResponse(params).pipe(
+      __map(_r => _r.body as RegistrationEditModel)
     );
   }
 }
@@ -266,7 +390,7 @@ module RegistrationService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey: 1 | 2;
+    langKey: 1 | 2 | 3 | 4 | 5;
   }
 
   /**
@@ -278,14 +402,82 @@ module RegistrationService {
     /**
      * Snow profile registration
      */
-    registration: CreateRegistrationRequestDto;
+    registration: RegistrationEditModel;
     height: number;
     format: number;
 
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey?: 1 | 2;
+    langKey?: 1 | 2 | 3 | 4 | 5;
+  }
+
+  /**
+   * Parameters for RegistrationInsertOrUpdate
+   */
+  export interface RegistrationInsertOrUpdateParams {
+
+    /**
+     * Registration data
+     */
+    registration: RegistrationEditModel;
+
+    /**
+     * Set to regId if update existing registration, else leave blank
+     */
+    id: number;
+
+    /**
+     * 1 = norwegian, 2 = english
+     */
+    langKey?: 1 | 2 | 3 | 4 | 5;
+
+    /**
+     * External reference id, must be unique for application and in GUID format
+     */
+    externalReferenceId?: string;
+  }
+
+  /**
+   * Parameters for RegistrationInsert
+   */
+  export interface RegistrationInsertParams {
+
+    /**
+     * Registration data
+     */
+    registration: RegistrationEditModel;
+
+    /**
+     * 1 = norwegian, 2 = english
+     */
+    langKey?: 1 | 2 | 3 | 4 | 5;
+
+    /**
+     * External reference id, must be unique for application and in GUID format
+     */
+    externalReferenceId?: string;
+  }
+
+  /**
+   * Parameters for RegistrationValidate
+   */
+  export interface RegistrationValidateParams {
+
+    /**
+     * Registration data
+     */
+    registration: RegistrationEditModel;
+
+    /**
+     * RegId if existing registration else null if new
+     */
+    id: number;
+
+    /**
+     * External reference id, must be unique for application and in GUID format
+     */
+    externalReferenceId?: string;
   }
 }
 
