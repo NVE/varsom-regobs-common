@@ -1,6 +1,6 @@
 {
   "name": "varsom-regobs-common",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "scripts": {
     "ng": "ng",
     "eslint": "eslint",
