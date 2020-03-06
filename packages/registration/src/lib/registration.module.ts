@@ -1,20 +1,22 @@
 import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
-import { CoreModule, LanguageService } from '@varsom-regobs-common/core';
+import { CoreModule } from '@varsom-regobs-common/core';
 import { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-item-sync-callback.service';
 import { RegobsApiSyncCallbackService } from './services/item-sync-callback/regobs-api-sync-callback.service';
-import { RegobsApiModule, RegistrationService } from '@varsom-regobs-common/regobs-api';
+import { RegobsApiModule,} from '@varsom-regobs-common/regobs-api';
 import { InanoSQLAdapter } from '@nano-sql/core/lib/interfaces';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
 import { TranslateModule } from '@ngx-translate/core';
 import { ISummaryProvider } from './services/summary-providers/summary-provider.interface';
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpConnectivityInterceptor } from 'ngx-connectivity';
 
 export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
 export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
 
 export interface IRegistrationModuleOptions {
   dbMode?: string | InanoSQLAdapter;
-  useFakeSyncService?: boolean;
+  autoSync?: boolean;
 }
 
 export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOptions): OfflineDbServiceOptions {
@@ -27,12 +29,6 @@ export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOpti
     }
   }
   return offlineDbServiceOptions;
-}
-
-export function offlineRegistrationSyncServiceFactory(registrationService: RegistrationService, languageService: LanguageService, options?: IRegistrationModuleOptions) {
-  return options && options.useFakeSyncService ?
-    new FakeItemSyncCallbackService() :
-    new RegobsApiSyncCallbackService(registrationService, languageService);
 }
 
 @NgModule({
@@ -59,18 +55,39 @@ export class RegistrationModule {
           deps: [FOR_ROOT_OPTIONS_TOKEN]
         },
         {
-          provide: 'OfflineRegistrationSyncService', useFactory:
-            offlineRegistrationSyncServiceFactory,
-          deps: [RegistrationService, LanguageService, FOR_ROOT_OPTIONS_TOKEN]
+          provide: 'OfflineRegistrationSyncService', useClass: RegobsApiSyncCallbackService
         },
         {
           provide: SUMMARY_PROVIDER_TOKEN, useClass: GeneralObservationSummaryProvider, multi: true
-        }
+        },
+        {
+          provide: HTTP_INTERCEPTORS,
+          useClass: HttpConnectivityInterceptor,
+          multi: true
+        },
       ]
     });
   }
 
   static forChild(options?: IRegistrationModuleOptions): ModuleWithProviders {
     return RegistrationModule.forRoot(options);
+  }
+
+  static forTesting(): ModuleWithProviders {
+    return ({
+      ngModule: RegistrationModule,
+      providers: [
+        {
+          provide: OfflineDbServiceOptions,
+          useValue: { dbMode: 'TEMP' },
+        },
+        {
+          provide: 'OfflineRegistrationSyncService', useClass: FakeItemSyncCallbackService
+        },
+        {
+          provide: SUMMARY_PROVIDER_TOKEN, useClass: GeneralObservationSummaryProvider, multi: true
+        }
+      ]
+    });
   }
 }

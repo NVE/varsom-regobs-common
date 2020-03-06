@@ -1,12 +1,12 @@
-import { TestBed } from '@angular/core/testing';
+// import { TestBed } from '@angular/core/testing';
 
-import { SettingsService } from './settings.service';
+// import { SettingsService } from './settings.service';
 
-xdescribe('SettingsService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+// xdescribe('SettingsService', () => {
+//   beforeEach(() => TestBed.configureTestingModule({}));
 
-  it('should be created', () => {
-    const service: SettingsService = TestBed.get(SettingsService);
-    expect(service).toBeTruthy();
-  });
-});
+//   it('should be created', () => {
+//     const service: SettingsService = TestBed.get(SettingsService);
+//     expect(service).toBeTruthy();
+//   });
+// });

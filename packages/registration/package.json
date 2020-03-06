@@ -11,7 +11,8 @@
     "@varsom-regobs-common/regobs-api": "^1.0.7",
     "ngx-logger": "^4.0.0",
     "@ngx-translate/core": "^11.0.0",
-    "@ngx-translate/http-loader": "^4.0.0"
+    "@ngx-translate/http-loader": "^4.0.0",
+    "ngx-connectivity": "^0.0.5"
   },
   "dependencies": {},
   "devDependencies": {}
