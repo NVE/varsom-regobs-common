@@ -46,6 +46,7 @@ export class ProgressService {
   }
 
   setAttachmentProgress(fileUrl: string, total: number, complete: number) {
+    this.loggerService.log(`Set attachment progress. Complete: ${complete}/${total}. ${fileUrl}`);
     const currentSubject = this._attachmentUploadProgress.get(fileUrl);
     const val = { total, complete };
     if(!currentSubject) {

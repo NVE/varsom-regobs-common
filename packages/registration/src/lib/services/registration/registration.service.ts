@@ -11,14 +11,18 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { Summary } from '@varsom-regobs-common/regobs-api';
+import { Summary, AttachmentViewModel } from '@varsom-regobs-common/regobs-api';
 import { SUMMARY_PROVIDER_TOKEN, IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
-import { hasAnyObservations, isObservationEmptyForRegistrationTid,  getRegistrationTidsForGeoHazard } from '../../registration.helpers';
+import { hasAnyObservations, isObservationEmptyForRegistrationTid, getRegistrationTidsForGeoHazard, getAttachments } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
+import { KdvService } from '../kdv/kdv.service';
+import { AttachmentUploadEditModel } from '../../registration.models';
+import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
+import { SummariesWithAttachments } from '../../models/summary/summary-with-attachments';
 
-const SYNC_BUFFER_MS =  60 * 1000; // 60 seconds
+const SYNC_BUFFER_MS = 60 * 1000; // 60 seconds
 const SYNC_DEBOUNCE_TIME_MS = 200;
 
 @Injectable({
@@ -38,6 +42,7 @@ export class RegistrationService {
     // private settingsService: SettingsService,
     private loggerService: LoggerService,
     private progressService: ProgressService,
+    private kdvService: KdvService,
     private internetConnectivity: InternetConnectivity,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
     @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
@@ -69,7 +74,7 @@ export class RegistrationService {
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
     }
-    if(this.options.autoSync) {
+    if (this.options.autoSync) {
       this._registrationSyncSubscription = this.getAutoSyncObservable().subscribe();
     }
   }
@@ -110,7 +115,7 @@ export class RegistrationService {
   }
 
   public syncSingleRegistration(reg: IRegistration): Observable<boolean> {
-    if(!reg) {
+    if (!reg) {
       return of(false);
     }
     return of([reg]).pipe(this.resetProgressAndSyncItems(), map((result) => result.length > 0 && !result[0].syncError));
@@ -142,25 +147,92 @@ export class RegistrationService {
    * @param reg Registration draft
    * @param registrationTid Registration tid
    */
-  public getDraftSummary(reg: IRegistration, registrationTid: RegistrationTid): Observable<Summary> {
+  public getDraftSummary(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
     if (!isObservationEmptyForRegistrationTid(reg, registrationTid)) {
       const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
       if (provider) {
         return provider.generateSummary(reg);
       }
     }
-    return of({});
+    return addIfEmpty ? this.generateEmptySummary(registrationTid) : of(null);
   }
 
-  public getDraftSummaries(reg: IRegistration) {
+  public getSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
+    return (reg.syncStatus === SyncStatus.InSync) ?
+      this.getResponseSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
+      : this.getDraftSummary(reg, registrationTid, addIfEmpty);
+  }
+
+  private getRegistrationName(registrationTid: RegistrationTid): Observable<string> {
+    return this.kdvService.getKdvRepositoryByKeyObservable('RegistrationKDV').pipe(
+      map((kdvElements) => kdvElements.find((kdv) => kdv.Id === registrationTid)), map((val) => val ? val.Name : ''));
+  }
+
+  private getResponseSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
+    if(reg && reg.response && reg.response.Summaries && reg.response.Summaries.length > 0) {
+      const summary = reg.response.Summaries.filter(x => x.RegistrationTID === registrationTid);
+      if(summary) {
+        return of(summary);
+      }
+    }
+    return addIfEmpty ? this.generateEmptySummary(registrationTid) : of(null);
+  }
+
+  private generateEmptySummary(registrationTid: RegistrationTid): Observable<Summary> {
+    return this.getRegistrationName(registrationTid).pipe(map((registrationName) => ({
+      RegistrationTID: registrationTid,
+      RegistrationName: registrationName,
+      Summaries: []  })));
+  }
+
+  // public getDraftSummaries(reg: IRegistration): Observable<Summary[][]> {
+  //   return combineLatest(getRegistrationTidsForGeoHazard(reg.geoHazard)
+  //     .map((tid) => this.getDraftSummary(reg, tid)));
+  // }
+
+  public getRegistrationEditFromsWithSummaries(id: string): Observable<{reg: IRegistration; forms: SummariesWithAttachments[]}> {
+    return this.registrationStorage$.pipe(
+      map((registrations) => registrations.find((r) => r.id === id)),
+      filter((val) => !!val),
+      switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, true).pipe(map((forms) => ({
+        reg,
+        forms
+      })))));
+  }
+
+  public getRegistrationFormsWithSummaries(reg: IRegistration, addIfEmpty = true): Observable<SummariesWithAttachments[]> {
     return combineLatest(getRegistrationTidsForGeoHazard(reg.geoHazard)
-      .map((tid) => this.getDraftSummary(reg, tid)));
+      .map((tid) => this.getSummaryAndAttachments(reg, tid, addIfEmpty)));
+  }
+
+  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<SummariesWithAttachments> {
+    return combineLatest([
+      this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty),
+      this.getRegistrationName(registrationTid),
+      of(this.getAttachmentForRegistration(reg, registrationTid))
+    ]).pipe(map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments  })));
+  }
+
+  public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): ExistingOrNewAttachment[] {
+    return (reg.syncStatus === SyncStatus.InSync) ?
+      reg.response.Attachments : this.getDraftAttachmentsForTid(reg, registrationTid);
+  }
+
+  private getDraftAttachmentsForTid(reg: IRegistration, tid: RegistrationTid) {
+    const attachments = getAttachments(reg, tid).map((a: AttachmentUploadEditModel) => {
+      if(a.fileUrl) {
+        return a;
+      }
+      return a as AttachmentViewModel; // Not changed, the attachment is still view model
+    });
+    return attachments;
   }
 
   private getRegistrationObservable(appMode: AppMode) {
     this.loggerService.debug('get registration observable. Db instance is: ', appMode);
     return new NSqlFullTableObservable<IRegistration[]>(
       this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').listen()
+      //TODO: Do no listen for changes, use behaviour subject instead. Bad performance on mobile app...
     );
   }
 
@@ -192,7 +264,7 @@ export class RegistrationService {
 
   private shouldSync(reg: IRegistration) {
     if (reg.syncStatus === SyncStatus.Sync) {
-      if(this.shouldThrottle(reg)) {
+      if (this.shouldThrottle(reg)) {
         return false;
       }
       if (reg.response && reg.response.RegId > 0) {
@@ -204,12 +276,15 @@ export class RegistrationService {
   }
 
   private shouldThrottle(reg: IRegistration) {
-    if(!reg.lastSync) {
+    if (!reg.lastSync) {
+      return false;
+    }
+    if(reg.changed > reg.lastSync) {
       return false;
     }
     const msSinceLastSync = moment().unix() - reg.lastSync;
     const lastSyncLessThanSyncBuffer = msSinceLastSync < SYNC_BUFFER_MS;
-    this.loggerService.debug(`MS since last sync: ${msSinceLastSync}. Should wait for sync: ${lastSyncLessThanSyncBuffer}`, reg);
+    this.loggerService.debug(`MS since last sync attempt: ${msSinceLastSync}. Should wait for sync: ${lastSyncLessThanSyncBuffer}`, reg);
     return lastSyncLessThanSyncBuffer;
   }
 
