@@ -1,11 +1,35 @@
+import moment, { Moment } from 'moment';
+
 export class SyncProgress {
-    private _recordsIds: string[];
-    private _errors: Array<{ id: string; error: Error }>;
-    private _totalRecords: number;
+    private records: Map<string, Error>;
+    private totalRecords: number;
+    private started: Moment;
+
+    get estimatedTimeLeftMs(): number {
+      const ms = moment().diff(this.started, 'milliseconds');
+      const itemsLeft =  this.getItemsLeft();
+      const completed = this.totalRecords - itemsLeft;
+      if(completed > 0) {
+        const msPerCompleted = ms / completed;
+        return msPerCompleted * itemsLeft;
+      }
+      return null;
+    }
+
+    private getItemsLeft(countErrors = false) {
+      let total = 0;
+      for(const [, error] of this.records) {
+        if(!error || countErrors === true) {
+          total++;
+        }
+      }
+      return total;
+    }
 
     get percentageComplete(): number {
-      if (this._totalRecords > 0 && this._recordsIds.length > 0) {
-        return (this._totalRecords - this._recordsIds.length) / this._totalRecords;
+      const itemsLeft = this.getItemsLeft();
+      if (this.totalRecords > 0 && itemsLeft > 0) {
+        return (this.totalRecords - itemsLeft) / this.totalRecords;
       }
       return 1;
     }
@@ -15,34 +39,39 @@ export class SyncProgress {
     }
 
     get hasError(): boolean {
-      return this._errors.length > 0;
+      for(const [, error] of this.records) {
+        if(error) {
+          return true;
+        }
+      }
     }
 
     get isComplete(): boolean {
-      return this._recordsIds.length === 0;
+      return this.getItemsLeft() === 0;
     }
 
     get inProgress(): boolean {
-      return this._recordsIds.length > 0;
+      return this.getItemsLeft() > 0;
     }
 
-    constructor(recordIds?: string[]) {
-      this.reset();
+    constructor(recordIds?: Array<string>) {
+      this.records = new  Map<string, Error>();
       if (recordIds !== undefined) {
         this.start(recordIds);
       }
     }
 
-    start(recordIds: string[]) {
+    start(recordIds: Array<string>) {
       this.reset();
-      this._recordsIds = recordIds;
-      this._totalRecords = recordIds.length;
+      for(const r of recordIds) {
+        this.records.set(r, null);
+      }
+      this.totalRecords = this.getItemsLeft();
+      this.started = moment();
     }
 
     reset() {
-      this._totalRecords = 0;
-      this._recordsIds = [];
-      this._errors = [];
+      this.records.clear();
     }
 
     setRecordComplete(id: string) {
@@ -50,15 +79,10 @@ export class SyncProgress {
     }
 
     setRecordError(id: string, error: Error) {
-      this.removeRecord(id);
-      this._errors.push({ id, error });
+      this.records.set(id, error);
     }
 
     private removeRecord(id: string) {
-      const index = this._recordsIds.indexOf(id);
-      if (index >= 0) {
-        this._recordsIds.splice(index, 1);
-      }
+      this.records.delete(id);
     }
-
 }

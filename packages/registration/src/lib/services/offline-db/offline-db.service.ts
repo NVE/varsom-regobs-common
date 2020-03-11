@@ -51,15 +51,20 @@ export class OfflineDbService {
   private async createDbIfNotExist(appMode: AppMode): Promise<AppMode> {
     const connected = this.dbConnected.get(appMode);
     if (!connected) {
-      await nSQL().createDatabase({
-        id: this.getDbName(appMode),
-        mode: this.options.dbMode,
-        tables: DB_TABLE_CONFIG,
-        plugins: [
-          NSQL_TABLE_NAME_PLUGIN
-        ],
-      });
       this.dbConnected = this.dbConnected.set(appMode, true);
+      try{
+        await nSQL().createDatabase({
+          id: this.getDbName(appMode),
+          mode: this.options.dbMode,
+          tables: DB_TABLE_CONFIG,
+          plugins: [
+            NSQL_TABLE_NAME_PLUGIN
+          ],
+        });
+      }catch(err) {
+        this.logger.error(`Could not create database for app mode: ${appMode}`, err);
+        this.dbConnected = this.dbConnected.set(appMode, false);
+      }
     }
     return appMode;
   }

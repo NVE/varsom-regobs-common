@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IRegistrationSettings, SettingsService, RegistrationService, IRegistration, SyncProgress } from '@varsom-regobs-common/registration';
+import { RegistrationService, IRegistration, SyncProgress, ProgressService } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
 import { AppMode, AppModeService, GeoHazard, LoggerService } from '@varsom-regobs-common/core';
 
@@ -11,14 +11,15 @@ export class RegistrationComponent implements OnInit {
   title$: Observable<string>;
   registrations$: Observable<IRegistration[]>;
   appMode: AppMode;
-  settings: IRegistrationSettings;
+  // settings: IRegistrationSettings;
   syncProgress$: Observable<SyncProgress>;
 
   constructor(
     private registrationService: RegistrationService,
     private appModeService: AppModeService,
-    private settingsService: SettingsService,
-    private loggerService: LoggerService
+    // private settingsService: SettingsService,
+    private loggerService: LoggerService,
+    private progressService: ProgressService,
   ) {
   }
 
@@ -28,10 +29,10 @@ export class RegistrationComponent implements OnInit {
     this.appModeService.appMode$.subscribe((val) => {
       this.appMode = val;
     });
-    this.settingsService.registrationSettings$.subscribe((settings) => {
-      this.settings = settings;
-    });
-    this.syncProgress$ = this.registrationService.syncProgress$;
+    // this.settingsService.registrationSettings$.subscribe((settings) => {
+    //   this.settings = settings;
+    // });
+    this.syncProgress$ = this.progressService.syncProgress$;
   }
 
   async addRegistration() {
@@ -51,13 +52,13 @@ export class RegistrationComponent implements OnInit {
     this.appModeService.setAppMode(appMode);
   }
 
-  saveSettings() {
-    this.settingsService.saveSettings(this.settings).toPromise();
-  }
+  // saveSettings() {
+  //   this.settingsService.saveSettings(this.settings).toPromise();
+  // }
 
   cancelSync(event: Event) {
     event.preventDefault();
-    this.registrationService.cancelAndRestartSyncListener();
+    this.registrationService.cancelSync();
   }
 
 }
