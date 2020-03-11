@@ -1,17 +1,18 @@
 {
   "name": "@varsom-regobs-common/registration",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "peerDependencies": {
     "@angular/common": "^8.0.0",
     "@angular/core": "^8.0.0",
     "rxjs": "^6.0.0",
     "@nano-sql/core": "^2.3.7",
     "moment": "^2.0.0",
-    "@varsom-regobs-common/core": "^1.0.7",
-    "@varsom-regobs-common/regobs-api": "^1.0.7",
+    "@varsom-regobs-common/core": "^1.0.8",
+    "@varsom-regobs-common/regobs-api": "^1.0.8",
     "ngx-logger": "^4.0.0",
     "@ngx-translate/core": "^11.0.0",
-    "@ngx-translate/http-loader": "^4.0.0"
+    "@ngx-translate/http-loader": "^4.0.0",
+    "ngx-connectivity": "^0.0.5"
   },
   "dependencies": {},
   "devDependencies": {}

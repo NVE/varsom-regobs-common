@@ -10,7 +10,8 @@
       "@nano-sql/core/lib/utilities": "NanoSqlUtilities",
       "@nano-sql/core": "NanoSqlCore",
       "@ngx-translate/http-loader": "NgxTranslateHttpLoader",
-      "@ngx-translate/core": "NgxTranslateCore"
+      "@ngx-translate/core": "NgxTranslateCore",
+      "ngx-connectivity": "NgxConnectivity"
     }
   },
   "whitelistedNonPeerDependencies": []

@@ -7,10 +7,10 @@
     </select>
 </span>
 &nbsp;
-<span *ngIf="settings">
+<!-- <span *ngIf="settings">
     <label for="autosync">Autosync</label>
     <input id="autosync" type="checkbox" [(ngModel)]="settings.autoSync" (change)="saveSettings()" />
-</span>
+</span> -->
 <div *ngIf="syncProgress$ | async as syncProgress">
     <div *ngIf="syncProgress.inProgress">
         Sync in progress: {{syncProgress.percentageCompleteFormatted}} <a href="#"

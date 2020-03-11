@@ -28,7 +28,7 @@ import { HelptextsComponent } from './helptexts/helptexts.component';
     FormsModule,
     CoreModule,
     RegobsApiModuleWithConfig.forRoot(),
-    RegistrationModule.forRoot({ useFakeSyncService: true }),
+    RegistrationModule.forRoot(),
     AppRoutingModule,
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
   ],
