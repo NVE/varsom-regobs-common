@@ -9,7 +9,7 @@ export function getAttachments(reg: IRegistration, registrationTid?: Registratio
   if(!reg || !reg.request || !reg.request.Attachments) {
     return [];
   }
-  return (reg.request.Attachments || []).filter((a) => registrationTid > 0 ? a.RegistrationTID == registrationTid : true);
+  return (reg.request.Attachments || []).filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
 export function getDamageObsAttachments(reg: IRegistration):  AttachmentEditModel[] {

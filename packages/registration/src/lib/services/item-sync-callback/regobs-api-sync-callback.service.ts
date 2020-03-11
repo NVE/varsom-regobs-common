@@ -10,7 +10,7 @@ import { AttachmentFileBlobService } from '../attachment-file-blob/attachment-fi
 import { AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { LoggerService } from '@varsom-regobs-common/core';
 import { getAllAttachments } from '../../helpers/registration.helper';
-import { HttpClient, HttpHeaders, HttpEventType, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
 
 @Injectable()
@@ -91,6 +91,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     return this.httpClient.post(attachmentPostPath , formData, {
       responseType: 'json', reportProgress: true, observe: 'events'
     }).pipe(tap((event) => {
+      this.loggerService.debug('uploadAttachmentWithProgress got event:', event);
       if (event.type === HttpEventType.UploadProgress) {
         this.progressService.setAttachmentProgress(fileUrl, event.total, event.loaded);
       }

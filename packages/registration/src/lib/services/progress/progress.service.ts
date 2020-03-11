@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { SyncProgress } from '../../models/sync-progress';
 import { LoggerService } from '@varsom-regobs-common/core';
 
@@ -21,7 +21,6 @@ export class ProgressService {
   }
 
   resetSyncProgress(records?: Array<string>) {
-    this._attachmentUploadProgress = new Map<string, BehaviorSubject<{total: number; complete: number}>>();
     const progress = new SyncProgress(records);
     this._syncProgress$.next(progress);
   }
@@ -37,22 +36,22 @@ export class ProgressService {
     this._syncProgress$.next(progress);
   }
 
-  getAttachmentProgress(fileUrl: string) {
+  private getOrCreateAttachmentUploadProgress(fileUrl: string): BehaviorSubject<{total: number; complete: number}> {
     const currentSubject = this._attachmentUploadProgress.get(fileUrl);
-    if(currentSubject) {
-      return currentSubject.asObservable();
+    if(!currentSubject) {
+      const newSubject = new BehaviorSubject<{total: number; complete: number}>({ total: 0, complete: 0 });
+      this._attachmentUploadProgress.set(fileUrl, newSubject);
+      return newSubject;
     }
-    return of({ total: 0, complete: 0 });
+    return currentSubject;
+  }
+
+  getAttachmentProgress(fileUrl: string): Observable<{total: number; complete: number}> {
+    return  this.getOrCreateAttachmentUploadProgress(fileUrl).asObservable();
   }
 
   setAttachmentProgress(fileUrl: string, total: number, complete: number) {
     this.loggerService.log(`Set attachment progress. Complete: ${complete}/${total}. ${fileUrl}`);
-    const currentSubject = this._attachmentUploadProgress.get(fileUrl);
-    const val = { total, complete };
-    if(!currentSubject) {
-      this._attachmentUploadProgress.set(fileUrl, new BehaviorSubject<{total: number; complete: number}>(val));
-      return;
-    }
-    currentSubject.next(val);
+    this.getOrCreateAttachmentUploadProgress(fileUrl).next({ total, complete });
   }
 }

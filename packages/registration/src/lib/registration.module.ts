@@ -2,7 +2,7 @@ import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-item-sync-callback.service';
 import { RegobsApiSyncCallbackService } from './services/item-sync-callback/regobs-api-sync-callback.service';
-import { RegobsApiModule,} from '@varsom-regobs-common/regobs-api';
+import { RegobsApiModuleWithConfig } from '@varsom-regobs-common/regobs-api';
 import { InanoSQLAdapter } from '@nano-sql/core/lib/interfaces';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
 import { TranslateModule } from '@ngx-translate/core';
@@ -34,7 +34,7 @@ export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOpti
 @NgModule({
   imports: [
     CoreModule,
-    RegobsApiModule,
+    RegobsApiModuleWithConfig,
     TranslateModule,
   ],
   declarations: [],
@@ -77,6 +77,10 @@ export class RegistrationModule {
     return ({
       ngModule: RegistrationModule,
       providers: [
+        {
+          provide: FOR_ROOT_OPTIONS_TOKEN,
+          useValue: {  dbMode: 'TEMP' }
+        },
         {
           provide: OfflineDbServiceOptions,
           useValue: { dbMode: 'TEMP' },

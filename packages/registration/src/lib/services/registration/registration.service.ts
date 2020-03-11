@@ -215,7 +215,14 @@ export class RegistrationService {
 
   public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): ExistingOrNewAttachment[] {
     return (reg.syncStatus === SyncStatus.InSync) ?
-      reg.response.Attachments : this.getDraftAttachmentsForTid(reg, registrationTid);
+      this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : this.getDraftAttachmentsForTid(reg, registrationTid);
+  }
+
+  public getResponseAttachmentsForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): AttachmentViewModel[] {
+    if(!reg || !reg.response || !reg.response.Attachments) {
+      return [];
+    }
+    return reg.response.Attachments.filter((a) => a.RegistrationTID === registrationTid);
   }
 
   private getDraftAttachmentsForTid(reg: IRegistration, tid: RegistrationTid) {
