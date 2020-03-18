@@ -18,7 +18,6 @@ import { WeatherEditModel } from './weather-edit-model';
 import { Waterlevel2EditModel } from './waterlevel-2edit-model';
 import { DamageObsEditModel } from './damage-obs-edit-model';
 export interface RegistrationEditModel {
-  ObserverGroupID?: number;
   ObsLocation?: ObsLocationEditModel;
   Attachments?: Array<AttachmentEditModel>;
   AvalancheActivityObs2?: Array<AvalancheActivityObs2EditModel>;
@@ -40,4 +39,6 @@ export interface RegistrationEditModel {
   GeoHazardTID: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 100 | 110 | 200 | 999;
   SourceTID?: number;
   DtObsTime: string;
+  ObserverGroupID?: number;
+  ObserverGroupName?: string;
 }

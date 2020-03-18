@@ -1,5 +1,6 @@
 /* tslint:disable */
 export interface AttachmentEditModel {
+  AttachmentId?: number;
   AttachmentUploadId?: string;
   Photographer?: string;
   Copyright?: string;

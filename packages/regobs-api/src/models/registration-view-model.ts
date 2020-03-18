@@ -65,4 +65,6 @@ export interface RegistrationViewModel {
   GeoHazardTID: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 100 | 110 | 200 | 999;
   SourceTID?: number;
   DtObsTime: string;
+  ObserverGroupID?: number;
+  ObserverGroupName?: string;
 }
