@@ -11,7 +11,7 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { Summary, AttachmentViewModel } from '@varsom-regobs-common/regobs-api';
+import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import { SUMMARY_PROVIDER_TOKEN, IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
 import { hasAnyObservations, isObservationEmptyForRegistrationTid, getRegistrationTidsForGeoHazard, getAttachments } from '../../registration.helpers';
@@ -21,6 +21,7 @@ import { KdvService } from '../kdv/kdv.service';
 import { AttachmentUploadEditModel } from '../../registration.models';
 import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
 import { SummariesWithAttachments } from '../../models/summary/summary-with-attachments';
+import cloneDeep from 'clone-deep';
 
 const SYNC_BUFFER_MS = 60 * 1000; // 60 seconds
 const SYNC_DEBOUNCE_TIME_MS = 200;
@@ -108,6 +109,18 @@ export class RegistrationService {
       },
     };
     return draft;
+  }
+
+  public editExisingRegistration(registrationViewModel: RegistrationViewModel): IRegistration {
+    const reg = this.createNewEmptyDraft(registrationViewModel.GeoHazardTID);
+    reg.request = cloneDeep(registrationViewModel);
+    return reg;
+  }
+
+  public makeExistingRegistrationEditable(reg: IRegistration) {
+    if(reg && reg.syncStatus === SyncStatus.InSync) {
+      reg.request = cloneDeep(reg.response);
+    }
   }
 
   public syncRegistrations() {

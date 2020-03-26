@@ -1,6 +1,6 @@
 {
   "name": "varsom-regobs-common",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "scripts": {
     "ng": "ng",
     "eslint": "eslint",
@@ -29,6 +29,7 @@
     "@nano-sql/core": "^2.3.7",
     "@ngx-translate/core": "^11.0.1",
     "@ngx-translate/http-loader": "^4.0.0",
+    "clone-deep": "^4.0.1",
     "core-js": "^3.6.4",
     "eslint-formatter-vso": "^0.1.0",
     "moment": "^2.24.0",

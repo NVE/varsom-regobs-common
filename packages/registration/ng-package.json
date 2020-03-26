@@ -11,7 +11,8 @@
       "@nano-sql/core": "NanoSqlCore",
       "@ngx-translate/http-loader": "NgxTranslateHttpLoader",
       "@ngx-translate/core": "NgxTranslateCore",
-      "ngx-connectivity": "NgxConnectivity"
+      "ngx-connectivity": "NgxConnectivity",
+      "clone-deep": "cloneDeep"
     }
   },
   "whitelistedNonPeerDependencies": []
