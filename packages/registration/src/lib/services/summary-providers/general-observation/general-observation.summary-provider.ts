@@ -27,17 +27,19 @@ export class GeneralObservationSummaryProvider extends BaseSummaryProvider {
 
   generateGeneralObservationSummaries(generalObs: GeneralObservationEditModel): Observable<RegObsGenericValue[]> {
     const summaries: Observable<RegObsGenericValue>[] = [];
-    if (generalObs.ObsComment) {
-      summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.ObsComment));
-    }
-    if (generalObs.Comment) {
-      summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.Comment));
-    }
-    if (generalObs.ObsHeader) {
-      summaries.push(this.getTextSummary('Observations.GeneralObservation.ObsHeader', generalObs.ObsHeader));
-    }
-    if (generalObs.Urls && generalObs.Urls.length > 0) {
-      summaries.push(this.getUrlSummary(generalObs.Urls));
+    if(generalObs) {
+      if (generalObs.ObsComment) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.ObsComment));
+      }
+      if (generalObs.Comment) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.Comment));
+      }
+      if (generalObs.ObsHeader) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.ObsHeader', generalObs.ObsHeader));
+      }
+      if (generalObs.Urls && generalObs.Urls.length > 0) {
+        summaries.push(this.getUrlSummary(generalObs.Urls));
+      }
     }
     return combineLatest(summaries);
   }
