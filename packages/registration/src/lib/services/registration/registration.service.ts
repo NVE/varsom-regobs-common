@@ -20,7 +20,7 @@ import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
 import { AttachmentUploadEditModel } from '../../registration.models';
 import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
-import { SummariesWithAttachments } from '../../models/summary/summary-with-attachments';
+import { SummaryWithAttachments } from '../../models/summary/summary-with-attachments';
 import cloneDeep from 'clone-deep';
 
 const SYNC_BUFFER_MS = 60 * 1000; // 60 seconds
@@ -111,9 +111,11 @@ export class RegistrationService {
     return draft;
   }
 
-  public editExisingRegistration(registrationViewModel: RegistrationViewModel): IRegistration {
+  public editExisingRegistration(registrationViewModel: RegistrationViewModel, syncStatus: SyncStatus = SyncStatus.Draft): IRegistration {
     const reg = this.createNewEmptyDraft(registrationViewModel.GeoHazardTID);
     reg.request = cloneDeep(registrationViewModel);
+    reg.response = cloneDeep(registrationViewModel);
+    reg.syncStatus = syncStatus;
     return reg;
   }
 
@@ -203,7 +205,7 @@ export class RegistrationService {
   //     .map((tid) => this.getDraftSummary(reg, tid)));
   // }
 
-  public getRegistrationEditFromsWithSummaries(id: string): Observable<{reg: IRegistration; forms: SummariesWithAttachments[]}> {
+  public getRegistrationEditFromsWithSummaries(id: string): Observable<{reg: IRegistration; forms: SummaryWithAttachments[]}> {
     return this.registrationStorage$.pipe(
       map((registrations) => registrations.find((r) => r.id === id)),
       filter((val) => !!val),
@@ -213,12 +215,17 @@ export class RegistrationService {
       })))));
   }
 
-  public getRegistrationFormsWithSummaries(reg: IRegistration, addIfEmpty = true): Observable<SummariesWithAttachments[]> {
+  public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
     return combineLatest(getRegistrationTidsForGeoHazard(reg.geoHazard)
-      .map((tid) => this.getSummaryAndAttachments(reg, tid, addIfEmpty)));
+      .map((tid) => this.getSummaryAndAttachments(reg, tid, generateEmptySummaries)));
   }
 
-  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<SummariesWithAttachments> {
+  public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
+    const reg: IRegistration = this.editExisingRegistration(regViewModel, SyncStatus.InSync);
+    return this.getRegistrationFormsWithSummaries(reg, generateEmptySummaries);
+  }
+
+  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<SummaryWithAttachments> {
     return combineLatest([
       this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty),
       this.getRegistrationName(registrationTid),
