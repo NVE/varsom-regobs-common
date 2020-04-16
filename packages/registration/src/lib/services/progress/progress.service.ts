@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { SyncProgress } from '../../models/sync-progress';
 import { LoggerService } from '@varsom-regobs-common/core';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,7 @@ import { LoggerService } from '@varsom-regobs-common/core';
 export class ProgressService {
 
   private _syncProgress$: BehaviorSubject<SyncProgress>;
-  private _attachmentUploadProgress: Map<string, BehaviorSubject<{total: number; complete: number}>>;
+  private _attachmentUploadProgress: BehaviorSubject<Map<string, {total: number; complete: number}>>;
 
   public get syncProgress$(): Observable<SyncProgress> {
     return this._syncProgress$.asObservable();
@@ -17,7 +18,7 @@ export class ProgressService {
 
   constructor(private loggerService: LoggerService) {
     this._syncProgress$ = new BehaviorSubject(new SyncProgress());
-    this._attachmentUploadProgress = new Map<string, BehaviorSubject<{total: number; complete: number}>>();
+    this._attachmentUploadProgress = new BehaviorSubject(new Map<string, {total: number; complete: number}>());
   }
 
   resetSyncProgress(records?: Array<string>) {
@@ -36,22 +37,12 @@ export class ProgressService {
     this._syncProgress$.next(progress);
   }
 
-  private getOrCreateAttachmentUploadProgress(fileUrl: string): BehaviorSubject<{total: number; complete: number}> {
-    const currentSubject = this._attachmentUploadProgress.get(fileUrl);
-    if(!currentSubject) {
-      const newSubject = new BehaviorSubject<{total: number; complete: number}>({ total: 0, complete: 0 });
-      this._attachmentUploadProgress.set(fileUrl, newSubject);
-      return newSubject;
-    }
-    return currentSubject;
-  }
-
   getAttachmentProgress(fileUrl: string): Observable<{total: number; complete: number}> {
-    return  this.getOrCreateAttachmentUploadProgress(fileUrl).asObservable();
+    return this._attachmentUploadProgress.pipe(map((up) => up.get(fileUrl) || { total: 0, complete: 0 }));
   }
 
   setAttachmentProgress(fileUrl: string, total: number, complete: number) {
     this.loggerService.log(`Set attachment progress. Complete: ${complete}/${total}. ${fileUrl}`);
-    this.getOrCreateAttachmentUploadProgress(fileUrl).next({ total, complete });
+    this._attachmentUploadProgress.next(this._attachmentUploadProgress.value.set(fileUrl, {total, complete}));
   }
 }

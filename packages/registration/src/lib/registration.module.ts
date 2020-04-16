@@ -10,6 +10,8 @@ import { ISummaryProvider } from './services/summary-providers/summary-provider.
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConnectivityInterceptor } from 'ngx-connectivity';
+import { InMemoryAddNewAttachmentService } from './services/add-new-attachment/in-memory-add-new-attachment.service';
+import { AddNewAttachmentService } from './services/add-new-attachment/add-new-attachment.service';
 
 export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
 export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
@@ -65,6 +67,9 @@ export class RegistrationModule {
           useClass: HttpConnectivityInterceptor,
           multi: true
         },
+        {
+          provide: AddNewAttachmentService, useClass: InMemoryAddNewAttachmentService
+        }
       ]
     });
   }
@@ -90,6 +95,9 @@ export class RegistrationModule {
         },
         {
           provide: SUMMARY_PROVIDER_TOKEN, useClass: GeneralObservationSummaryProvider, multi: true
+        },
+        {
+          provide: AddNewAttachmentService, useClass: InMemoryAddNewAttachmentService
         }
       ]
     });
