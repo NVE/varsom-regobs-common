@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, combineLatest } from 'rxjs';
+import { Observable, from, Subscription, of, concat, combineLatest, forkJoin, timer, BehaviorSubject } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { NSqlFullTableObservable, GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
-import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
+import { GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
+import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
 import { uuid } from '@nano-sql/core/lib/utilities';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -14,60 +14,77 @@ import { RegistrationTid } from '../../models/registration-tid.enum';
 import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import { SUMMARY_PROVIDER_TOKEN, IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
-import { hasAnyObservations, isObservationEmptyForRegistrationTid, getRegistrationTidsForGeoHazard, getAttachments } from '../../registration.helpers';
+import { hasAnyObservations, getRegistrationTidsForGeoHazard, getAttachments } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
-import { AttachmentUploadEditModel } from '../../registration.models';
 import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
 import { SummaryWithAttachments } from '../../models/summary/summary-with-attachments';
 import cloneDeep from 'clone-deep';
+import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 
-const SYNC_BUFFER_MS = 60 * 1000; // 60 seconds
-const SYNC_DEBOUNCE_TIME_MS = 200;
+const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
+const SYNC_DEBOUNCE_TIME = 200;
+const SYNC_BUFFER_MS = 3 * 1000; // Wait at least 3 seconds before next sync attempt
 
 @Injectable({
   providedIn: 'root'
 })
 export class RegistrationService {
 
-  private _registrationStorage$: Observable<IRegistration[]>;
+  public readonly registrationStorage$: Observable<IRegistration[]>;
   private _registrationSyncSubscription: Subscription;
-
-  public get registrationStorage$(): Observable<IRegistration[]> {
-    return this._registrationStorage$;
-  }
+  private _inMemoryRegistrations: BehaviorSubject<{ appMode: AppMode; reg: IRegistration}[]>;
 
   constructor(
     private offlineDbService: OfflineDbService,
-    // private settingsService: SettingsService,
     private loggerService: LoggerService,
     private progressService: ProgressService,
     private kdvService: KdvService,
+    private addNewAttachmentService: AddNewAttachmentService,
     private internetConnectivity: InternetConnectivity,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
     @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
     @Inject(FOR_ROOT_OPTIONS_TOKEN) private options: IRegistrationModuleOptions
   ) {
-    this._registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
+    this._inMemoryRegistrations = new BehaviorSubject<{ appMode: AppMode; reg: IRegistration}[]>([]);
+    this.offlineDbService.appModeInitialized$.subscribe((appMode) => this.updateInMemoryRegistrationsFromOfflineStorage(appMode));
+    this.registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
       switchMap((appMode) => this.getRegistrationObservable(appMode)), shareReplay(1));
+    this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
+      switchMap(([registrations, appMode]) => this.saveRegistrationsToOfflineStorage(appMode, registrations))).subscribe();
+    this.updateRegistrationChangedOnAttachmentUploaded();
     this.cancelSync();
   }
 
   public saveRegistration(reg: IRegistration, updateChangedTimestamp = true) {
-    if (updateChangedTimestamp) {
-      reg.changed = moment().unix();
-    }
-    return this.offlineDbService.appModeInitialized$.pipe(switchMap((appMode) =>
-      from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('upsert', reg).exec()))
-    );
+    return this.offlineDbService.appModeInitialized$.pipe(take(1), map((appMode) => {
+      this.loggerService.debug('Save registration', reg, updateChangedTimestamp);
+      if (updateChangedTimestamp) {
+        reg.changed = moment().unix();
+      }
+      this._inMemoryRegistrations.next([...this._inMemoryRegistrations.value.filter((val) => val.reg.id !== reg.id), { appMode, reg }]);
+    }));
   }
 
   public deleteRegistration(id: string) {
-    return this.offlineDbService.appModeInitialized$.pipe(switchMap((appMode) =>
-      from(this.offlineDbService.getDbInstance(appMode)
-        .selectTable(TABLE_NAMES.REGISTRATION).query('delete').where(['id', '=', id]).exec()))
-    );
+    return of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id)));
+  }
+
+  private getRegistrationsFromOfflineStorage(appMode: AppMode): Observable<IRegistration[]> {
+    return from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').exec()) as Observable<IRegistration[]>;
+  }
+
+  private updateInMemoryRegistrationsFromOfflineStorage(appMode: AppMode) {
+    this.getRegistrationsFromOfflineStorage(appMode).pipe(
+      map((offlineRegistrations) => offlineRegistrations.map((reg) => ({ appMode,  reg}))))
+      .subscribe((offlineRegistrations) =>  {
+        this._inMemoryRegistrations.next(offlineRegistrations);
+      });
+  }
+
+  private saveRegistrationsToOfflineStorage(appMode: AppMode, registrations: IRegistration[]) {
+    return from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('upsert', registrations).exec());
   }
 
   public cancelSync() {
@@ -137,10 +154,20 @@ export class RegistrationService {
   }
 
   private getAutoSyncObservable() {
-    return this.getRegistrationsChangesOrWhenNetworkChange(SYNC_DEBOUNCE_TIME_MS).pipe(
+    return this.getAutosyncChangeTrigger().pipe(
+      tap(() => this.loggerService.debug('Auto sync triggered')),
+      switchMap(() => this.getRegistrationsToSyncObservable()),
       this.filterWhenProgressIsAllreadyRunning(),
       this.resetProgressAndSyncItems()
     );
+  }
+
+  private getAutosyncChangeTrigger() {
+    return combineLatest([
+      this.registrationStorage$,
+      this.getNetworkOnlineObservable(),
+      timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS)
+    ]).pipe(debounceTime(SYNC_DEBOUNCE_TIME));
   }
 
   private resetProgressAndSyncItems() {
@@ -163,13 +190,13 @@ export class RegistrationService {
    * @param registrationTid Registration tid
    */
   public getDraftSummary(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
-    if (!isObservationEmptyForRegistrationTid(reg, registrationTid)) {
-      const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
-      if (provider) {
-        return provider.generateSummary(reg);
-      }
-    }
-    return addIfEmpty ? this.generateEmptySummary(registrationTid) : of(null);
+    // if (!isObservationEmptyForRegistrationTid(reg, registrationTid)) {
+    //   const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
+    //   if (provider) {
+    //     return provider.generateSummary(reg);
+    //   }
+    // }
+    return addIfEmpty ? this.generateEmptySummary(registrationTid).pipe(map((s) => [s])) : of([]);
   }
 
   public getSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
@@ -190,7 +217,17 @@ export class RegistrationService {
         return of(summary);
       }
     }
-    return addIfEmpty ? this.generateEmptySummary(registrationTid) : of(null);
+    return addIfEmpty ? this.generateEmptySummary(registrationTid).pipe(map((s) => [s])) : of([]);
+  }
+
+  private updateRegistrationChangedOnAttachmentUploaded() {
+    this.addNewAttachmentService.attachmentsChanged$.pipe(
+      tap((val) => this.loggerService.debug('Attachment changed', val)),
+      concatMap((change) => this.registrationStorage$.pipe(take(1), map((registrations) => registrations.find((r) => r.id === change.id)))),
+      filter((reg: IRegistration) => !!reg),
+      tap((val) => this.loggerService.debug('Attachment changed -> Update timestamp on registration.', val)),
+      switchMap((reg: IRegistration) => this.saveRegistration(reg)))
+      .subscribe();
   }
 
   private generateEmptySummary(registrationTid: RegistrationTid): Observable<Summary> {
@@ -200,24 +237,19 @@ export class RegistrationService {
       Summaries: []  })));
   }
 
-  // public getDraftSummaries(reg: IRegistration): Observable<Summary[][]> {
-  //   return combineLatest(getRegistrationTidsForGeoHazard(reg.geoHazard)
-  //     .map((tid) => this.getDraftSummary(reg, tid)));
-  // }
-
   public getRegistrationEditFromsWithSummaries(id: string): Observable<{reg: IRegistration; forms: SummaryWithAttachments[]}> {
     return this.registrationStorage$.pipe(
       map((registrations) => registrations.find((r) => r.id === id)),
       filter((val) => !!val),
-      switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, true).pipe(map((forms) => ({
-        reg,
-        forms
-      })))));
+      concatMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
+        map((forms) => ({
+          reg,
+          forms
+        })))));
   }
 
   public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
-    return combineLatest(getRegistrationTidsForGeoHazard(reg.geoHazard)
-      .map((tid) => this.getSummaryAndAttachments(reg, tid, generateEmptySummaries)));
+    return forkJoin([...getRegistrationTidsForGeoHazard(reg.geoHazard).map((tid) => this.getSummaryAndAttachments(reg, tid, generateEmptySummaries))]);
   }
 
   public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
@@ -229,13 +261,14 @@ export class RegistrationService {
     return combineLatest([
       this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty),
       this.getRegistrationName(registrationTid),
-      of(this.getAttachmentForRegistration(reg, registrationTid))
-    ]).pipe(map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments  })));
+      this.getAttachmentForRegistration(reg, registrationTid)
+    ]).pipe(take(1), map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments  })));
   }
 
-  public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): ExistingOrNewAttachment[] {
-    return (reg.syncStatus === SyncStatus.InSync) ?
-      this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : this.getDraftAttachmentsForTid(reg, registrationTid);
+  public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
+    return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(take(1), map((uploaded) =>
+      [...uploaded.filter((u) => u.RegistrationTID === registrationTid),
+        ...(reg.syncStatus === SyncStatus.InSync ? this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : getAttachments(reg, registrationTid))]));
   }
 
   public getResponseAttachmentsForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): AttachmentViewModel[] {
@@ -245,27 +278,9 @@ export class RegistrationService {
     return reg.response.Attachments.filter((a) => a.RegistrationTID === registrationTid);
   }
 
-  private getDraftAttachmentsForTid(reg: IRegistration, tid: RegistrationTid) {
-    const attachments = getAttachments(reg, tid).map((a: AttachmentUploadEditModel) => {
-      if(a.fileUrl) {
-        return a;
-      }
-      return a as AttachmentViewModel; // Not changed, the attachment is still view model
-    });
-    return attachments;
-  }
-
   private getRegistrationObservable(appMode: AppMode) {
-    this.loggerService.debug('get registration observable. Db instance is: ', appMode);
-    return new NSqlFullTableObservable<IRegistration[]>(
-      this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').listen()
-      //TODO: Do no listen for changes, use behaviour subject instead. Bad performance on mobile app...
-    );
-  }
-
-  private getRegistrationsChangesOrWhenNetworkChange(debounceTimeMs = 0) {
-    return combineLatest([this.getRegistrationsToSyncObservable(debounceTimeMs), this.getNetworkOnlineObservable()])
-      .pipe(map(([records]) => records));
+    return this._inMemoryRegistrations.pipe(map((appModeReg) => appModeReg.filter((appModeReg) => appModeReg.appMode === appMode)
+      .map((appModeReg) => appModeReg.reg)));
   }
 
   private getNetworkOnlineObservable(): Observable<boolean> {
@@ -284,22 +299,29 @@ export class RegistrationService {
   }
 
   private getRegistrationsToSyncObservable(debounceTimeMs = 0) {
-    return this.registrationStorage$.pipe(map((records) =>
-      records.filter((row) => this.shouldSync(row))
-    ), debounceTime(debounceTimeMs));
+    return this.registrationStorage$.pipe(
+      take(1),
+      switchMap((records) =>
+        forkJoin(records.map((reg) => this.shouldSync(reg).pipe(map((shouldSync) => ({ reg, shouldSync })))))),
+      map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)),
+      debounceTime(debounceTimeMs));
   }
 
-  private shouldSync(reg: IRegistration) {
+  private shouldSync(reg: IRegistration): Observable<boolean> {
     if (reg.syncStatus === SyncStatus.Sync) {
       if (this.shouldThrottle(reg)) {
-        return false;
+        return of(false);
       }
       if (reg.response && reg.response.RegId > 0) {
-        return true; // Edit existing registration should sync even if empty (deleted observation)
+        return of(true); // Edit existing registration should sync even if empty (deleted observation)
       }
-      return hasAnyObservations(reg); // Only sync if any observations is added (not only obs location and time)
+      const notEmpty = hasAnyObservations(reg); // Only sync if any observations is added (not only obs location and time)
+      if(notEmpty) {
+        return of(true);
+      }
+      return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(take(1), map((attachments) => attachments.length > 0));
     }
-    return false;
+    return of(false);
   }
 
   private shouldThrottle(reg: IRegistration) {
@@ -309,8 +331,8 @@ export class RegistrationService {
     if(reg.changed > reg.lastSync) {
       return false;
     }
-    const msSinceLastSync = moment().unix() - reg.lastSync;
-    const lastSyncLessThanSyncBuffer = msSinceLastSync < SYNC_BUFFER_MS;
+    const msSinceLastSync = (moment().unix() - reg.lastSync) * 1000;
+    const lastSyncLessThanSyncBuffer = msSinceLastSync <= SYNC_BUFFER_MS;
     this.loggerService.debug(`MS since last sync attempt: ${msSinceLastSync}. Should wait for sync: ${lastSyncLessThanSyncBuffer}`, reg);
     return lastSyncLessThanSyncBuffer;
   }

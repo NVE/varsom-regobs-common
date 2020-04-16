@@ -1,17 +1,16 @@
 import { ItemSyncCallbackService } from './item-sync-callback.service';
 import { IRegistration } from '../../models/registration.interface';
-import { Observable, of, from, forkJoin } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
-import { RegistrationService, AttachmentService as ApiAttachmentService } from '@varsom-regobs-common/regobs-api';
+import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel, DamageObsEditModel, WaterLevelMeasurementEditModel } from '@varsom-regobs-common/regobs-api';
 import { map, catchError, concatMap, switchMap, tap, filter, take } from 'rxjs/operators';
 import { LanguageService, LangKey } from '@varsom-regobs-common/core';
-import { AttachmentFileBlobService } from '../attachment-file-blob/attachment-file-blob.service';
 import { AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { LoggerService } from '@varsom-regobs-common/core';
-import { getAllAttachments } from '../../helpers/registration.helper';
 import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
+import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 
 @Injectable()
 export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRegistration> {
@@ -19,7 +18,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   constructor(private regobsApiRegistrationService: RegistrationService,
     private languageService: LanguageService,
     private apiAttachmentService: ApiAttachmentService,
-    private attachmentFileBlobService: AttachmentFileBlobService,
+    private addNewAttachmentService: AddNewAttachmentService,
     private loggerService: LoggerService,
     private httpClient: HttpClient,
     private progressService: ProgressService,
@@ -37,51 +36,89 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     return this.uploadAttachments(item).pipe(switchMap((result) => {
       this.loggerService.debug('Result from attachment upload: ', result);
       this.loggerService.debug('Registration is now: ', item);
+      const uploadSuccess = !result.some((a) => a.error);
       return (item.response ?
         this.regobsApiRegistrationService.RegistrationInsertOrUpdate({ registration: item.request, id: item.response.RegId, langKey, externalReferenceId: item.id })
         : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id }))
-        .pipe(map((result) => ({ success: true, item: ({ ...item, response: result }), error: undefined })),
+        .pipe(switchMap((result) => this.removeSuccessfulAttachments(item).pipe(map(() => result))),
+          map((result) => ({ success: uploadSuccess, item: ({ ...item, response: result }), error: uploadSuccess ? undefined : new Error('Could not upload attachments') })),
           catchError((err) => of(({ success: false, item: item, error: Error(err.msg) }))));
     }));
   }
 
+  removeSuccessfulAttachments(item: IRegistration) {
+    return this.getAttachmentsToUpload(item).pipe(take(1), tap((attachmentsToUpload) =>
+    {
+      for(const attachmentUpload of attachmentsToUpload.filter((a) => !a.error)) {
+        this.addNewAttachmentService.removeAttachment(item.id, attachmentUpload);
+      }
+    }), map(() => item));
+  }
+
   uploadAttachments(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
-    const attachmentsToUpload = this.getAttachmentsToUpload(item);
-    if(attachmentsToUpload.length > 0) {
-      this.loggerService.debug('Attachments to upload: ', attachmentsToUpload);
-      return forkJoin(attachmentsToUpload.map((a) => this.uploadAttachmentAndSetAttachmentUploadId(item, a)));
-    }
-    this.loggerService.debug('No attachments to uplaod');
-    return of([]);
+    return this.getAttachmentsToUpload(item).pipe(take(1), switchMap((attachmentsToUpload) =>
+    {
+      if(attachmentsToUpload.length > 0) {
+        this.loggerService.debug('Attachments to upload: ', attachmentsToUpload);
+        return forkJoin(attachmentsToUpload.map((a) =>
+          this.uploadAttachmentAndSetAttachmentUploadId(item, a).pipe(take(1))));
+      }
+      this.loggerService.debug('No attachments to uplaod');
+      return of([]);
+    }));
   }
 
-  // uploadAttachmentAndSetAttachmentUploadId(item: AttachmentUploadEditModel): Observable<AttachmentUploadEditModel> {
-  //   return this.getAttachmentBlobObservable(item).pipe(switchMap((blob) =>
-  //     this.apiAttachmentService.AttachmentPost(blob) // TODO: Upload attachment with progress
-  //       .pipe(map((result) => {
-  //         item.AttachmentUploadId = result;
-  //         this.loggerService.debug('Attachment uploaded. New model: ', item);
-  //         return item;
-  //       }))), catchError((err: Error) => of({...item, error: err })), take(1));
-  // }
-
-  uploadAttachmentAndSetAttachmentUploadId(item: IRegistration,
+  uploadAttachmentAndSetAttachmentUploadId(reg: IRegistration,
     attachmentUpload: AttachmentUploadEditModel): Observable<AttachmentUploadEditModel> {
-    return this.getAttachmentBlobObservable(attachmentUpload).pipe(switchMap((blob) =>
-      this.uploadAttachmentWithProgress(attachmentUpload.fileUrl, blob)
-        .pipe(map((result) => {
-          attachmentUpload.AttachmentUploadId = result;
-          this.loggerService.debug('Attachment uploaded. New model: ', item);
-          return attachmentUpload;
-        }))), catchError((err: Error) => of({...item, error: err })), take(1));
+    attachmentUpload.error = undefined;
+    return this.addNewAttachmentService.getBlob(reg.id, attachmentUpload).pipe(
+      switchMap((blob) =>
+        this.uploadAttachmentWithProgress(attachmentUpload.fileUrl, blob)
+          .pipe(map((uploadId) => {
+            this.loggerService.debug('Attachment uploaded. Removing from attachment to upload and adding to request', reg);
+            this.addAttachmentToRequest(uploadId, attachmentUpload, reg);
+            return attachmentUpload;
+          }))),
+      catchError((err: Error) => {
+        this.loggerService.debug('Could not upload attachment. Setting error.', err);
+        attachmentUpload.error = err;
+        return of(attachmentUpload);
+      }));
   }
 
-  getAttachmentBlobObservable(item: AttachmentUploadEditModel): Observable<Blob> {
-    return from(this.attachmentFileBlobService.getAttachment(item.fileUrl));
+  private addAttachmentToRequest(uploadId: string, attachmentUploadEditModel: AttachmentUploadEditModel, reg: IRegistration) {
+    const attachment = {
+      AttachmentUploadId: uploadId,
+      Photographer: attachmentUploadEditModel.Photographer,
+      Copyright: attachmentUploadEditModel.Copyright,
+      Aspect: attachmentUploadEditModel.Aspect,
+      GeoHazardTID: attachmentUploadEditModel.GeoHazardTID,
+      RegistrationTID: attachmentUploadEditModel.RegistrationTID,
+      Comment: attachmentUploadEditModel.Comment,
+      AttachmentMimeType: attachmentUploadEditModel.AttachmentMimeType,
+      IsMainAttachment: attachmentUploadEditModel.IsMainAttachment,
+    };
+    if(attachmentUploadEditModel.type === 'DamageObsAttachment' || attachmentUploadEditModel.type === 'WaterLevelMeasurementAttachment') {
+      this.addDamageObsOrWaterLevelAttachment(attachment, reg, attachmentUploadEditModel.ref);
+      return;
+    }
+    if(!reg.request.Attachments) {
+      reg.request.Attachments = [];
+    }
+    reg.request.Attachments.push(attachment);
   }
 
-  getAttachmentsToUpload(item: IRegistration) {
-    return getAllAttachments(item).map(a => a as AttachmentUploadEditModel).filter((a) => !!a.fileUrl && !a.AttachmentUploadId); // Has file url but not attachment upload id
+  private addDamageObsOrWaterLevelAttachment(attachment: AttachmentEditModel, reg: IRegistration, ref: DamageObsEditModel | WaterLevelMeasurementEditModel) {
+    if(ref) {
+      if(!ref.Attachments) {
+        ref.Attachments = [];
+      }
+      ref.Attachments.push(attachment);
+    }
+  }
+
+  getAttachmentsToUpload(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
+    return this.addNewAttachmentService.getUploadedAttachments(item.id);
   }
 
   uploadAttachmentWithProgress(fileUrl: string, blob: Blob) {
@@ -102,23 +139,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       }
       return event.body;
     }),
-    // switchMap((blob) => from(this.getStringFromBlobResult(blob))),
     tap((result) => this.loggerService.debug(`Attachment uploaded with attachment id: ${result} `))
     );
   }
-
-  // private getStringFromBlobResult(result: Blob): Promise<string> {
-  //   return new Promise((resolve) => {
-  //     const reader = new FileReader();
-
-  //     // This fires after the blob has been read/loaded.
-  //     reader.addEventListener('loadend', () => {
-  //       resolve(reader.result as string);
-  //     });
-
-  //     // Start reading the blob as text.
-  //     reader.readAsText(result);
-  //   });
-  // }
-
 }
