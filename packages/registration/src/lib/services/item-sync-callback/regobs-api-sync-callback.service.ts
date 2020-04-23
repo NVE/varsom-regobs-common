@@ -25,6 +25,13 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   ) {
   }
 
+  deleteItem(item: IRegistration): Observable<boolean> {
+    if(!item || !item.response || !(item.response.RegId > 0)) {
+      return of(false);
+    }
+    return this.regobsApiRegistrationService.RegistrationDelete(item.response.RegId).pipe(map(() => true));
+  }
+
   syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
     return this.languageService.language$.pipe(
       concatMap((langKey) => this.insertOrUpdate(item, langKey))
