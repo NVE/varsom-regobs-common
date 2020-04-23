@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, combineLatest, forkJoin, timer, BehaviorSubject } from 'rxjs';
+import { Observable, from, Subscription, of, concat, combineLatest, forkJoin, timer, BehaviorSubject, merge } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
@@ -34,7 +34,7 @@ export class RegistrationService {
 
   public readonly registrationStorage$: Observable<IRegistration[]>;
   private _registrationSyncSubscription: Subscription;
-  private _inMemoryRegistrations: BehaviorSubject<{ appMode: AppMode; reg: IRegistration}[]>;
+  private _inMemoryRegistrations: BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>;
 
   constructor(
     private offlineDbService: OfflineDbService,
@@ -47,10 +47,12 @@ export class RegistrationService {
     @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
     @Inject(FOR_ROOT_OPTIONS_TOKEN) private options: IRegistrationModuleOptions
   ) {
-    this._inMemoryRegistrations = new BehaviorSubject<{ appMode: AppMode; reg: IRegistration}[]>([]);
+    this._inMemoryRegistrations = new BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>([]);
     this.offlineDbService.appModeInitialized$.subscribe((appMode) => this.updateInMemoryRegistrationsFromOfflineStorage(appMode));
     this.registrationStorage$ = this.offlineDbService.appModeInitialized$.pipe(
-      switchMap((appMode) => this.getRegistrationObservable(appMode)), shareReplay(1));
+      switchMap((appMode) => this.getRegistrationObservable(appMode)), tap((reg) => {
+        this.loggerService.debug('Registrations changed', reg);
+      }), shareReplay(1));
     this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
       switchMap(([registrations, appMode]) => this.saveRegistrationsToOfflineStorage(appMode, registrations))).subscribe();
     this.updateRegistrationChangedOnAttachmentUploaded();
@@ -68,7 +70,29 @@ export class RegistrationService {
   }
 
   public deleteRegistration(id: string) {
-    return of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id)));
+    return this.getRetistrationById(id).pipe(
+      take(1),
+      switchMap((reg) => this.offlineRegistrationSyncService.deleteItem(reg)),
+      switchMap(() =>  of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id))))
+    );
+  }
+
+  public cleanUpRegistrationStorage() {
+    this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => this.shouldKeepWhenCleanup(val.reg)));
+  }
+
+  private shouldKeepWhenCleanup(reg: IRegistration) {
+    if(reg.syncStatus === SyncStatus.Sync) {
+      return true;
+    }
+    if(reg.syncStatus === SyncStatus.Draft && (reg.changed > moment().subtract(24, 'hours').unix())) {
+      return true;
+    }
+    return false;
+  }
+
+  public getRetistrationById(id: string) {
+    return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
 
   private getRegistrationsFromOfflineStorage(appMode: AppMode): Observable<IRegistration[]> {
@@ -77,8 +101,8 @@ export class RegistrationService {
 
   private updateInMemoryRegistrationsFromOfflineStorage(appMode: AppMode) {
     this.getRegistrationsFromOfflineStorage(appMode).pipe(
-      map((offlineRegistrations) => offlineRegistrations.map((reg) => ({ appMode,  reg}))))
-      .subscribe((offlineRegistrations) =>  {
+      map((offlineRegistrations) => offlineRegistrations.map((reg) => ({ appMode, reg }))))
+      .subscribe((offlineRegistrations) => {
         this._inMemoryRegistrations.next(offlineRegistrations);
       });
   }
@@ -110,7 +134,10 @@ export class RegistrationService {
       )));
   }
 
-  public createNewEmptyDraft(geoHazard: GeoHazard) {
+  public createNewEmptyDraft(geoHazard: GeoHazard, cleanupRegistrationStorage = true) {
+    if(cleanupRegistrationStorage) {
+      this.cleanUpRegistrationStorage();
+    }
     const id = uuid();
     const draft: IRegistration = {
       id,
@@ -137,7 +164,7 @@ export class RegistrationService {
   }
 
   public makeExistingRegistrationEditable(reg: IRegistration) {
-    if(reg && reg.syncStatus === SyncStatus.InSync) {
+    if (reg && reg.syncStatus === SyncStatus.InSync) {
       reg.request = cloneDeep(reg.response);
     }
   }
@@ -163,11 +190,11 @@ export class RegistrationService {
   }
 
   private getAutosyncChangeTrigger() {
-    return combineLatest([
+    return merge(
       this.registrationStorage$,
       this.getNetworkOnlineObservable(),
       timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS)
-    ]).pipe(debounceTime(SYNC_DEBOUNCE_TIME));
+    ).pipe(debounceTime(SYNC_DEBOUNCE_TIME));
   }
 
   private resetProgressAndSyncItems() {
@@ -211,9 +238,9 @@ export class RegistrationService {
   }
 
   private getResponseSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
-    if(reg && reg.response && reg.response.Summaries && reg.response.Summaries.length > 0) {
+    if (reg && reg.response && reg.response.Summaries && reg.response.Summaries.length > 0) {
       const summary = reg.response.Summaries.filter(x => x.RegistrationTID === registrationTid);
-      if(summary) {
+      if (summary) {
         return of(summary);
       }
     }
@@ -234,10 +261,11 @@ export class RegistrationService {
     return this.getRegistrationName(registrationTid).pipe(map((registrationName) => ({
       RegistrationTID: registrationTid,
       RegistrationName: registrationName,
-      Summaries: []  })));
+      Summaries: []
+    })));
   }
 
-  public getRegistrationEditFromsWithSummaries(id: string): Observable<{reg: IRegistration; forms: SummaryWithAttachments[]}> {
+  public getRegistrationEditFromsWithSummaries(id: string): Observable<{ reg: IRegistration; forms: SummaryWithAttachments[] }> {
     return this.registrationStorage$.pipe(
       map((registrations) => registrations.find((r) => r.id === id)),
       filter((val) => !!val),
@@ -262,7 +290,7 @@ export class RegistrationService {
       this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty),
       this.getRegistrationName(registrationTid),
       this.getAttachmentForRegistration(reg, registrationTid)
-    ]).pipe(take(1), map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments  })));
+    ]).pipe(take(1), map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments })));
   }
 
   public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
@@ -272,7 +300,7 @@ export class RegistrationService {
   }
 
   public getResponseAttachmentsForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): AttachmentViewModel[] {
-    if(!reg || !reg.response || !reg.response.Attachments) {
+    if (!reg || !reg.response || !reg.response.Attachments) {
       return [];
     }
     return reg.response.Attachments.filter((a) => a.RegistrationTID === registrationTid);
@@ -316,7 +344,7 @@ export class RegistrationService {
         return of(true); // Edit existing registration should sync even if empty (deleted observation)
       }
       const notEmpty = hasAnyObservations(reg); // Only sync if any observations is added (not only obs location and time)
-      if(notEmpty) {
+      if (notEmpty) {
         return of(true);
       }
       return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(take(1), map((attachments) => attachments.length > 0));
@@ -328,7 +356,7 @@ export class RegistrationService {
     if (!reg.lastSync) {
       return false;
     }
-    if(reg.changed > reg.lastSync) {
+    if (reg.changed > reg.lastSync) {
       return false;
     }
     const msSinceLastSync = (moment().unix() - reg.lastSync) * 1000;
