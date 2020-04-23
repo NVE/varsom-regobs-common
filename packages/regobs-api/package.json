@@ -1,13 +1,13 @@
 {
   "name": "@varsom-regobs-common/regobs-api",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "scripts": {
     "generate-swagger-api-module": "ng-swagger-gen -c ng-swagger-gen.json"
   },
   "peerDependencies": {
     "@angular/common": "^8.0.0",
     "@angular/core": "^8.0.0",
-    "@varsom-regobs-common/core": "^1.0.12"
+    "@varsom-regobs-common/core": "^1.0.13"
   },
   "devDependencies": {
     "ng-swagger-gen": "^1.8.1"
