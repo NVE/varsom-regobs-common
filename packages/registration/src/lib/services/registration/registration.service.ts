@@ -155,11 +155,11 @@ export class RegistrationService {
     return draft;
   }
 
-  public editExisingRegistration(registrationViewModel: RegistrationViewModel, syncStatus: SyncStatus = SyncStatus.Draft): IRegistration {
+  public editExisingRegistration(registrationViewModel: RegistrationViewModel): IRegistration {
     const reg = this.createNewEmptyDraft(registrationViewModel.GeoHazardTID);
     reg.request = cloneDeep(registrationViewModel);
     reg.response = cloneDeep(registrationViewModel);
-    reg.syncStatus = syncStatus;
+    reg.syncStatus = SyncStatus.InSync;
     return reg;
   }
 
@@ -182,7 +182,7 @@ export class RegistrationService {
 
   private getAutoSyncObservable() {
     return this.getAutosyncChangeTrigger().pipe(
-      tap(() => this.loggerService.debug('Auto sync triggered')),
+      tap((source) => this.loggerService.debug(`Auto sync triggered. Source: ${source}`)),
       switchMap(() => this.getRegistrationsToSyncObservable()),
       this.filterWhenProgressIsAllreadyRunning(),
       this.resetProgressAndSyncItems()
@@ -191,9 +191,9 @@ export class RegistrationService {
 
   private getAutosyncChangeTrigger() {
     return merge(
-      this.registrationStorage$,
-      this.getNetworkOnlineObservable(),
-      timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS)
+      this.registrationStorage$.pipe(map(() => 'registrations changed trigger')),
+      this.getNetworkOnlineObservable().pipe(map(() => 'network status online trigger')),
+      timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS).pipe(map(() => 'timer trigger'))
     ).pipe(debounceTime(SYNC_DEBOUNCE_TIME));
   }
 
@@ -281,7 +281,7 @@ export class RegistrationService {
   }
 
   public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
-    const reg: IRegistration = this.editExisingRegistration(regViewModel, SyncStatus.InSync);
+    const reg: IRegistration = this.editExisingRegistration(regViewModel);
     return this.getRegistrationFormsWithSummaries(reg, generateEmptySummaries);
   }
 

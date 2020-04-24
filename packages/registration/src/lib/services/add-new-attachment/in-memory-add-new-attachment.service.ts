@@ -2,8 +2,9 @@ import { AddNewAttachmentService } from './add-new-attachment.service';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, from, ReplaySubject } from 'rxjs';
 import { AttachmentUploadEditModel } from '../../registration.models';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 import { getBlobFromUrl } from '../../helpers/object-url-blob.helper';
+import { NGXLogger } from 'ngx-logger';
 @Injectable()
 export class InMemoryAddNewAttachmentService implements AddNewAttachmentService {
 
@@ -16,10 +17,14 @@ export class InMemoryAddNewAttachmentService implements AddNewAttachmentService 
 
   get attachmentsChanged$() {
     return this._attachmentChangeTrigger.pipe(switchMap((id) =>
-      this.getUploadedAttachments(id).pipe(take(1), map((attachments) => ({id, attachments})))));
+      this.getUploadedAttachments(id).pipe(
+        take(1),
+        map((attachments) => ({id, attachments})),
+        tap((result) => this.logger.debug('InMemoryAttachments changed', result))
+      )));
   }
 
-  constructor() {
+  constructor(private logger: NGXLogger) {
     this._addedAttachmets = new BehaviorSubject<{
       id: string;
       attachment: AttachmentUploadEditModel;

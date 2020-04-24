@@ -82,7 +82,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       switchMap((blob) =>
         this.uploadAttachmentWithProgress(attachmentUpload.fileUrl, blob)
           .pipe(map((uploadId) => {
-            this.loggerService.debug('Attachment uploaded. Removing from attachment to upload and adding to request', reg);
+            this.loggerService.debug('Attachment uploaded. Removing from attachment to upload and adding to request', attachmentUpload, reg);
             this.addAttachmentToRequest(uploadId, attachmentUpload, reg);
             return attachmentUpload;
           }))),
