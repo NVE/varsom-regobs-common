@@ -1,6 +1,6 @@
 import { RegistrationTid } from '../models/registration-tid.enum';
 import { IRegistration } from '../models/registration.interface';
-import { isEmpty, GeoHazard } from '@varsom-regobs-common/core';
+import { isEmpty } from '@varsom-regobs-common/core';
 import { ValidRegistrationType } from '../models/valid-registration.type';
 import { AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
 import { AttachmentUploadEditModel } from '../models/attachment-upload-edit.interface';
@@ -90,26 +90,26 @@ export function isArrayType(tid: RegistrationTid) {
   ].indexOf(tid) >= 0;
 }
 
-export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
-  const goHazardTids = new Map<GeoHazard, Array<RegistrationTid>>([
-    [GeoHazard.Snow, [
-      RegistrationTid.DangerObs,
-      RegistrationTid.AvalancheObs,
-      RegistrationTid.AvalancheActivityObs2,
-      RegistrationTid.WeatherObservation,
-      RegistrationTid.SnowSurfaceObservation,
-      RegistrationTid.CompressionTest,
-      RegistrationTid.SnowProfile2,
-      RegistrationTid.AvalancheEvalProblem2,
-      RegistrationTid.AvalancheEvaluation3
-    ]],
-    [GeoHazard.Ice, [RegistrationTid.IceCoverObs, RegistrationTid.IceThickness, RegistrationTid.DangerObs, RegistrationTid.Incident]],
-    [GeoHazard.Water, [RegistrationTid.WaterLevel2, RegistrationTid.DamageObs]],
-    [GeoHazard.Soil, [RegistrationTid.DangerObs, RegistrationTid.LandSlideObs]]
-  ]);
-  const generalObs = [RegistrationTid.GeneralObservation];
-  return goHazardTids.get(geoHazard).concat(generalObs);
-}
+// export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
+//   const goHazardTids = new Map<GeoHazard, Array<RegistrationTid>>([
+//     [GeoHazard.Snow, [
+//       RegistrationTid.DangerObs,
+//       RegistrationTid.AvalancheObs,
+//       RegistrationTid.AvalancheActivityObs2,
+//       RegistrationTid.WeatherObservation,
+//       RegistrationTid.SnowSurfaceObservation,
+//       RegistrationTid.CompressionTest,
+//       RegistrationTid.SnowProfile2,
+//       RegistrationTid.AvalancheEvalProblem2,
+//       RegistrationTid.AvalancheEvaluation3
+//     ]],
+//     [GeoHazard.Ice, [RegistrationTid.IceCoverObs, RegistrationTid.IceThickness, RegistrationTid.DangerObs, RegistrationTid.Incident]],
+//     [GeoHazard.Water, [RegistrationTid.WaterLevel2, RegistrationTid.DamageObs]],
+//     [GeoHazard.Soil, [RegistrationTid.DangerObs, RegistrationTid.LandSlideObs]]
+//   ]);
+//   const generalObs = [RegistrationTid.GeneralObservation];
+//   return goHazardTids.get(geoHazard).concat(generalObs);
+// }
 
 export function getOrCreateNewRegistrationForm(reg: IRegistration, tid: RegistrationTid): ValidRegistrationType {
   if (isObservationEmptyForRegistrationTid(reg, tid)) {

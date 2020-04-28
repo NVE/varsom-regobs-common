@@ -8,6 +8,7 @@ import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { HttpClient } from '@angular/common/http';
 import { KdvKey } from '../../models/kdv-key.type';
 import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
+import { KdvViewRepositoryKey } from '../../models/view-repository-key.type';
 
 const KDV_ASSETS_FOLDER = '/assets/kdvelements'; // TODO: Add this to module config?
 const VALID_KDV_ELEMENTS_SECONDS = 604800; // 7 days
@@ -49,7 +50,7 @@ export class KdvService extends ApiSyncOfflineBaseService<KdvElementsResponseDto
     return this.data$.pipe(map((val) => val.KdvRepositories[key]));
   }
 
-  public getViewRepositoryByKeyObservable(key: KdvKey) {
+  public getViewRepositoryByKeyObservable(key: KdvViewRepositoryKey) {
     return this.data$.pipe(map((val) => val.ViewRepositories[key]));
   }
 }

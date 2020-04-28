@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, combineLatest, forkJoin, timer, BehaviorSubject, merge } from 'rxjs';
+import { Observable, from, Subscription, of, concat, forkJoin, timer, BehaviorSubject, merge } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
@@ -14,7 +14,7 @@ import { RegistrationTid } from '../../models/registration-tid.enum';
 import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import { SUMMARY_PROVIDER_TOKEN, IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
-import { hasAnyObservations, getRegistrationTidsForGeoHazard, getAttachments } from '../../registration.helpers';
+import { hasAnyObservations, getAttachments } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
@@ -22,6 +22,7 @@ import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.int
 import { SummaryWithAttachments } from '../../models/summary/summary-with-attachments';
 import cloneDeep from 'clone-deep';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
+import { IRegistrationType } from '../../models/registration-type.interface';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_DEBOUNCE_TIME = 200;
@@ -73,7 +74,7 @@ export class RegistrationService {
     return this.getRetistrationById(id).pipe(
       take(1),
       switchMap((reg) => this.offlineRegistrationSyncService.deleteItem(reg)),
-      switchMap(() =>  of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id))))
+      switchMap(() => of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id))))
     );
   }
 
@@ -82,10 +83,10 @@ export class RegistrationService {
   }
 
   private shouldKeepWhenCleanup(reg: IRegistration) {
-    if(reg.syncStatus === SyncStatus.Sync) {
+    if (reg.syncStatus === SyncStatus.Sync) {
       return true;
     }
-    if(reg.syncStatus === SyncStatus.Draft && (reg.changed > moment().subtract(24, 'hours').unix())) {
+    if (reg.syncStatus === SyncStatus.Draft && (reg.changed > moment().subtract(24, 'hours').unix())) {
       return true;
     }
     return false;
@@ -135,7 +136,7 @@ export class RegistrationService {
   }
 
   public createNewEmptyDraft(geoHazard: GeoHazard, cleanupRegistrationStorage = true) {
-    if(cleanupRegistrationStorage) {
+    if (cleanupRegistrationStorage) {
       this.cleanUpRegistrationStorage();
     }
     const id = uuid();
@@ -269,7 +270,7 @@ export class RegistrationService {
     return this.registrationStorage$.pipe(
       map((registrations) => registrations.find((r) => r.id === id)),
       filter((val) => !!val),
-      concatMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
+      switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
         map((forms) => ({
           reg,
           forms
@@ -277,7 +278,60 @@ export class RegistrationService {
   }
 
   public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
-    return forkJoin([...getRegistrationTidsForGeoHazard(reg.geoHazard).map((tid) => this.getSummaryAndAttachments(reg, tid, generateEmptySummaries))]);
+    return this.getRegistrationTidsForGeoHazard(reg.geoHazard).pipe(
+      switchMap((registrationTypes) =>
+        forkJoin(this.getRegistrationTids(registrationTypes).map((registrationTid) =>
+          this.getSummaryAndAttachments(reg, registrationTid, generateEmptySummaries)))
+          .pipe(map((summaryAndAttachments) => this.mapToSummaryWithAttachments(registrationTypes, summaryAndAttachments)))
+      ));
+  }
+
+  private mapToSummaryWithAttachments(
+    registrationTypes: IRegistrationType[],
+    summaryAndAttachments: { registrationTid: RegistrationTid; summaries: Summary[]; attachments: ExistingOrNewAttachment[] }[]):
+    SummaryWithAttachments[] {
+    return (registrationTypes || []).map((regType) => {
+      const summaryAndAttachmentsForRegType = summaryAndAttachments.find((s) => s.registrationTid === regType.registrationTid);
+      const result: SummaryWithAttachments = {
+        registrationTid: regType.registrationTid,
+        name: regType.name,
+        attachments: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.attachments) ? summaryAndAttachmentsForRegType.attachments : undefined,
+        summaries: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.summaries) ? summaryAndAttachmentsForRegType.summaries : undefined,
+        subTypes: this.mapToSummaryWithAttachments(regType.subTypes, summaryAndAttachments),
+      };
+      return result;
+    });
+  }
+
+  private getRegistrationTids(registrationTypes: IRegistrationType[]): RegistrationTid[] {
+    const result: RegistrationTid[] = [];
+    for (const r of registrationTypes) {
+      result.push(r.registrationTid);
+      if (r.subTypes && r.subTypes.length > 0) {
+        result.push(...this.getRegistrationTids(r.subTypes));
+      }
+    }
+    return result;
+  }
+
+  public getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): Observable<IRegistrationType[]> {
+    return this.kdvService.getViewRepositoryByKeyObservable('RegistrationTypesV')
+      .pipe(map((val) => this.parseViewRepositoryType(val[`${geoHazard}`])));
+  }
+
+  private parseViewRepositoryType(val: unknown[]): IRegistrationType[] {
+    if (!val) {
+      return [];
+    }
+    return val.map((v) => {
+      const result: IRegistrationType = {
+        registrationTid: v['Id'],
+        name: v['Name'],
+        sortOrder: v['SortOrder'],
+        subTypes: this.parseViewRepositoryType(v['SubTypes']),
+      };
+      return result;
+    });
   }
 
   public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
@@ -285,18 +339,20 @@ export class RegistrationService {
     return this.getRegistrationFormsWithSummaries(reg, generateEmptySummaries);
   }
 
-  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<SummaryWithAttachments> {
-    return combineLatest([
-      this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty),
-      this.getRegistrationName(registrationTid),
-      this.getAttachmentForRegistration(reg, registrationTid)
-    ]).pipe(take(1), map(([summaries, registrationName, attachments]) => ({ registrationTid, registrationName, summaries, attachments })));
+  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true) {
+    return this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
+      .pipe(withLatestFrom(this.getAttachmentForRegistration(reg, registrationTid)),
+        map(([summaries, attachments]) => ({ registrationTid, summaries, attachments })));
   }
 
   public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
-    return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(take(1), map((uploaded) =>
-      [...uploaded.filter((u) => u.RegistrationTID === registrationTid),
-        ...(reg.syncStatus === SyncStatus.InSync ? this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : getAttachments(reg, registrationTid))]));
+    return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(
+      map((uploaded) =>
+        [
+          ...uploaded.filter((u) => u.RegistrationTID === registrationTid),
+          ...(reg.syncStatus === SyncStatus.InSync ? this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : getAttachments(reg, registrationTid))
+        ]
+      ));
   }
 
   public getResponseAttachmentsForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): AttachmentViewModel[] {
