@@ -3,7 +3,7 @@ import { InanoSQLTableConfig } from '@nano-sql/core/lib/interfaces';
 export const TABLE_NAMES = {
   REGISTRATION: 'registration',
   USER_SETTINGS: 'usersettings',
-  KDV_ELEMENTS: 'kdvelements',
+  KDV_ELEMENTS: 'kdvelements_v2',
   HELP_TEXTS: 'helptexts'
 };
 
