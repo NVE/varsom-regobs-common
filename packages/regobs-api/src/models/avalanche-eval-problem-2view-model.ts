@@ -7,17 +7,13 @@ export interface AvalancheEvalProblem2ViewModel {
   AvalancheExtName?: string;
   AvalCauseName?: string;
   DestructiveSizeName?: string;
-  AvalPropagationTID?: number;
   AvalPropagationName?: string;
-  AvalCauseAttributeLightTID?: number;
   AvalCauseAttributeLightName?: string;
-  AvalCauseAttributeThinTID?: number;
   AvalCauseAttributeThinName?: string;
-  AvalCauseAttributeSoftTID?: number;
   AvalCauseAttributeSoftName?: string;
-  AvalCauseAttributeCrystalTID?: number;
   AvalCauseAttributeCrystalName?: string;
   AvalProbabilityTID?: number;
+  AvalPropagationTID?: number;
   AvalTriggerSimpleTID?: number;
   AvalCauseDepthTID?: number;
   ValidExposition?: string;
@@ -27,5 +23,9 @@ export interface AvalancheEvalProblem2ViewModel {
   AvalancheExtTID?: number;
   Comment?: string;
   AvalCauseTID?: number;
+  AvalCauseAttributeLightTID?: number;
+  AvalCauseAttributeThinTID?: number;
+  AvalCauseAttributeSoftTID?: number;
+  AvalCauseAttributeCrystalTID?: number;
   DestructiveSizeTID?: number;
 }
