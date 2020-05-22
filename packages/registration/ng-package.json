@@ -12,7 +12,8 @@
       "@ngx-translate/http-loader": "NgxTranslateHttpLoader",
       "@ngx-translate/core": "NgxTranslateCore",
       "ngx-connectivity": "NgxConnectivity",
-      "clone-deep": "cloneDeep"
+      "clone-deep": "cloneDeep",
+      "ngx-logger": "ngxLogger"
     }
   },
   "whitelistedNonPeerDependencies": []
