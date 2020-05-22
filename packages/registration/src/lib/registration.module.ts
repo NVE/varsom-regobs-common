@@ -2,7 +2,7 @@ import { NgModule, ModuleWithProviders, InjectionToken } from '@angular/core';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-item-sync-callback.service';
 import { RegobsApiSyncCallbackService } from './services/item-sync-callback/regobs-api-sync-callback.service';
-import { RegobsApiModuleWithConfig } from '@varsom-regobs-common/regobs-api';
+import { RegobsApiModuleWithConfig, KdvElementsService, HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
 import { InanoSQLAdapter } from '@nano-sql/core/lib/interfaces';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
 import { TranslateModule } from '@ngx-translate/core';
@@ -12,6 +12,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConnectivityInterceptor } from 'ngx-connectivity';
 import { InMemoryAddNewAttachmentService } from './services/add-new-attachment/in-memory-add-new-attachment.service';
 import { AddNewAttachmentService } from './services/add-new-attachment/add-new-attachment.service';
+import { throwError } from 'rxjs';
 
 export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
 export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
@@ -31,6 +32,16 @@ export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOpti
     }
   }
   return offlineDbServiceOptions;
+}
+
+export function getFakeKdvElementsService() {
+  const fakeService = { KdvElementsGetKdvs: () => throwError(Error('Fake service')) };
+  return fakeService;
+}
+
+export function getFakeHelpTextApiService() {
+  const fakeService = { HelptextGet: () => throwError(Error('Fake service')) };
+  return fakeService;
 }
 
 @NgModule({
@@ -84,7 +95,7 @@ export class RegistrationModule {
       providers: [
         {
           provide: FOR_ROOT_OPTIONS_TOKEN,
-          useValue: {  dbMode: 'TEMP' }
+          useValue: { dbMode: 'TEMP' }
         },
         {
           provide: OfflineDbServiceOptions,
@@ -98,7 +109,9 @@ export class RegistrationModule {
         },
         {
           provide: AddNewAttachmentService, useClass: InMemoryAddNewAttachmentService
-        }
+        },
+        { provide: KdvElementsService, useFactory: getFakeKdvElementsService },
+        { provide: HelpTextApiService, useFactory: getFakeHelpTextApiService },
       ]
     });
   }
