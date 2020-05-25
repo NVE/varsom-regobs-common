@@ -12,15 +12,10 @@ import { OfflineDbServiceOptions } from './offline-db-service.options';
 })
 export class OfflineDbService {
 
-  private dbConnected = new Map<AppMode, boolean>();
-  private _appModeInitialized$: Observable<AppMode>;
-
-  public get appModeInitialized$(): Observable<AppMode> {
-    return this._appModeInitialized$;
-  }
+  public readonly appModeInitialized$: Observable<AppMode>;
 
   constructor(private appModeService: AppModeService, private options: OfflineDbServiceOptions, private logger: LoggerService) {
-    this._appModeInitialized$ = this.appModeService.appMode$.pipe(
+    this.appModeInitialized$ = this.appModeService.appMode$.pipe(
       distinctUntilChanged(),
       switchMap((appMode) => this.initAppMode(appMode)),
       tap((val) => logger.log('App mode initalized', val)),
@@ -49,9 +44,9 @@ export class OfflineDbService {
   }
 
   private async createDbIfNotExist(appMode: AppMode): Promise<AppMode> {
-    const connected = this.dbConnected.get(appMode);
-    if (!connected) {
-      this.dbConnected = this.dbConnected.set(appMode, true);
+    const dbName = this.getDbName(appMode);
+    const exists = nSQL().listDatabases().indexOf(dbName) >= 0;
+    if (!exists) {
       try{
         await nSQL().createDatabase({
           id: this.getDbName(appMode),
@@ -62,8 +57,7 @@ export class OfflineDbService {
           ],
         });
       }catch(err) {
-        this.logger.error(`Could not create database for app mode: ${appMode}`, err);
-        this.dbConnected = this.dbConnected.set(appMode, false);
+        this.logger.warn(`Could not create database for app mode: ${appMode}`, err);
       }
     }
     return appMode;
