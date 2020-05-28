@@ -1,6 +1,6 @@
 export interface ItemSyncCompleteStatus<T> {
     item: T;
     success: boolean;
-    statusCode: number;
-    error?: Error;
+    statusCode?: number;
+    error?: string | unknown;
 }

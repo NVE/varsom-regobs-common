@@ -430,7 +430,7 @@ export class RegistrationService {
 
   private syncRecord(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
     return this.offlineRegistrationSyncService.syncItem(item).pipe(
-      catchError((err) => of(({ item, success: false, statusCode: -1, error: err }))),
+      catchError((err) => of(({ item, success: false, error: err }))),
       tap((result) => this.loggerService.log('Record sync complete', result)));
   }
 
@@ -440,7 +440,7 @@ export class RegistrationService {
       src.pipe(map((r: ItemSyncCompleteStatus<IRegistration>) => ({
         ...r.item,
         lastSync: moment().unix(),
-        syncStatus: r.success ? SyncStatus.InSync : r.item.syncStatus,
+        syncStatus: r.success ? SyncStatus.InSync : (r.statusCode === 0 ? SyncStatus.Sync : SyncStatus.Draft),
         syncError: r.error,
       })),
       switchMap((item: IRegistration) =>

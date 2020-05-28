@@ -56,9 +56,12 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
             success: uploadSuccess,
             item: ({ ...item, response: result }),
             statusCode: attachmentStatusCode,
-            error: uploadSuccess ? undefined : new Error('Could not upload attachments')
+            error: uploadSuccess ? undefined : 'Could not upload attachments'
           })),
-          catchError((err: HttpErrorResponse) => of(({ success: false, item: item, statusCode: err.status, error: Error(err.message) }))));
+          catchError((err: HttpErrorResponse) => {
+            const errorMsg = err ? (err.error ? err.error : err.message) : '';
+            return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
+          }));
     }));
   }
 

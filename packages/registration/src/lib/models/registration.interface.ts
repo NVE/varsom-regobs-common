@@ -8,7 +8,7 @@ export interface IRegistration {
     geoHazard: GeoHazard;
     syncStatus: SyncStatus;
     lastSync?: number;
-    syncError?: Error;
+    syncError?: string | unknown;
     request: RegistrationEditModel;
     response?: RegistrationViewModel;
 }
