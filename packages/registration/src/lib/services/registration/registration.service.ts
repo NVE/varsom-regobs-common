@@ -12,9 +12,8 @@ import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callbac
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
-import { SUMMARY_PROVIDER_TOKEN, IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
-import { ISummaryProvider } from '../summary-providers/summary-provider.interface';
-import { hasAnyObservations, getAttachments } from '../../registration.helpers';
+import {IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
+import { hasAnyObservations, getAttachments, isObservationEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
@@ -23,6 +22,7 @@ import { SummaryWithAttachments } from '../../models/summary/summary-with-attach
 import cloneDeep from 'clone-deep';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 import { IRegistrationType } from '../../models/registration-type.interface';
+import { FallbackSummaryProvider } from '../summary-providers/fallback-provider';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_DEBOUNCE_TIME = 200;
@@ -45,7 +45,8 @@ export class RegistrationService {
     private addNewAttachmentService: AddNewAttachmentService,
     private internetConnectivity: InternetConnectivity,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
-    @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
+    // @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
+    private fallbackSummaryProvider: FallbackSummaryProvider,
     @Inject(FOR_ROOT_OPTIONS_TOKEN) private options: IRegistrationModuleOptions
   ) {
     this._inMemoryRegistrations = new BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>([]);
@@ -109,7 +110,9 @@ export class RegistrationService {
   }
 
   private saveRegistrationsToOfflineStorage(appMode: AppMode, registrations: IRegistration[]) {
-    return from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('upsert', registrations).exec());
+    const table = this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION);
+    const query = table.query('delete').exec().then(() => table.query('upsert', registrations).exec());
+    return from(query);
   }
 
   public cancelSync() {
@@ -218,12 +221,15 @@ export class RegistrationService {
    * @param registrationTid Registration tid
    */
   public getDraftSummary(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
-    // if (!isObservationEmptyForRegistrationTid(reg, registrationTid)) {
-    //   const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
-    //   if (provider) {
-    //     return provider.generateSummary(reg);
-    //   }
-    // }
+    if (!isObservationEmptyForRegistrationTid(reg, registrationTid)) {
+      // const provider = this.summaryProviders.find((p) => p.registrationTid === registrationTid);
+      // if (provider) {
+      //   return provider.generateSummary(reg);
+      // }
+      // TODO: Implement all providers to get summaries generated client side before synchronized to API...
+      return this.fallbackSummaryProvider.generateSummary(reg, registrationTid).pipe(tap((genericSummary) =>
+        this.loggerService.debug('Generic fallback summary', genericSummary)));
+    }
     return addIfEmpty ? this.generateEmptySummary(registrationTid).pipe(map((s) => [s])) : of([]);
   }
 
@@ -363,8 +369,8 @@ export class RegistrationService {
   }
 
   private getRegistrationObservable(appMode: AppMode) {
-    return this._inMemoryRegistrations.pipe(map((appModeReg) => appModeReg.filter((appModeReg) => appModeReg.appMode === appMode)
-      .map((appModeReg) => appModeReg.reg)));
+    return this._inMemoryRegistrations.pipe(
+      map((appModeReg) => appModeReg.filter((appModeReg) => appModeReg.appMode === appMode).map((appModeReg) => appModeReg.reg)));
   }
 
   private getNetworkOnlineObservable(): Observable<boolean> {
@@ -415,10 +421,17 @@ export class RegistrationService {
     if (reg.changed > reg.lastSync) {
       return false;
     }
-    const msSinceLastSync = (moment().unix() - reg.lastSync) * 1000;
-    const lastSyncLessThanSyncBuffer = msSinceLastSync <= SYNC_BUFFER_MS;
-    this.loggerService.debug(`MS since last sync attempt: ${msSinceLastSync}. Should wait for sync: ${lastSyncLessThanSyncBuffer}`, reg);
-    return lastSyncLessThanSyncBuffer;
+    const msToNextSync = this.getMsUntilNextSync(reg.lastSync, SYNC_BUFFER_MS);
+    if (msToNextSync > 0) {
+      this.loggerService.debug(`Should throttle: ${msToNextSync / 1000}`, reg);
+      return true;
+    }
+    return false;
+  }
+
+  private getMsUntilNextSync(lastSyncTimeUnixTimestamp: number, timeout: number) {
+    const msSinceLastSync = (moment().unix() - lastSyncTimeUnixTimestamp) * 1000;
+    return timeout - msSinceLastSync;
   }
 
   private flattenRegistrationsToSync() {
@@ -441,6 +454,7 @@ export class RegistrationService {
         ...r.item,
         lastSync: moment().unix(),
         syncStatus: r.success ? SyncStatus.InSync : (r.statusCode === 0 ? SyncStatus.Sync : SyncStatus.Draft),
+        syncStatusCode: r.statusCode,
         syncError: r.error,
       })),
       switchMap((item: IRegistration) =>

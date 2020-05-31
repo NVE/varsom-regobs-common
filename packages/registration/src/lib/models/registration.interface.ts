@@ -9,6 +9,7 @@ export interface IRegistration {
     syncStatus: SyncStatus;
     lastSync?: number;
     syncError?: string | unknown;
+    syncStatusCode?: number;
     request: RegistrationEditModel;
     response?: RegistrationViewModel;
 }
