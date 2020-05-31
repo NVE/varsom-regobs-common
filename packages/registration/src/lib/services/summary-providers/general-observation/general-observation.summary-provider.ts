@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
-export class GeneralObservationSummaryProvider extends BaseSummaryProvider {
+export class GeneralObservationSummaryProvider extends BaseSummaryProvider<GeneralObservationEditModel> {
   readonly registrationTid = RegistrationTid.GeneralObservation;
 
   constructor(public translateService: TranslateService, public kdvService: KdvService) {
@@ -20,25 +20,25 @@ export class GeneralObservationSummaryProvider extends BaseSummaryProvider {
   generateTypeSpesificSummaries(_reg: IRegistration,
     _registrationTid: RegistrationTid,
     _registrationName: string,
-    registrationItem: GeneralObservationEditModel,
+    model: GeneralObservationEditModel,
     summary: Summary): Observable<Summary> {
-    return this.generateGeneralObservationSummaries(registrationItem).pipe(map((result) => ({ ...summary, Summaries: result })));
+    return this.generateGeneralObservationSummaries(model).pipe(map((result) => ({ ...summary, Summaries: result })));
   }
 
-  generateGeneralObservationSummaries(generalObs: GeneralObservationEditModel): Observable<RegObsGenericValue[]> {
+  generateGeneralObservationSummaries(model: GeneralObservationEditModel): Observable<RegObsGenericValue[]> {
     const summaries: Observable<RegObsGenericValue>[] = [];
-    if(generalObs) {
-      if (generalObs.ObsComment) {
-        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.ObsComment));
+    if(model) {
+      if (model.ObsComment) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', model.ObsComment));
       }
-      if (generalObs.Comment) {
-        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', generalObs.Comment));
+      if (model.Comment) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.Comment', model.Comment));
       }
-      if (generalObs.ObsHeader) {
-        summaries.push(this.getTextSummary('Observations.GeneralObservation.ObsHeader', generalObs.ObsHeader));
+      if (model.ObsHeader) {
+        summaries.push(this.getTextSummary('Observations.GeneralObservation.ObsHeader', model.ObsHeader));
       }
-      if (generalObs.Urls && generalObs.Urls.length > 0) {
-        summaries.push(this.getUrlSummary(generalObs.Urls));
+      if (model.Urls && model.Urls.length > 0) {
+        summaries.push(this.getUrlSummary(model.Urls));
       }
     }
     return combineLatest(summaries);

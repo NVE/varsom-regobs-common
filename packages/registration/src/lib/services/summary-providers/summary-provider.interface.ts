@@ -5,5 +5,5 @@ import { Observable } from 'rxjs';
 
 export interface ISummaryProvider {
     readonly registrationTid: RegistrationTid;
-    generateSummary(reg: IRegistration): Observable<Summary[]>;
+    generateSummary(reg: IRegistration, registrationTid: RegistrationTid): Observable<Summary[]>;
 }

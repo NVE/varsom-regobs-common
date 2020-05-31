@@ -13,7 +13,7 @@ export class FakeItemSyncCallbackService implements ItemSyncCallbackService<IReg
     return this.createRandomDelay().pipe(map(() => true));
   }
   syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-    return this.createRandomDelay().pipe(map(() => ({ item, success: true, error: null })));
+    return this.createRandomDelay().pipe(map(() => ({ item, success: true })));
   }
 
   private createRandomDelay() {

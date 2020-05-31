@@ -26,7 +26,7 @@ export class ProgressService {
     this._syncProgress$.next(progress);
   }
 
-  setSyncProgress(recordId: string, error?: Error) {
+  setSyncProgress(recordId: string, error?: string | unknown) {
     this.loggerService.log('Sync record item complete', recordId);
     const progress = this._syncProgress$.value;
     if (error) {
