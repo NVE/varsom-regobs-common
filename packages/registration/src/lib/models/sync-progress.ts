@@ -1,7 +1,7 @@
 import moment, { Moment } from 'moment';
 
 export class SyncProgress {
-    private records: Map<string, Error>;
+    private records: Map<string, string | unknown>;
     private totalRecords: number;
     private started: Moment;
 
@@ -78,7 +78,7 @@ export class SyncProgress {
       this.removeRecord(id);
     }
 
-    setRecordError(id: string, error: Error) {
+    setRecordError(id: string, error: string | unknown) {
       this.records.set(id, error);
     }
 

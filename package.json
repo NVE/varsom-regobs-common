@@ -1,6 +1,6 @@
 {
   "name": "varsom-regobs-common",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "scripts": {
     "ng": "ng",
     "eslint": "eslint",
@@ -32,6 +32,7 @@
     "clone-deep": "^4.0.1",
     "core-js": "^3.6.4",
     "eslint-formatter-vso": "^0.1.0",
+    "fast-deep-equal": "^3.1.1",
     "moment": "^2.24.0",
     "ngx-connectivity": "0.0.5",
     "ngx-logger": "^4.1.1",
