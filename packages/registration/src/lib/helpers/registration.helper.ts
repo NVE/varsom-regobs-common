@@ -60,7 +60,17 @@ export function hasAnyAttachments(reg: IRegistration, registrationTid: Registrat
 
 export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid) {
   if (reg && registrationTid) {
-    const hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
+    let hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
+    // Hack to snow profile tests
+    if(
+      !hasRegistration &&
+      registrationTid === RegistrationTid.SnowProfile2 &&
+      reg.request &&
+      reg.request.CompressionTest &&
+      reg.request.CompressionTest.some(t => t.IncludeInSnowProfile)
+    ) {
+      hasRegistration = true;
+    }
     const hasAttachments = hasAnyAttachments(reg, registrationTid);
     if (hasRegistration || hasAttachments) {
       return false;
