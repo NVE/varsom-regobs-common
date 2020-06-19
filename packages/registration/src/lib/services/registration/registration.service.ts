@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, forkJoin, timer, BehaviorSubject, merge } from 'rxjs';
+import { Observable, from, Subscription, of, concat, forkJoin, timer, BehaviorSubject, merge, Subject } from 'rxjs';
 import { TABLE_NAMES } from '../../db/nSQL-db.config';
 import { GeoHazard, AppMode, LoggerService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
@@ -36,6 +36,7 @@ export class RegistrationService {
   public readonly registrationStorage$: Observable<IRegistration[]>;
   private _registrationSyncSubscription: Subscription;
   private _inMemoryRegistrations: BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>;
+  private _inMemoryRegistrationsReady = new Subject();
 
   constructor(
     private offlineDbService: OfflineDbService,
@@ -55,8 +56,10 @@ export class RegistrationService {
       switchMap((appMode) => this.getRegistrationObservable(appMode)), tap((reg) => {
         this.loggerService.debug('Registrations changed', reg);
       }), shareReplay(1));
-    this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
-      switchMap(([registrations, appMode]) => this.saveRegistrationsToOfflineStorage(appMode, registrations))).subscribe();
+    this._inMemoryRegistrationsReady.subscribe(() => {
+      this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
+        switchMap(([registrations, appMode]) => from(this.saveRegistrationsToOfflineStorage(appMode, registrations)))).subscribe();
+    });
     this.updateRegistrationChangedOnAttachmentUploaded();
     this.cancelSync();
   }
@@ -106,13 +109,16 @@ export class RegistrationService {
       map((offlineRegistrations) => offlineRegistrations.map((reg) => ({ appMode, reg }))))
       .subscribe((offlineRegistrations) => {
         this._inMemoryRegistrations.next(offlineRegistrations);
+        this._inMemoryRegistrationsReady.next();
+        this._inMemoryRegistrationsReady.complete();
       });
   }
 
-  private saveRegistrationsToOfflineStorage(appMode: AppMode, registrations: IRegistration[]) {
+  private async saveRegistrationsToOfflineStorage(appMode: AppMode, registrations: IRegistration[]) {
     const table = this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION);
-    const query = table.query('delete').exec().then(() => table.query('upsert', registrations).exec());
-    return from(query);
+    await table.query('delete').where(['id', 'NOT IN', registrations.map((r) => r.id)]).exec(); // Remove deleted items
+    const result = await table.query('upsert', registrations).exec();
+    this.loggerService.debug('Result from save registrations offline', result);
   }
 
   public cancelSync() {
@@ -274,6 +280,7 @@ export class RegistrationService {
 
   public getRegistrationEditFromsWithSummaries(id: string): Observable<{ reg: IRegistration; forms: SummaryWithAttachments[] }> {
     return this.registrationStorage$.pipe(
+      tap((val) => this.loggerService.debug(() => 'getRegistrationEditFromsWithSummaries', val, id)),
       map((registrations) => registrations.find((r) => r.id === id)),
       filter((val) => !!val),
       switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
