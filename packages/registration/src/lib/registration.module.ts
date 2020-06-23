@@ -14,6 +14,7 @@ import { InMemoryAddNewAttachmentService } from './services/add-new-attachment/i
 import { AddNewAttachmentService } from './services/add-new-attachment/add-new-attachment.service';
 import { throwError } from 'rxjs';
 import { WeatherSummaryProvider } from './services/summary-providers/snow/weather/weather.summary-provider';
+import { RegobsRegistrationPipesModule } from './registration.pipes';
 
 export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
 export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
@@ -52,7 +53,9 @@ export function getFakeHelpTextApiService() {
     TranslateModule,
   ],
   declarations: [],
-  exports: []
+  exports: [
+    RegobsRegistrationPipesModule,
+  ]
 })
 export class RegistrationModule {
   static forRoot(options?: IRegistrationModuleOptions): ModuleWithProviders {
