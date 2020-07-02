@@ -11,6 +11,7 @@ import { LoggerService } from '@varsom-regobs-common/core';
 import { HttpClient, HttpEventType, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
+import { WaterLevelMeasurementUploadModel } from '../../models/water-level-measurement-upload-model';
 
 @Injectable()
 export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRegistration> {
@@ -115,9 +116,11 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       AttachmentMimeType: attachmentUploadEditModel.AttachmentMimeType,
       IsMainAttachment: attachmentUploadEditModel.IsMainAttachment,
     };
-    if (attachmentUploadEditModel.type === 'DamageObsAttachment' || attachmentUploadEditModel.type === 'WaterLevelMeasurementAttachment') {
-      this.addDamageObsOrWaterLevelAttachment(attachment, reg, attachmentUploadEditModel.ref);
+    if (attachmentUploadEditModel.type === 'WaterLevelMeasurementAttachment') {
+      this.addWaterLevelAttachment(attachment, reg, attachmentUploadEditModel.ref);
       return;
+    } else if (attachmentUploadEditModel.type === 'DamageObsAttachment') {
+      this.addDamageObsAttachment(attachment, reg, attachmentUploadEditModel.ref);
     }
     if (!reg.request.Attachments) {
       reg.request.Attachments = [];
@@ -125,13 +128,20 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     reg.request.Attachments.push(attachment);
   }
 
-  private addDamageObsOrWaterLevelAttachment(attachment: AttachmentEditModel, reg: IRegistration, ref: DamageObsEditModel | WaterLevelMeasurementEditModel) {
-    if (ref) {
-      if (!ref.Attachments) {
-        ref.Attachments = [];
-      }
-      ref.Attachments.push(attachment);
+  private addDamageObsAttachment(attachment: AttachmentEditModel, reg: IRegistration, ref: string) {
+    this.loggerService.error('Uploading of damage obs attachments not implemented', attachment, reg, ref);
+  }
+
+  private addWaterLevelAttachment(attachment: AttachmentEditModel, reg: IRegistration, ref: string) {
+    const predicate = (m: WaterLevelMeasurementUploadModel) => m.ref === ref;
+    const measurement = reg.request.WaterLevel2.WaterLevelMeasurement.find(predicate);
+    if (!measurement) {
+      this.loggerService.error(`Did not find measurement for attachment with ref ${ref}`, attachment, reg, ref);
     }
+    if (!measurement.Attachments) {
+      measurement.Attachments = [];
+    }
+    measurement.Attachments.push(attachment);
   }
 
   getAttachmentsToUpload(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
