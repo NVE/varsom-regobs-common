@@ -23,7 +23,7 @@ export interface IRegobsApiKeyProvider {
     ],
 })
 export class RegobsApiModuleWithConfig {
-    static forRoot(options?: RegobsApiConfigurationInterface): ModuleWithProviders {
+    static forRoot(options?: RegobsApiConfigurationInterface): ModuleWithProviders<RegobsApiModuleWithConfig> {
         return ({
             ngModule: RegobsApiModuleWithConfig,
             providers: [

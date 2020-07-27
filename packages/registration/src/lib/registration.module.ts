@@ -58,7 +58,7 @@ export function getFakeHelpTextApiService() {
   ]
 })
 export class RegistrationModule {
-  static forRoot(options?: IRegistrationModuleOptions): ModuleWithProviders {
+  static forRoot(options?: IRegistrationModuleOptions): ModuleWithProviders<RegistrationModule> {
     return ({
       ngModule: RegistrationModule,
       providers: [
@@ -92,11 +92,11 @@ export class RegistrationModule {
     });
   }
 
-  static forChild(options?: IRegistrationModuleOptions): ModuleWithProviders {
+  static forChild(options?: IRegistrationModuleOptions): ModuleWithProviders<RegistrationModule> {
     return RegistrationModule.forRoot(options);
   }
 
-  static forTesting(): ModuleWithProviders {
+  static forTesting(): ModuleWithProviders<RegistrationModule> {
     return ({
       ngModule: RegistrationModule,
       providers: [
