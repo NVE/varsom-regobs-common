@@ -14,7 +14,8 @@
     "test:watch": "ng test --watch=true --browsers ChromeHeadless --reporters mocha --progress=true",
     "lint": "eslint packages/*/src/**.ts",
     "lint:ci": "eslint packages/*/src/**.ts --format vso",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "ngcc"
   },
   "private": true,
   "dependencies": {
