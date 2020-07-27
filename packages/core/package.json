@@ -1,9 +1,9 @@
 {
   "name": "@varsom-regobs-common/core",
-  "version": "1.0.24",
+  "version": "2.0.0",
   "peerDependencies": {
-    "@angular/common": "^8.0.0",
-    "@angular/core": "^8.0.0",
+    "@angular/common": "^10.0.0",
+    "@angular/core": "^10.0.0",
     "rxjs": "^6.0.0",
     "@nano-sql/core": "^2.3.7",
     "ngx-logger": "^4.0.0"

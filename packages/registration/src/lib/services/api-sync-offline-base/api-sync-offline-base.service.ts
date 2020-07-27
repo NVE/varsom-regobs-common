@@ -1,4 +1,4 @@
-import { OnDestroy } from '@angular/core';
+import { OnDestroy, Injectable, Inject, InjectionToken } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest, from, of, EMPTY, Subject } from 'rxjs';
 import { LanguageService, LoggerService, AppMode, LangKey } from '@varsom-regobs-common/core';
 import { map, switchMap, shareReplay, catchError, take, tap, takeUntil, filter } from 'rxjs/operators';
@@ -6,30 +6,34 @@ import { OfflineSyncMeta } from '../../models/offline-sync-meta.interface';
 import moment from 'moment';
 import { OfflineDbService } from '../offline-db/offline-db.service';
 
+export const API_SYNCE_OFFLINE_BASE_SERVICE_OPTIONS_CONFIG = new InjectionToken<ApiSyncOfflineBaseServiceOptions>('ApiSyncOfflineBaseServiceOptions.config');
+export interface ApiSyncOfflineBaseServiceOptions {
+  offlineTableName: string;
+  useLangKeyAsDbKey: boolean;
+  validSeconds: number;
+  offlineTableKey?: string | number;
+  offlineTableKeyname?: string;
+}
+
+@Injectable()
 export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
   private isUpdatingSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
   private inMemoryData: BehaviorSubject<{ [appMode: string]: { [langKey: number]: T } }> = new BehaviorSubject({});
   private readonly appModeAndLanguage$: Observable<{ appMode: AppMode; langKey: LangKey }>;
   private readonly ngDestroySubject = new Subject();
 
-  public get isUpdating$() {
+  public get isUpdating$(): Observable<boolean> {
     return this.isUpdatingSubject.asObservable();
   }
 
-  public get ngDestroy$() {
+  public get ngDestroy$(): Observable<unknown> {
     return this.ngDestroySubject.asObservable();
   }
 
   public readonly data$: Observable<T>;
 
   constructor(
-    protected options: {
-      offlineTableName: string;
-      useLangKeyAsDbKey: boolean;
-      validSeconds: number;
-      offlineTableKey?: string | number;
-      offlineTableKeyname?: string;
-    },
+    @Inject(API_SYNCE_OFFLINE_BASE_SERVICE_OPTIONS_CONFIG) protected options: ApiSyncOfflineBaseServiceOptions,
     protected offlineDbService: OfflineDbService,
     protected languageService: LanguageService,
     protected logger: LoggerService) {
@@ -43,7 +47,7 @@ export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
   public abstract getUpdatedData(appMode: AppMode, langKey: LangKey): Observable<T>;
   public abstract getFallbackData(appMode: AppMode, langKey: LangKey): Observable<T>;
 
-  public init() {
+  public init(): void {
     this.appModeAndLanguage$.pipe(
       switchMap((appModeAndLanguage) =>
         this.getOfflineData(appModeAndLanguage.appMode, appModeAndLanguage.langKey).pipe(
@@ -55,19 +59,19 @@ export abstract class ApiSyncOfflineBaseService<T> implements OnDestroy {
       .subscribe();
   }
 
-  public update() {
+  public update(): void {
     this.appModeAndLanguage$.pipe(take(1), switchMap((appModeAndLanguage) =>
       this.updateDataObservable(appModeAndLanguage.appMode, appModeAndLanguage.langKey))
     ).subscribe();
   }
 
-  public isValid(metaData: OfflineSyncMeta<T>) {
+  public isValid(metaData: OfflineSyncMeta<T>): boolean {
     const valid = metaData && (metaData.lastUpdated > this.getInvalidTime().unix());
     this.logger.debug(`Offline data is valid: ${valid}`, metaData);
     return valid;
   }
 
-  public getInvalidTime() {
+  public getInvalidTime(): moment.Moment {
     return moment().subtract(this.options.validSeconds, 'seconds');
   }
 

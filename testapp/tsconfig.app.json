@@ -7,8 +7,11 @@
   "angularCompilerOptions": {
     "enableIvy": false
   },
-  "exclude": [
-    "test.ts",
-    "**/*.spec.ts"
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "testapp/src/**/*.d.ts"
   ]
 }
