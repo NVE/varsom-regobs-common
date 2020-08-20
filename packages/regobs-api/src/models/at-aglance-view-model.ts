@@ -1,6 +1,6 @@
 /* tslint:disable */
 export interface AtAGlanceViewModel {
-  RegID?: number;
+  RegId?: number;
   GeoHazardTID?: number;
   DtObsTime?: string;
   NickName?: string;
