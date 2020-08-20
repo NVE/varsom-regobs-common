@@ -30,6 +30,11 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ## How to link npm package while developing:
 
 It is useful to link library locally when developing.
+
+Build project (npm run build), go to dist folder and for each varsom-regobs-common project folder (with package.json) and type:
+
+npm link
+
 [https://docs.npmjs.com/cli/link]
 [https://angular.io/guide/creating-libraries]
 [https://medium.com/dailyjs/how-to-use-npm-link-7375b6219557]

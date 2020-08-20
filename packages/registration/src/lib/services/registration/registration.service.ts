@@ -64,7 +64,7 @@ export class RegistrationService {
     this.cancelSync();
   }
 
-  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true) {
+  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true): Observable<void> {
     return this.offlineDbService.appModeInitialized$.pipe(take(1), map((appMode) => {
       this.loggerService.debug('Save registration', reg, updateChangedTimestamp);
       if (updateChangedTimestamp) {
@@ -74,7 +74,7 @@ export class RegistrationService {
     }));
   }
 
-  public deleteRegistration(id: string) {
+  public deleteRegistration(id: string): Observable<void> {
     return this.getRetistrationById(id).pipe(
       take(1),
       switchMap((reg) => this.offlineRegistrationSyncService.deleteItem(reg)),
@@ -82,7 +82,7 @@ export class RegistrationService {
     );
   }
 
-  public cleanUpRegistrationStorage() {
+  public cleanUpRegistrationStorage(): void {
     this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => this.shouldKeepWhenCleanup(val.reg)));
   }
 
@@ -96,7 +96,7 @@ export class RegistrationService {
     return false;
   }
 
-  public getRetistrationById(id: string) {
+  public getRetistrationById(id: string): Observable<IRegistration> {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
 
@@ -121,7 +121,7 @@ export class RegistrationService {
     this.loggerService.debug('Result from save registrations offline', result);
   }
 
-  public cancelSync() {
+  public cancelSync(): void {
     this.progressService.resetSyncProgress();
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
@@ -131,12 +131,12 @@ export class RegistrationService {
     }
   }
 
-  public getFirstDraftForGeoHazard(geoHazard: GeoHazard) {
+  public getFirstDraftForGeoHazard(geoHazard: GeoHazard): Promise<IRegistration> {
     return this.getDraftsForGeoHazardObservable(geoHazard)
       .pipe(map((rows) => rows[0]), take(1)).toPromise();
   }
 
-  public getDraftsForGeoHazardObservable(geoHazard: GeoHazard) {
+  public getDraftsForGeoHazardObservable(geoHazard: GeoHazard): Observable<IRegistration[]> {
     return this.registrationStorage$.pipe(map((records) =>
       records.filter((reg) =>
         reg.request.GeoHazardTID === geoHazard &&
@@ -144,7 +144,7 @@ export class RegistrationService {
       )));
   }
 
-  public createNewEmptyDraft(geoHazard: GeoHazard, cleanupRegistrationStorage = true) {
+  public createNewEmptyDraft(geoHazard: GeoHazard, cleanupRegistrationStorage = true): IRegistration {
     if (cleanupRegistrationStorage) {
       this.cleanUpRegistrationStorage();
     }
@@ -173,13 +173,13 @@ export class RegistrationService {
     return reg;
   }
 
-  public makeExistingRegistrationEditable(reg: IRegistration) {
+  public makeExistingRegistrationEditable(reg: IRegistration): void {
     if (reg && reg.syncStatus === SyncStatus.InSync) {
       reg.request = cloneDeep(reg.response);
     }
   }
 
-  public syncRegistrations() {
+  public syncRegistrations(): Observable<IRegistration[]> {
     return this.getRegistrationsToSyncObservable().pipe(this.resetProgressAndSyncItems());
   }
 
@@ -245,7 +245,7 @@ export class RegistrationService {
       : this.getDraftSummary(reg, registrationTid, addIfEmpty);
   }
 
-  private getRegistrationName(registrationTid: RegistrationTid): Observable<string> {
+  public getRegistrationName(registrationTid: RegistrationTid): Observable<string> {
     return this.kdvService.getKdvRepositoryByKeyObservable('RegistrationKDV').pipe(
       map((kdvElements) => kdvElements.find((kdv) => kdv.Id === registrationTid)), map((val) => val ? val.Name : ''));
   }
