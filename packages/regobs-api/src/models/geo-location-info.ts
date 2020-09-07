@@ -1,11 +1,11 @@
 /* tslint:disable */
 export interface GeoLocationInfo {
+  Municipality?: string;
   Masl?: number;
-  Steepness?: number;
   WarningRegionId?: string;
   WarningRegionName?: string;
   Name?: string;
-  Municipality?: string;
+  Steepness?: number;
   MunicipalityId?: string;
   AdminAreaName?: string;
   AdminAreaId?: string;
