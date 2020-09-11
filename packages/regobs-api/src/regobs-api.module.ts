@@ -38,7 +38,7 @@ import { TripService } from './services/trip.service';
   ],
 })
 export class RegobsApiModule {
-  static forRoot(customParams: RegobsApiConfigurationInterface): ModuleWithProviders<RegobsApiModule> {
+  static forRoot(customParams: RegobsApiConfigurationInterface): ModuleWithProviders {
     return {
       ngModule: RegobsApiModule,
       providers: [
