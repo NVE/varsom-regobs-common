@@ -4,7 +4,7 @@ export { ItemSyncCallbackService } from './services/item-sync-callback/item-sync
 export { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-item-sync-callback.service';
 export { KdvService } from './services/kdv/kdv.service';
 export { HelpTextService } from './services/help-text/help-text.service';
-export { ApiSyncOfflineBaseService } from './services/api-sync-offline-base/api-sync-offline-base.service';
+// export { ApiSyncOfflineBaseService } from './services/api-sync-offline-base/api-sync-offline-base.service';
 export { ProgressService } from './services/progress/progress.service';
 export { AddNewAttachmentService } from './services/add-new-attachment/add-new-attachment.service';
 export { InMemoryAddNewAttachmentService } from './services/add-new-attachment/in-memory-add-new-attachment.service';

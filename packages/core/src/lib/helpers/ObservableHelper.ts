@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 
 export class ObservableHelper {
-  static toPromiseWithCancel<T>(observable: Observable<T>, cancel?: Promise<unknown>) {
+  static toPromiseWithCancel<T>(observable: Observable<T>, cancel?: Promise<unknown>): Promise<T> {
     const p = new Promise<T>((resolve, reject) => {
       const subscription = observable
         .subscribe((result) => {

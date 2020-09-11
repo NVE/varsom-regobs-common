@@ -1,12 +1,12 @@
-import { TestBed } from '@angular/core/testing';
+// import { TestBed } from '@angular/core/testing';
 
-import { ApiSyncOfflineBaseService } from './api-sync-offline-base.service';
+// import { ApiSyncOfflineBaseService } from './api-sync-offline-base.service';
 
-xdescribe('ApiSyncOfflineBaseService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}));
+// xdescribe('ApiSyncOfflineBaseService', () => {
+//   beforeEach(() => TestBed.configureTestingModule({}));
 
-  it('should be created', () => {
-    const service: ApiSyncOfflineBaseService<unknown> = TestBed.get(ApiSyncOfflineBaseService);
-    expect(service).toBeTruthy();
-  });
-});
+//   it('should be created', () => {
+//     const service: ApiSyncOfflineBaseService<unknown> = TestBed.get(ApiSyncOfflineBaseService);
+//     expect(service).toBeTruthy();
+//   });
+// });

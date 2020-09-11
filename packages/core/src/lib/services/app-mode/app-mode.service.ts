@@ -19,7 +19,7 @@ export class AppModeService {
     this.appModeSubject = new BehaviorSubject(config.appMode);
   }
 
-  public setAppMode(appMode: AppMode) {
+  public setAppMode(appMode: AppMode): void {
     this.appModeSubject.next(appMode);
   }
 

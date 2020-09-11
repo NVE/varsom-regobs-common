@@ -3,11 +3,10 @@ import { IRegistration } from '../../models/registration.interface';
 import { Observable, of, forkJoin } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
-import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel, DamageObsEditModel, WaterLevelMeasurementEditModel } from '@varsom-regobs-common/regobs-api';
+import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
 import { map, catchError, concatMap, switchMap, tap, filter, take } from 'rxjs/operators';
-import { LanguageService, LangKey } from '@varsom-regobs-common/core';
+import { LanguageService, LangKey, LoggerService } from '@varsom-regobs-common/core';
 import { AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
-import { LoggerService } from '@varsom-regobs-common/core';
 import { HttpClient, HttpEventType, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
@@ -66,7 +65,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     }));
   }
 
-  removeSuccessfulAttachments(item: IRegistration) {
+  removeSuccessfulAttachments(item: IRegistration): Observable<IRegistration> {
     return this.getAttachmentsToUpload(item).pipe(take(1), tap((attachmentsToUpload) => {
       for (const attachmentUpload of attachmentsToUpload.filter((a) => !a.error)) {
         this.addNewAttachmentService.removeAttachment(item.id, attachmentUpload);

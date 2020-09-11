@@ -40,11 +40,9 @@
 /** IE10 and IE11 requires the following for the Reflect API. */
 // import 'core-js/es6/reflect';
 
-
 /** Evergreen browsers require these. **/
 // Used for reflect-metadata in JIT. If you use AOT (and only Angular decorators), you can remove.
 // import 'core-js/es7/reflect';
-
 
 /**
  * Web Animations `@angular/platform-browser/animations`
@@ -73,8 +71,12 @@
  */
 import 'zone.js/dist/zone';  // Included with Angular CLI.
 
-
-
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).global = window;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).process = {
+  env: { DEBUG: undefined },
+};
