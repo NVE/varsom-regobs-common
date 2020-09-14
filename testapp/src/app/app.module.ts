@@ -20,7 +20,7 @@ import { OfflineDbService } from '@varsom-regobs-common/registration';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 
 export function initDb(dbService: OfflineDbService) {
-  return (): Promise<any> =>  {
+  return (): Promise<void> =>  {
     return import('pouchdb-adapter-idb').then(addRxPlugin).then(() => dbService.initDatabase('idb'));
   };
 }

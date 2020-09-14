@@ -16,7 +16,7 @@ export const GenericSchema : RxJsonSchema = {
       type: 'number'
     },
     data: {
-      type: 'object'
+      type: ['object', 'array' ]
     }
   },
 };
