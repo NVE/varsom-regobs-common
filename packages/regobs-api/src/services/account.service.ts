@@ -10,6 +10,7 @@ import { map as __map, filter as __filter } from 'rxjs/operators';
 import { ObserverResponseDto } from '../models/observer-response-dto';
 import { ObserverGroupDto } from '../models/observer-group-dto';
 import { MyPageData } from '../models/my-page-data';
+import { ObserverPatchRequestDto } from '../models/observer-patch-request-dto';
 @Injectable({
   providedIn: 'root',
 })
@@ -18,6 +19,7 @@ class AccountService extends __BaseService {
   static readonly AccountGetObserverGroupsPath = '/Account/Groups';
   static readonly AccountGetAccountGroupsByGuidPath = '/Account/Groups/{guid}';
   static readonly AccountGetMyPageDataPath = '/Account/Mypage';
+  static readonly AccountUpdateObserverPath = '/Account/UpdateObserver';
 
   constructor(
     config: __Configuration,
@@ -161,6 +163,42 @@ class AccountService extends __BaseService {
   AccountGetMyPageData(langKey?: 1 | 2 | 3 | 4 | 5): __Observable<MyPageData> {
     return this.AccountGetMyPageDataResponse(langKey).pipe(
       __map(_r => _r.body as MyPageData)
+    );
+  }
+
+  /**
+   * @param observerPatchRequestDto undefined
+   * @return OK
+   */
+  AccountUpdateObserverResponse(observerPatchRequestDto: ObserverPatchRequestDto): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = observerPatchRequestDto;
+    let req = new HttpRequest<any>(
+      'PUT',
+      this.rootUrl + `/Account/UpdateObserver`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * @param observerPatchRequestDto undefined
+   * @return OK
+   */
+  AccountUpdateObserver(observerPatchRequestDto: ObserverPatchRequestDto): __Observable<{}> {
+    return this.AccountUpdateObserverResponse(observerPatchRequestDto).pipe(
+      __map(_r => _r.body as {})
     );
   }
 }

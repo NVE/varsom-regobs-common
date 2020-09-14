@@ -2,6 +2,7 @@ export { ObserverResponseDto } from './models/observer-response-dto';
 export { ObserverGroupDto } from './models/observer-group-dto';
 export { MyPageData } from './models/my-page-data';
 export { ObserverCompetenceDto } from './models/observer-competence-dto';
+export { ObserverPatchRequestDto } from './models/observer-patch-request-dto';
 export { GeoLocationInfo } from './models/geo-location-info';
 export { GeoLocationSummary } from './models/geo-location-summary';
 export { HelptextDto } from './models/helptext-dto';
