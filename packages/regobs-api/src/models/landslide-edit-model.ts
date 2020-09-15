@@ -1,14 +1,14 @@
 /* tslint:disable */
 import { UrlEditModel } from './url-edit-model';
 export interface LandslideEditModel {
+  DamageExtentTID?: number;
   LandSlideTID?: number;
-  LandSlideTriggerTID?: number;
   LandSlideSizeTID?: number;
   Comment?: string;
   GeoHazardTID?: number;
   ActivityInfluencedTID?: number;
   ForecastAccurateTID?: number;
-  DamageExtentTID?: number;
+  LandSlideTriggerTID?: number;
   StartLat?: number;
   StartLong?: number;
   StopLat?: number;

@@ -1,7 +1,7 @@
 /* tslint:disable */
 export interface AvalancheObsViewModel {
+  TerrainStartZoneTID?: number;
   DestructiveSizeName?: string;
-  AvalancheTriggerName?: string;
   AvalancheName?: string;
   TerrainStartZoneName?: string;
   AvalCauseName?: string;
@@ -12,7 +12,7 @@ export interface AvalancheObsViewModel {
   DestructiveSizeTID?: number;
   AvalancheTriggerTID?: number;
   AvalancheTID?: number;
-  TerrainStartZoneTID?: number;
+  AvalancheTriggerName?: string;
   SnowLine?: number;
   ValidExposition?: string;
   AvalCauseTID?: number;

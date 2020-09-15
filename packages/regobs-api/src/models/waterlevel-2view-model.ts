@@ -1,8 +1,8 @@
 /* tslint:disable */
 import { WaterLevelMeasurementViewModel } from './water-level-measurement-view-model';
 export interface Waterlevel2ViewModel {
+  WaterAstrayTID?: number;
   WaterLevelStateName?: string;
-  WaterAstrayName?: string;
   ObservationTimingName?: string;
   MeasurementReferenceName?: string;
   MeasurementTypeName?: string;
@@ -10,7 +10,7 @@ export interface Waterlevel2ViewModel {
   MarkingReferenceName?: string;
   MarkingTypeName?: string;
   WaterLevelMeasurement?: Array<WaterLevelMeasurementViewModel>;
-  WaterAstrayTID?: number;
+  WaterAstrayName?: string;
   ObservationTimingTID?: number;
   MeasurementReferenceTID?: number;
   MeasurementTypeTID?: number;

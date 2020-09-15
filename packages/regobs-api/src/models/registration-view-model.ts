@@ -1,4 +1,5 @@
 /* tslint:disable */
+import { SnowProfileViewModel } from './snow-profile-view-model';
 import { ObserverViewModel } from './observer-view-model';
 import { ObsLocationViewModel } from './obs-location-view-model';
 import { AttachmentViewModel } from './attachment-view-model';
@@ -13,7 +14,6 @@ import { IceCoverViewModel } from './ice-cover-view-model';
 import { IceThicknessViewModel } from './ice-thickness-view-model';
 import { IncidentViewModel } from './incident-view-model';
 import { LandslideViewModel } from './landslide-view-model';
-import { SnowProfileViewModel } from './snow-profile-view-model';
 import { SnowSurfaceViewModel } from './snow-surface-view-model';
 import { WeatherViewModel } from './weather-view-model';
 import { Waterlevel2ViewModel } from './waterlevel-2view-model';
@@ -27,8 +27,8 @@ import { AvalancheEvaluation2ViewModel } from './avalanche-evaluation-2view-mode
 import { SnowCoverObsViewModel } from './snow-cover-obs-view-model';
 import { WaterLevelViewModel } from './water-level-view-model';
 export interface RegistrationViewModel {
+  SnowProfile2?: SnowProfileViewModel;
   RegId?: number;
-  ExternalReferenceId?: string;
   GeoHazardName?: string;
   DtRegTime?: string;
   DtChangeTime?: string;
@@ -47,7 +47,7 @@ export interface RegistrationViewModel {
   IceThickness?: IceThicknessViewModel;
   Incident?: IncidentViewModel;
   LandSlideObs?: LandslideViewModel;
-  SnowProfile2?: SnowProfileViewModel;
+  ExternalReferenceId?: string;
   SnowSurfaceObservation?: SnowSurfaceViewModel;
   WeatherObservation?: WeatherViewModel;
   WaterLevel2?: Waterlevel2ViewModel;

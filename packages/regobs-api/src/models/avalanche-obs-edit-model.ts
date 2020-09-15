@@ -1,7 +1,7 @@
 /* tslint:disable */
 export interface AvalancheObsEditModel {
+  ValidExposition?: string;
   DtAvalancheTime: string;
-  Aspect?: number;
   HeightStartZone?: number;
   HeightStopZone?: number;
   DestructiveSizeTID?: number;
@@ -9,7 +9,7 @@ export interface AvalancheObsEditModel {
   AvalancheTID?: number;
   TerrainStartZoneTID?: number;
   SnowLine?: number;
-  ValidExposition?: string;
+  Aspect?: number;
   AvalCauseTID?: number;
   FractureHeight?: number;
   FractureWidth?: number;

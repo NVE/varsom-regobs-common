@@ -1,13 +1,13 @@
 /* tslint:disable */
 import { AvalancheEvalProblemViewModel } from './avalanche-eval-problem-view-model';
 export interface AvalancheEvaluation2ViewModel {
+  ExposedHeight2?: number;
   AvalancheDangerName?: string;
-  ValidExposition?: string;
   Comment?: string;
   AvalancheEvaluation?: string;
   AvalancheDevelopment?: string;
   ExposedHeight1?: number;
-  ExposedHeight2?: number;
+  ValidExposition?: string;
   ExposedHeightComboTID?: number;
   ExposedHeightComboName?: string;
   ExposedClimateTID?: number;
