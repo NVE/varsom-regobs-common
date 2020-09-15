@@ -1,12 +1,12 @@
 /* tslint:disable */
 export interface AtAGlanceViewModel {
+  Latitude?: number;
   RegId?: number;
-  GeoHazardTID?: number;
   DtObsTime?: string;
   NickName?: string;
   CompetenceLevelTID?: number;
   Title?: string;
-  Latitude?: number;
+  GeoHazardTID?: number;
   Longitude?: number;
   UtmNorth?: number;
   UtmEast?: number;
