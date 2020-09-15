@@ -11,7 +11,7 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { Summary, AttachmentViewModel, RegistrationViewModel, RegistrationCard } from '@varsom-regobs-common/regobs-api';
+import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import {IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { hasAnyObservations, getAttachments, isObservationEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
@@ -23,7 +23,6 @@ import cloneDeep from 'clone-deep';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 import { IRegistrationType } from '../../models/registration-type.interface';
 import { FallbackSummaryProvider } from '../summary-providers/fallback-provider';
-// import { RegistrationCardWithAttachments } from '../../models/registration-cards/registration-card-with-attachments';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_DEBOUNCE_TIME = 200;
@@ -246,22 +245,6 @@ export class RegistrationService {
       : this.getDraftSummary(reg, registrationTid, addIfEmpty);
   }
 
-  // public getRegistrationCardForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<RegistrationCard[]> {
-  //   return this.getResponseRegistrationCardForRegistrationTid(reg, registrationTid, addIfEmpty);
-  // }
-
-  // public getResponseRegistrationCardForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true) {
-  //   if (reg && reg.response && reg.response.RegistrationCards && reg.response.RegistrationCards.length > 0) {
-  //     const registrationCard = reg.response.RegistrationCards.filter(card => card.RegistrationTID === registrationTid);
-
-  //     if (registrationCard) {
-  //       return of(registrationCard);
-  //     }
-  //   }
-
-  //   return of([]);
-  // }
-
   public getRegistrationName(registrationTid: RegistrationTid): Observable<string> {
     return this.kdvService.getKdvRepositoryByKeyObservable('RegistrationKDV').pipe(
       map((kdvElements) => kdvElements.find((kdv) => kdv.Id === registrationTid)), map((val) => val ? val.Name : ''));
@@ -307,18 +290,6 @@ export class RegistrationService {
         })))));
   }
 
-  // public getRegistrationEditFormsWithRegistrationCards(id: string): Observable<{ reg: IRegistration; forms: RegistrationCardWithAttachments[] }> {
-  //   return this.registrationStorage$.pipe(
-  //     tap((val) => this.loggerService.debug(() => 'getRegistrationEditFormsWithRegistrationCards', val, id)),
-  //     map((registrations) => registrations.find((r) => r.id === id)),
-  //     filter((val) => !!val),
-  //     switchMap((reg) => this.getRegistrationFormsWithRegistrationCards(reg, false).pipe(
-  //       map((forms) => ({
-  //         reg,
-  //         forms
-  //       })))));
-  // }
-
   public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
     return this.getRegistrationTidsForGeoHazard(reg.geoHazard).pipe(
       switchMap((registrationTypes) =>
@@ -327,18 +298,6 @@ export class RegistrationService {
           .pipe(map((summaryAndAttachments) => this.mapToSummaryWithAttachments(registrationTypes, summaryAndAttachments)))
       ));
   }
-
-  // public getRegistrationFormsWithRegistrationCards(reg: IRegistration, generateEmptySummaries = true): Observable<RegistrationCardWithAttachments[]> {
-  //   return this.getRegistrationTidsForGeoHazard(reg.geoHazard).pipe(
-  //     tap(tids => this.loggerService.debug('JOLO registrationTypes: ', { tids })),
-  //     switchMap((registrationTypes) =>
-  //       forkJoin(this.getRegistrationTids(registrationTypes)
-  //         .map((registrationTid) => this.getRegistrationCardWithAttachments(reg, registrationTid, generateEmptySummaries)))
-  //         .pipe(
-  //           tap(tids => this.loggerService.debug('JOLO AFTER getRegistrationCardWithAttachments: ', { tids })),
-  //           map((registrationCardsWithAttachments) => this.mapToRegistrationCardsWithAttachments(registrationTypes, registrationCardsWithAttachments)))
-  //     ));
-  // }
 
   private mapToSummaryWithAttachments(
     registrationTypes: IRegistrationType[],
@@ -356,22 +315,6 @@ export class RegistrationService {
       return result;
     });
   }
-
-  // private mapToRegistrationCardsWithAttachments(
-  //   registrationTypes: IRegistrationType[],
-  //   registrationCardsWithAttachments: { registrationTid: RegistrationTid; registrationCards: RegistrationCard[]; attachments: ExistingOrNewAttachment[] }[]):
-  //   RegistrationCardWithAttachments[] {
-  //   return (registrationTypes || []).map((regType) => {
-  //     const registrationCardAndAttachmentsForRegType = registrationCardsWithAttachments.find((s) => s.registrationTid === regType.registrationTid);
-  //     const result: RegistrationCardWithAttachments = {
-  //       registrationTid: regType.registrationTid,
-  //       registrationName: regType.name,
-  //       attachments: (registrationCardAndAttachmentsForRegType && registrationCardAndAttachmentsForRegType.attachments) ? registrationCardAndAttachmentsForRegType.attachments : undefined,
-  //       registrationCards: (registrationCardAndAttachmentsForRegType && registrationCardAndAttachmentsForRegType.registrationCards) ? registrationCardAndAttachmentsForRegType.registrationCards : undefined,
-  //     };
-  //     return result;
-  //   });
-  // }
 
   private getRegistrationTids(registrationTypes: IRegistrationType[]): RegistrationTid[] {
     const result: RegistrationTid[] = [];
@@ -414,12 +357,6 @@ export class RegistrationService {
       .pipe(withLatestFrom(this.getAttachmentForRegistration(reg, registrationTid)),
         map(([summaries, attachments]) => ({ registrationTid, summaries, attachments })));
   }
-
-  // private getRegistrationCardWithAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true) {
-  //   return this.getRegistrationCardForRegistrationTid(reg, registrationTid, addIfEmpty)
-  //     .pipe(withLatestFrom(this.getAttachmentForRegistration(reg, registrationTid)),
-  //       map(([registrationCards, attachments]) => ({ registrationTid, registrationCards, attachments })));
-  // }
 
   public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
     return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(
