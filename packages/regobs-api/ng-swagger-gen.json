@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/ng-swagger-gen/ng-swagger-gen-schema.json",
-  "swagger": "http://localhost:40001/swagger/docs/v5",
+  "swagger": "https://test-api.regobs.no/v5/swagger/docs/V5",
   "output": "src",
   "prefix": "regobsApi",
   "ignoreUnusedModels": true,
