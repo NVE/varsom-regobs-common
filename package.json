@@ -1,6 +1,6 @@
 {
   "name": "varsom-regobs-common",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "scripts": {
     "ng": "ng",
     "eslint": "eslint",
@@ -14,8 +14,7 @@
     "test:watch": "ng test --watch=true --browsers ChromeHeadless --reporters mocha --progress=true",
     "lint": "eslint packages/*/src/**.ts",
     "lint:ci": "eslint packages/*/src/**.ts --format vso",
-    "e2e": "ng e2e",
-    "postinstall": "ngcc"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
