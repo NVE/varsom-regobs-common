@@ -328,8 +328,51 @@ export class RegistrationService {
   }
 
   public getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): Observable<IRegistrationType[]> {
-    return this.kdvService.getViewRepositoryByKeyObservable('RegistrationTypesV')
-      .pipe(map((val) => this.parseViewRepositoryType(val[`${geoHazard}`])));
+    const commonTypes = [RegistrationTid.GeneralObservation];
+    const geoHazardValidTypes = new Map<GeoHazard, RegistrationTid[]>([
+      [GeoHazard.Snow, [
+        RegistrationTid.DangerObs,
+        RegistrationTid.AvalancheObs,
+        RegistrationTid.AvalancheActivityObs2,
+        RegistrationTid.WeatherObservation,
+        RegistrationTid.SnowSurfaceObservation,
+        RegistrationTid.CompressionTest,
+        RegistrationTid.SnowProfile2,
+        RegistrationTid.AvalancheEvalProblem2,
+        RegistrationTid.AvalancheEvaluation3
+      ]],
+      [GeoHazard.Ice, [
+        RegistrationTid.IceCoverObs,
+        RegistrationTid.IceThickness,
+        RegistrationTid.DangerObs,
+        RegistrationTid.Incident
+      ]],
+      [GeoHazard.Water, [
+        RegistrationTid.WaterLevel2,
+        RegistrationTid.DamageObs
+      ]],
+      [GeoHazard.Soil, [
+        RegistrationTid.DangerObs,
+        RegistrationTid.LandSlideObs
+      ]]
+    ]);
+    const registrationFormForGeoHazard = [...geoHazardValidTypes.get(geoHazard), ...commonTypes];
+
+    const flatViewrepository$ = this.kdvService.getViewRepositoryByKeyObservable('RegistrationTypesV')
+      .pipe(
+        map((val) => this.parseViewRepositoryType(val[`${geoHazard}`])),
+        map((result) => this.flattenRegistrationTypes(result)),
+        map((result) => result.filter((val) => registrationFormForGeoHazard.indexOf(val.registrationTid) >= 0))
+      );
+
+    return of(registrationFormForGeoHazard).pipe(switchMap((registrationTids) =>
+      flatViewrepository$.pipe(map((vr) => registrationTids.map((registrationTid) => vr.find((v) => v.registrationTid === registrationTid)
+      )))));
+  }
+
+  private flattenRegistrationTypes(types: IRegistrationType[]) {
+    const arr = types.map((t) => t.subTypes ? t.subTypes : [t]);
+    return arr.reduce((a, b) => a.concat(b), []);
   }
 
   private parseViewRepositoryType(val: unknown[]): IRegistrationType[] {
