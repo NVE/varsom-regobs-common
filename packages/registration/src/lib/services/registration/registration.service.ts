@@ -366,12 +366,14 @@ export class RegistrationService {
       );
 
     return of(registrationFormForGeoHazard).pipe(switchMap((registrationTids) =>
-      flatViewrepository$.pipe(map((vr) => registrationTids.map((registrationTid) => vr.find((v) => v.registrationTid === registrationTid)
-      )))));
+      flatViewrepository$.pipe(
+        map((vr) => registrationTids.map((registrationTid) => vr.find((v) => v.registrationTid === registrationTid)),
+          filter((result) => !!result)
+        ))));
   }
 
   private flattenRegistrationTypes(types: IRegistrationType[]) {
-    const arr = types.map((t) => t.subTypes ? t.subTypes : [t]);
+    const arr = types.map((t) => (t.subTypes && t.subTypes.length > 0) ? t.subTypes : [t]);
     return arr.reduce((a, b) => a.concat(b), []);
   }
 
