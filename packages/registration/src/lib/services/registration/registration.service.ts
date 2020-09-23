@@ -339,7 +339,8 @@ export class RegistrationService {
         RegistrationTid.CompressionTest,
         RegistrationTid.SnowProfile2,
         RegistrationTid.AvalancheEvalProblem2,
-        RegistrationTid.AvalancheEvaluation3
+        RegistrationTid.AvalancheEvaluation3,
+        RegistrationTid.Incident
       ]],
       [GeoHazard.Ice, [
         RegistrationTid.IceCoverObs,
