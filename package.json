@@ -9,9 +9,9 @@
     "copy-registration-lib-assets": "npm run cp:kdv-elements && npm run cp:helptexts",
     "cp:kdv-elements": "copyfiles -f packages/registration/src/assets/kdvelements/*.json dist/varsom-regobs-common/registration/assets/kdvelements",
     "cp:helptexts": "copyfiles -f packages/registration/src/assets/helptexts/*.json dist/varsom-regobs-common/registration/assets/helptexts",
-    "test": "ng test --watch=false --browsers ChromeHeadless --reporters mocha --progress=true",
-    "test:ci": "ng test --watch=false --browsers ChromeHeadlessCI --reporters junit --code-coverage --progress=false",
-    "test:watch": "ng test --watch=true --browsers ChromeHeadless --reporters mocha --progress=true",
+    "test": "ng test --karma-config=karma.conf.js --watch=false --browsers ChromeHeadless --reporters mocha --progress=true",
+    "test:ci": "ng test --karma-config=karma.conf.js --watch=false --browsers ChromeHeadlessCI --reporters junit --code-coverage --progress=false",
+    "test:watch": "ng test --karma-config=karma.conf.js --watch=true --browsers ChromeHeadless --reporters mocha --progress=true",
     "lint": "eslint packages/*/src/**.ts",
     "lint:ci": "eslint packages/*/src/**.ts --format vso",
     "e2e": "ng e2e"
@@ -71,7 +71,6 @@
     "prettier": "^2.0.5",
     "protractor": "^7.0.0",
     "ts-node": "^8.10.2",
-    "tslint": "^6.1.3",
     "typescript": "^3.9.7"
   }
 }
