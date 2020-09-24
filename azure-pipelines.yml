@@ -2,7 +2,7 @@ trigger:
 - develop
 
 pool:
-  name: Azure Pipelines
+  vmImage: 'windows-latest'
 steps:
 - task: NodeTool@0
   displayName: 'Use Node 12.x'
