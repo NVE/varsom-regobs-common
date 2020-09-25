@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable, from, Subscription, of, concat, forkJoin, timer, merge } from 'rxjs';
-import { GeoHazard, AppMode, LoggerService, AppModeService, uuidv4 } from '@varsom-regobs-common/core';
+import { GeoHazard, AppMode, LoggerService, AppModeService, uuidv4, ObservableHelperService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService } from '../offline-db/offline-db.service';
@@ -45,6 +45,7 @@ export class RegistrationService {
     private addNewAttachmentService: AddNewAttachmentService,
     private internetConnectivity: InternetConnectivity,
     private appModeService: AppModeService,
+    private observableHelperService: ObservableHelperService,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
     // @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
     private fallbackSummaryProvider: FallbackSummaryProvider,
@@ -54,7 +55,7 @@ export class RegistrationService {
     // this.offlineDbService.appModeInitialized$.subscribe((appMode) => this.updateInMemoryRegistrationsFromOfflineStorage(appMode));
     this.registrationStorage$ = this.getRegistrationObservable().pipe(tap((reg) => {
       this.loggerService.debug('Registrations changed', reg);
-    }), shareReplay(1));
+    }), shareReplay(1), this.observableHelperService.enterZoneAndTickApplicationRef());
     // this._inMemoryRegistrationsReady.subscribe(() => {
     //   this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
     //     switchMap(([registrations, appMode]) => from(this.saveRegistrationsToOfflineStorage(appMode, registrations)))).subscribe();

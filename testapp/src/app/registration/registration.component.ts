@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RegistrationService, IRegistration, SyncProgress, ProgressService } from '@varsom-regobs-common/registration';
 import { Observable, of } from 'rxjs';
-import { AppMode, AppModeService, GeoHazard, LoggerService, enterZone, ObservableHelperService } from '@varsom-regobs-common/core';
+import { AppMode, AppModeService, GeoHazard, LoggerService, ObservableHelperService } from '@varsom-regobs-common/core';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -20,8 +20,7 @@ export class RegistrationComponent implements OnInit {
     private appModeService: AppModeService,
     // private settingsService: SettingsService,
     private loggerService: LoggerService,
-    private progressService: ProgressService,
-    private observableHelperService: ObservableHelperService,
+    private progressService: ProgressService
   ) {
   }
 
@@ -29,7 +28,7 @@ export class RegistrationComponent implements OnInit {
     this.title$ = of('Test-app!!');
     this.registrations$ = this.registrationService.registrationStorage$.pipe(tap((registrations) => {
       this.loggerService.debug('Registration storage changed!', registrations);
-    }), this.observableHelperService.enterZoneAndMarkForCheck());
+    }));
     this.appMode$ = this.appModeService.appMode$;
     // this.settingsService.registrationSettings$.subscribe((settings) => {
     //   this.settings = settings;

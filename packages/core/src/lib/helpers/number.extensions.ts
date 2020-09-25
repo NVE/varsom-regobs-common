@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isNumeric(n: any) {
+export function isNumeric(n: any): boolean {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-export function setDecimalPlaces(n: number, decimalPlaces: number) {
+export function setDecimalPlaces(n: number, decimalPlaces: number): number {
   if (!isNumeric(n) || !(decimalPlaces > 0)) {
     return n;
   }
