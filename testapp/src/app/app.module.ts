@@ -39,7 +39,7 @@ export function initDb(dbService: OfflineDbService) {
     FormsModule,
     CoreModule,
     RegobsApiModuleWithConfig.forRoot(),
-    RegistrationModule.forRoot({ adapter: 'idb', autoSync: false }),
+    RegistrationModule.forRoot({ adapter: 'idb', autoSync: true }),
     AppRoutingModule,
     TranslateModule.forRoot(),
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),

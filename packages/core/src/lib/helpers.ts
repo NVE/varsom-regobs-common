@@ -5,3 +5,6 @@ export { getLangKeyString } from './models/lang-key.enum';
 export { isEmpty } from './helpers/IsEmptyHelper';
 export { isNumeric, setDecimalPlaces } from './helpers/number.extensions';
 export { uuidv4 } from './helpers/Uuid';
+export { enterZone } from './helpers/enter-zone';
+export { markForCheck } from './helpers/mark-for-check';
+export { enterZoneAndmarkForCheck } from './helpers/enter-zone-and-mark-for-check';

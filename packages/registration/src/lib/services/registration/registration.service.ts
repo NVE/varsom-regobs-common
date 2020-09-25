@@ -441,7 +441,7 @@ export class RegistrationService {
   }
 
   private getTableName(appMode: AppMode) {
-    return `${appMode.toLocaleLowerCase()}_registration`;
+    return `${appMode.toLocaleLowerCase()}/registration`;
   }
 
   private getDbCollection(appMode: AppMode): RxRegistrationCollection {

@@ -1,5 +1,5 @@
 import { Injectable, Inject, InjectionToken } from '@angular/core';
-import { Observable, combineLatest, from, of } from 'rxjs';
+import { Observable, combineLatest, from, of, BehaviorSubject } from 'rxjs';
 import { LanguageService, LoggerService, AppMode, LangKey, AppModeService } from '@varsom-regobs-common/core';
 import { map, switchMap, shareReplay, catchError, concatMap, take } from 'rxjs/operators';
 import { OfflineSyncMeta } from '../../models/offline-sync-meta.interface';
@@ -19,6 +19,11 @@ export interface ApiSyncOfflineBaseServiceOptions {
 export abstract class ApiSyncOfflineBaseService<T>  {
 
   public readonly data$: Observable<T>;
+  private isUpdatingSubject = new BehaviorSubject<boolean>(false);
+
+  get isUpdating$(): Observable<boolean> {
+    return this.isUpdatingSubject.asObservable();
+  }
 
   constructor(
     @Inject(API_SYNCE_OFFLINE_BASE_SERVICE_OPTIONS_CONFIG) protected options: ApiSyncOfflineBaseServiceOptions,
@@ -32,6 +37,16 @@ export abstract class ApiSyncOfflineBaseService<T>  {
   public abstract getUpdatedData(appMode: AppMode, langKey: LangKey): Observable<T>;
   public abstract getFallbackData(appMode: AppMode, langKey: LangKey): Observable<T>;
   public abstract getTableName(appMode: AppMode): string;
+
+  /** Force update offline data */
+  public update(): void {
+    this.isUpdatingSubject.next(true);
+    combineLatest([this.languageService.language$, this.appModeService.appMode$]).pipe(
+      switchMap(([langKey, appMode]) => this.getUpdatedDataAndSaveResultIfSuccess(appMode, langKey)),
+      take(1)).subscribe(() => {
+      this.isUpdatingSubject.next(false);
+    });
+  }
 
   /**
    * Check if data is to old to use (cache time has expired)
