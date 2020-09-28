@@ -32,4 +32,7 @@ export const RegistrationSchema : RxJsonSchema = {
     },
   },
   required: ['id', 'changed', 'geoHazard', 'syncStatus'],
+  attachments: {
+    encrypted: false
+  }
 };

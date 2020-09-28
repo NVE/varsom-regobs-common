@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, forkJoin, timer, merge } from 'rxjs';
+import { Observable, from, Subscription, of, concat, forkJoin, timer, merge, EMPTY, combineLatest } from 'rxjs';
 import { GeoHazard, AppMode, LoggerService, AppModeService, uuidv4, ObservableHelperService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
 import { IRegistration } from '../../models/registration.interface';
-import { OfflineDbService } from '../offline-db/offline-db.service';
+import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { SyncStatus } from '../../models/sync-status.enum';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
@@ -21,7 +21,9 @@ import cloneDeep from 'clone-deep';
 import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 import { IRegistrationType } from '../../models/registration-type.interface';
 import { FallbackSummaryProvider } from '../summary-providers/fallback-provider';
-import { RxRegistrationCollection } from '../../db/RxDB';
+import { RxAttachmentMetaCollection, RxRegistrationCollection } from '../../db/RxDB';
+import { RxDocument } from 'rxdb';
+import { AttachmentMeta } from '../../models/attachment-meta.interface';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_DEBOUNCE_TIME = 200;
@@ -34,8 +36,6 @@ export class RegistrationService {
 
   public readonly registrationStorage$: Observable<IRegistration[]>;
   private _registrationSyncSubscription: Subscription;
-  // private _inMemoryRegistrations: BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>;
-  // private _inMemoryRegistrationsReady = new Subject();
 
   constructor(
     private offlineDbService: OfflineDbService,
@@ -51,53 +51,30 @@ export class RegistrationService {
     private fallbackSummaryProvider: FallbackSummaryProvider,
     @Inject(FOR_ROOT_OPTIONS_TOKEN) private options: IRegistrationModuleOptions
   ) {
-    // this._inMemoryRegistrations = new BehaviorSubject<{ appMode: AppMode; reg: IRegistration }[]>([]);
-    // this.offlineDbService.appModeInitialized$.subscribe((appMode) => this.updateInMemoryRegistrationsFromOfflineStorage(appMode));
     this.registrationStorage$ = this.getRegistrationObservable().pipe(tap((reg) => {
       this.loggerService.debug('Registrations changed', reg);
     }), shareReplay(1), this.observableHelperService.enterZoneAndTickApplicationRef());
-    // this._inMemoryRegistrationsReady.subscribe(() => {
-    //   this.registrationStorage$.pipe(withLatestFrom(this.offlineDbService.appModeInitialized$),
-    //     switchMap(([registrations, appMode]) => from(this.saveRegistrationsToOfflineStorage(appMode, registrations)))).subscribe();
-    // });
-    // this.updateRegistrationChangedOnAttachmentUploaded();
-    this.cancelSync();
+    this.initAutoSync();
   }
 
-  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true): Observable<IRegistration> {
-    return this.appModeService.appMode$.pipe(take(1), switchMap((appMode) => {
-      this.loggerService.debug('Save registration', reg, updateChangedTimestamp);
-      if (updateChangedTimestamp) {
-        reg.changed = moment().unix();
-      }
-      return from(this.getDbCollection(appMode).upsert(reg));
-      // this._inMemoryRegistrations.next([...this._inMemoryRegistrations.value.filter((val) => val.reg.id !== reg.id), { appMode, reg }]);
-    }));
+  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true, syncImmediately = true): Observable<unknown> {
+    if (updateChangedTimestamp) {
+      reg.changed = moment().unix();
+    }
+    if(reg.syncStatus === SyncStatus.Sync && syncImmediately) {
+      return this.syncSingleRegistration(reg);
+    }else{
+      return this.appModeService.appMode$.pipe(take(1), switchMap((appMode) => {
+        this.loggerService.debug('Save registration', reg, updateChangedTimestamp);
+        return from(this.getRegistrationsDbCollection(appMode).upsert(reg));
+      }));
+    }
   }
 
   public deleteRegistration(id: string): Observable<boolean> {
-    // return this.getRetistrationById(id).pipe(
-    //   take(1),
-    //   switchMap((reg) => this.offlineRegistrationSyncService.deleteItem(reg)),
-    //   switchMap(() => of(this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => val.reg.id !== id))))
-    // );
-    return this.getAppModeDbCollection().pipe(
-      take(1),
-      switchMap((dbCollection) => dbCollection.findByIds$([id])),
-      switchMap((docs) =>
-      {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        for(const [_, doc] of docs) {
-          return from(doc.remove());
-        }
-        return of(false);
-      })
-    );
+    return this.getRegistrationOfflineDocumentById(id).pipe(take(1),
+      switchMap((doc) => (doc ? from(doc.remove()) : of(false))));
   }
-
-  // public cleanUpRegistrationStorage(): void {
-  //   this._inMemoryRegistrations.next(this._inMemoryRegistrations.value.filter((val) => this.shouldKeepWhenCleanup(val.reg)));
-  // }
 
   private shouldKeepWhenCleanup(reg: IRegistration) {
     if (reg.syncStatus === SyncStatus.Sync) {
@@ -113,32 +90,15 @@ export class RegistrationService {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
 
-  // private getRegistrationsFromOfflineStorage(appMode: AppMode): Observable<IRegistration[]> {
-  //   return from(this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION).query('select').exec()) as Observable<IRegistration[]>;
-  // }
-
-  // private updateInMemoryRegistrationsFromOfflineStorage(appMode: AppMode) {
-  //   this.getRegistrationsFromOfflineStorage(appMode).pipe(
-  //     map((offlineRegistrations) => offlineRegistrations.map((reg) => ({ appMode, reg }))))
-  //     .subscribe((offlineRegistrations) => {
-  //       this._inMemoryRegistrations.next(offlineRegistrations);
-  //       this._inMemoryRegistrationsReady.next();
-  //       this._inMemoryRegistrationsReady.complete();
-  //     });
-  // }
-
-  // private async saveRegistrationsToOfflineStorage(appMode: AppMode, registrations: IRegistration[]) {
-  //   const table = this.offlineDbService.getDbInstance(appMode).selectTable(TABLE_NAMES.REGISTRATION);
-  //   await table.query('delete').where(['id', 'NOT IN', registrations.map((r) => r.id)]).exec(); // Remove deleted items
-  //   const result = await table.query('upsert', registrations).exec();
-  //   this.loggerService.debug('Result from save registrations offline', result);
-  // }
-
   public cancelSync(): void {
     this.progressService.resetSyncProgress();
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
     }
+    this.initAutoSync();
+  }
+
+  public initAutoSync(): void {
     if (this.options.autoSync) {
       this._registrationSyncSubscription = this.getAutoSyncObservable().subscribe();
     }
@@ -193,7 +153,7 @@ export class RegistrationService {
   }
 
   public syncRegistrations(): Observable<IRegistration[]> {
-    return this.getRegistrationsToSyncObservable().pipe(this.resetProgressAndSyncItems());
+    return this.getRegistrationsToSyncObservable().pipe(take(1), this.resetProgressAndSyncItems());
   }
 
   public syncSingleRegistration(reg: IRegistration): Observable<boolean> {
@@ -203,9 +163,45 @@ export class RegistrationService {
     return of([reg]).pipe(this.resetProgressAndSyncItems(), map((result) => result.length > 0 && !result[0].syncError));
   }
 
+  public addAttachment(id: string, geoHazardTid: GeoHazard, registrationTid: RegistrationTid, data: ArrayBuffer, mimeType: string): Observable<unknown> {
+    const attachmentId = uuidv4();
+    return this.getRegistrationOfflineDocumentById(id).pipe(take(1), switchMap((doc) =>
+      this.saveAttachmentMeta({
+        id: attachmentId,
+        geoHazardTid: geoHazardTid,
+        registrationTid: registrationTid
+      }).pipe(switchMap(() => from(doc.putAttachment({
+        id: attachmentId,
+        data,
+        type: mimeType
+      }
+      ))))));
+  }
+
+  private getAttachmentMeta(id: string): Observable<AttachmentMeta> {
+    return this.getAttachmentMetaDbCollectionForAppMode().pipe(
+      switchMap((collection) => collection.findByIds$([id]).pipe(map((result) => result.get(id)))));
+  }
+
+  private saveAttachmentMeta(attachmentMetaData: AttachmentMeta) {
+    return this.getAttachmentMetaDbCollectionForAppMode().pipe(
+      take(1),
+      switchMap((dbCollection) => from(dbCollection.upsert(attachmentMetaData)) ));
+  }
+
+  public getNewAttachments(id: string): Observable<{data: Blob, type: string, meta: AttachmentMeta}[]> {
+    return this.getRegistrationOfflineDocumentById(id).pipe(
+      switchMap((doc) => doc ? forkJoin(doc.allAttachments().map((attachment) =>
+        combineLatest([from(attachment.getData()), this.getAttachmentMeta(attachment.id)])
+          .pipe(map(([data, meta]) => ({ data, type: attachment.type, meta }) ))))
+        : of([])));
+  }
+
   private getAutoSyncObservable() {
     return this.getAutosyncChangeTrigger().pipe(
       tap((source) => this.loggerService.debug(`Auto sync triggered. Source: ${source}`)),
+      switchMap(() => this.offlineDbService.waitForLeadership()),
+      tap(() => this.loggerService.debug('Current tab is in leadership, so this tab is used for sync items')),
       switchMap(() => this.getRegistrationsToSyncObservable()),
       this.filterWhenProgressIsAllreadyRunning(),
       this.resetProgressAndSyncItems()
@@ -434,23 +430,30 @@ export class RegistrationService {
     return reg.response.Attachments.filter((a) => a.RegistrationTID === registrationTid);
   }
 
+  private getRegistrationOfflineDocumentById(id: string): Observable<RxDocument<IRegistration>> {
+    return this.getRegistrationDbCollectionForAppMode().pipe(
+      switchMap((dbCollection) => dbCollection.findByIds$([id])),
+      map((result) => result.get(id)));
+  }
+
   private getRegistrationObservable(): Observable<IRegistration[]> {
-    return this.getAppModeDbCollection().pipe(switchMap((dbCollection) => dbCollection.find().$));
-    // return this._inMemoryRegistrations.pipe(
-    //   map((appModeReg) => appModeReg.filter((appModeReg) => appModeReg.appMode === appMode).map((appModeReg) => appModeReg.reg)));
-
+    return this.getRegistrationDbCollectionForAppMode().pipe(switchMap((dbCollection) => dbCollection.find().$));
   }
 
-  private getTableName(appMode: AppMode) {
-    return `${appMode.toLocaleLowerCase()}/registration`;
+  private getRegistrationsDbCollection(appMode: AppMode): RxRegistrationCollection {
+    return this.offlineDbService.getDbCollection<RxRegistrationCollection>(appMode, TABLE_NAMES.REGISTRATION);
   }
 
-  private getDbCollection(appMode: AppMode): RxRegistrationCollection {
-    return (this.offlineDbService.db[this.getTableName(appMode)] as RxRegistrationCollection);
+  private getRegistrationDbCollectionForAppMode(): Observable<RxRegistrationCollection> {
+    return this.appModeService.appMode$.pipe(map((appMode) => this.getRegistrationsDbCollection(appMode)));
   }
 
-  private getAppModeDbCollection(): Observable<RxRegistrationCollection> {
-    return this.appModeService.appMode$.pipe(map((appMode) => this.getDbCollection(appMode)));
+  private getAttachmentMetaDbCollection(appMode: AppMode): RxAttachmentMetaCollection {
+    return this.offlineDbService.getDbCollection<RxAttachmentMetaCollection>(appMode, TABLE_NAMES.ATTACHMENT_META);
+  }
+
+  private getAttachmentMetaDbCollectionForAppMode(): Observable<RxAttachmentMetaCollection> {
+    return this.appModeService.appMode$.pipe(map((appMode) => this.getAttachmentMetaDbCollection(appMode)));
   }
 
   private getNetworkOnlineObservable(): Observable<boolean> {
@@ -468,13 +471,11 @@ export class RegistrationService {
         map(([records]) => records));
   }
 
-  private getRegistrationsToSyncObservable(debounceTimeMs = 0) {
+  private getRegistrationsToSyncObservable() {
     return this.registrationStorage$.pipe(
-      take(1),
       switchMap((records) =>
         forkJoin(records.map((reg) => this.shouldSync(reg).pipe(map((shouldSync) => ({ reg, shouldSync })))))),
-      map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)),
-      debounceTime(debounceTimeMs));
+      map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)));
   }
 
   private shouldSync(reg: IRegistration): Observable<boolean> {
@@ -527,8 +528,8 @@ export class RegistrationService {
       tap((result) => this.loggerService.log('Record sync complete', result)));
   }
 
-  private updateRowAndReturnItem(): (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
-    Observable<IRegistration> {
+  private mapItemSyncCompleteStatusToRegistration(): (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
+  Observable<IRegistration>  {
     return (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
       src.pipe(map((r: ItemSyncCompleteStatus<IRegistration>) => ({
         ...r.item,
@@ -536,13 +537,19 @@ export class RegistrationService {
         syncStatus: r.success ? SyncStatus.InSync : (r.statusCode === 0 ? SyncStatus.Sync : SyncStatus.Draft),
         syncStatusCode: r.statusCode,
         syncError: r.error,
-      })),
-      switchMap((item: IRegistration) =>
-        this.saveRegistration(item, false)
-          .pipe(catchError((err) => {
-            this.loggerService.error('Could not update record in offline storage', err);
-            return of([]);
-          }), map(() => item)))
+      })));
+  }
+
+  private updateRowAndReturnItem(): (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
+    Observable<IRegistration> {
+    return (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
+      src.pipe(this.mapItemSyncCompleteStatusToRegistration(),
+        switchMap((item: IRegistration) =>
+          this.saveRegistration(item, false, false)
+            .pipe(catchError((err) => {
+              this.loggerService.error('Could not update record in offline storage', err);
+              return of([]);
+            }), map(() => item)))
       );
   }
 }

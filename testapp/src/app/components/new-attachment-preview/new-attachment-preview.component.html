@@ -1,0 +1,3 @@
+<div *ngIf="(newAttachments$ | async) as newAttachments">
+  <app-blob-image-preview *ngFor="let a of newAttachments" [imgBlob]="a.data"></app-blob-image-preview>
+</div>

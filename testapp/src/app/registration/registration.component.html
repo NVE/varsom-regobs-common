@@ -22,7 +22,9 @@
 </p>
 <ul>
     <li *ngFor="let reg of registrations$ | async">
-        ID: {{ reg.id }} {{ reg.syncStatus }} Env: {{ reg.request.Comment }} <a href="#"
-            (click)="deleteRegistration($event, reg.id)">Slett</a>
+        ID: {{ reg.id }} {{ reg.syncStatus }}
+        <app-registration-file-upload (fileChanged)="onFileChanged(reg, $event)"></app-registration-file-upload>
+        <app-new-attachment-preview [id]="reg.id"></app-new-attachment-preview>
+        <a href="#" (click)="deleteRegistration($event, reg.id)">Slett</a>
     </li>
 </ul>

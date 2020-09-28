@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RegistrationService, IRegistration, SyncProgress, ProgressService } from '@varsom-regobs-common/registration';
-import { Observable, of } from 'rxjs';
-import { AppMode, AppModeService, GeoHazard, LoggerService, ObservableHelperService } from '@varsom-regobs-common/core';
-import { tap } from 'rxjs/operators';
+import { RegistrationService, IRegistration, SyncProgress, ProgressService, RegistrationTid } from '@varsom-regobs-common/registration';
+import { from, Observable, of } from 'rxjs';
+import { AppMode, AppModeService, GeoHazard, LoggerService } from '@varsom-regobs-common/core';
+import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: './registration.component.html',
@@ -60,6 +60,17 @@ export class RegistrationComponent implements OnInit {
   cancelSync(event: Event): void {
     event.preventDefault();
     this.registrationService.cancelSync();
+  }
+
+  onFileChanged(reg: IRegistration, file: File): void {
+    from(file.arrayBuffer()).pipe(switchMap((data) =>
+      this.registrationService.addAttachment(
+        reg.id,
+        GeoHazard.Snow,
+        RegistrationTid.GeneralObservation,
+        data,
+        file.type
+      ))).subscribe();
   }
 
 }
