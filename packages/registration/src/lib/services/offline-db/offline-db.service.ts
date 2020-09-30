@@ -12,12 +12,16 @@ import { RxRegistrationDatabase, RxRegistrationCollections } from '../../db/RxDB
 import { GenericSchema } from '../../db/schemas/generic.schema';
 import { from, Observable } from 'rxjs';
 import { AttachmentMetaSchema } from '../../db/schemas/attachment-meta.schema';
+import { RegistrationSyncProgressSchema } from '../../db/schemas/registration-sync-progress.schema';
+import { UploadProgressSchema } from '../../db/schemas/upload-progress.schema';
 
 export const TABLE_NAMES =  {
   REGISTRATION: 'registration',
   KDV_ELEMENTS: 'kdvelements',
   HELP_TEXTS: 'helptexts',
-  ATTACHMENT_META: 'attachmentmeta'
+  ATTACHMENT_META: 'attachmentmeta',
+  REGISTRATION_SYNC_PROGRESS: 'syncprogress',
+  UPLOAD_PROGRESS: 'uploadprogress'
 };
 
 const collections: Array<{name: string, schema: RxJsonSchema, instancePerAppMode: boolean}> = [
@@ -40,6 +44,16 @@ const collections: Array<{name: string, schema: RxJsonSchema, instancePerAppMode
     name: TABLE_NAMES.ATTACHMENT_META,
     schema: AttachmentMetaSchema,
     instancePerAppMode: true,
+  },
+  {
+    name: TABLE_NAMES.REGISTRATION_SYNC_PROGRESS,
+    schema: RegistrationSyncProgressSchema,
+    instancePerAppMode: false,
+  },
+  {
+    name: TABLE_NAMES.UPLOAD_PROGRESS,
+    schema: UploadProgressSchema,
+    instancePerAppMode: false,
   },
 ];
 

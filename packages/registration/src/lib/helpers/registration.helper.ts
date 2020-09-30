@@ -2,15 +2,24 @@ import { RegistrationTid } from '../models/registration-tid.enum';
 import { IRegistration } from '../models/registration.interface';
 import { isEmpty } from '@varsom-regobs-common/core';
 import { ValidRegistrationType } from '../models/valid-registration.type';
-import { AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
-import { AttachmentUploadEditModel } from '../models/attachment-upload-edit.interface';
+import { AttachmentEditModel, AttachmentViewModel, RegistrationEditModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
+import { SyncStatus } from '../registration.models';
 
 export function getAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.Attachments) {
+  if(!reg) {
     return [];
   }
-  return (reg.request.Attachments || [])
-    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
+  if(reg.syncStatus === SyncStatus.InSync && reg.response) {
+    this.getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
+  }
+  return this.getAttachmentsFromRegistrationViewModel(reg.request, registrationTid);
+}
+
+export function getAttachmentsFromRegistrationViewModel(viewModel: RegistrationEditModel | RegistrationViewModel, registrationTid?: RegistrationTid): AttachmentViewModel[] {
+  if(!viewModel || !viewModel.Attachments) {
+    return [];
+  }
+  return (viewModel.Attachments as AttachmentViewModel[]).filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
 export function getDamageObsAttachments(reg: IRegistration):  AttachmentEditModel[] {
@@ -34,11 +43,11 @@ export function getAllAttachments(reg: IRegistration):  AttachmentEditModel[] {
   return  [].concat(...attachments, ...damageObsAttachments, ...waterLevelAttachmetns);
 }
 
-export function getAllAttachmentsToUpload(item: IRegistration) {
-  return getAllAttachments(item).map(a => a as AttachmentUploadEditModel).filter((a) => !!a.fileUrl && !a.AttachmentUploadId); // Has file url but not attachment upload id
-}
+// export function getAllAttachmentsToUpload(item: IRegistration) {
+//   return getAllAttachments(item).map(a => a as AttachmentUploadEditModel).filter((a) => !!a.fileUrl && !a.AttachmentUploadId); // Has file url but not attachment upload id
+// }
 
-export function getPropertyName(registrationTid: RegistrationTid) {
+export function getPropertyName(registrationTid: RegistrationTid): string {
   return RegistrationTid[registrationTid];
 }
 
@@ -54,11 +63,11 @@ export function getRegistrationTids(): RegistrationTid[] {
     .map((key) => RegistrationTid[key]).filter((val: RegistrationTid) => typeof (val) !== 'string');
 }
 
-export function hasAnyAttachments(reg: IRegistration, registrationTid: RegistrationTid) {
+export function hasAnyAttachments(reg: IRegistration, registrationTid: RegistrationTid): boolean {
   return getAttachments(reg, registrationTid).length > 0;
 }
 
-export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid) {
+export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
   if (reg && registrationTid) {
     let hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
     // Hack to snow profile tests
@@ -79,7 +88,7 @@ export function isObservationEmptyForRegistrationTid(reg: IRegistration, registr
   return true;
 }
 
-export function hasAnyObservations(reg: IRegistration) {
+export function hasAnyObservations(reg: IRegistration): boolean {
   if (reg === undefined || reg === null) {
     return false;
   }
@@ -87,7 +96,7 @@ export function hasAnyObservations(reg: IRegistration) {
   return registrationTids.some((x) => !isObservationEmptyForRegistrationTid(reg, x));
 }
 
-export function isArrayType(tid: RegistrationTid) {
+export function isArrayType(tid: RegistrationTid): boolean {
   return [
     RegistrationTid.AvalancheActivityObs,
     RegistrationTid.AvalancheActivityObs2,

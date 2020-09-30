@@ -9,11 +9,11 @@ import { ISummaryProvider } from './services/summary-providers/summary-provider.
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConnectivityInterceptor } from 'ngx-connectivity';
-import { InMemoryAddNewAttachmentService } from './services/add-new-attachment/in-memory-add-new-attachment.service';
-import { AddNewAttachmentService } from './services/add-new-attachment/add-new-attachment.service';
+import { NewAttachmentService } from './services/add-new-attachment/new-attachment.service';
 import { throwError } from 'rxjs';
 import { WeatherSummaryProvider } from './services/summary-providers/snow/weather/weather.summary-provider';
 import { RegobsRegistrationPipesModule } from './registration.pipes';
+import { OfflineDbNewAttachmentService } from './services/add-new-attachment/offline-db-new-attachment.service';
 
 export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
 export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
@@ -85,7 +85,7 @@ export class RegistrationModule {
           multi: true
         },
         {
-          provide: AddNewAttachmentService, useClass: InMemoryAddNewAttachmentService
+          provide: NewAttachmentService, useClass: OfflineDbNewAttachmentService
         }
       ]
     });
@@ -117,7 +117,7 @@ export class RegistrationModule {
           provide: SUMMARY_PROVIDER_TOKEN, useClass: WeatherSummaryProvider, multi: true
         },
         {
-          provide: AddNewAttachmentService, useClass: InMemoryAddNewAttachmentService
+          provide: NewAttachmentService, useClass: OfflineDbNewAttachmentService
         },
         { provide: KdvElementsService, useFactory: getFakeKdvElementsService },
         { provide: HelpTextApiService, useFactory: getFakeHelpTextApiService },

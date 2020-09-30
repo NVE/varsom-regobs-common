@@ -16,7 +16,7 @@
         Sync in progress: {{syncProgress.percentageCompleteFormatted}} <a href="#"
             (click)="cancelSync($event)">Cancel</a>
     </div>
-</div>
+  </div>
 <p>
     <button (click)="addRegistration()">Add registration</button>
 </p>
@@ -25,6 +25,7 @@
         ID: {{ reg.id }} {{ reg.syncStatus }}
         <app-registration-file-upload (fileChanged)="onFileChanged(reg, $event)"></app-registration-file-upload>
         <app-new-attachment-preview [id]="reg.id"></app-new-attachment-preview>
+        <a href="#" (click)="syncRegistration($event, reg)">Sync</a>
         <a href="#" (click)="deleteRegistration($event, reg.id)">Slett</a>
     </li>
 </ul>

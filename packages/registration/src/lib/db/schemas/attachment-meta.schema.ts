@@ -12,18 +12,46 @@ export const AttachmentMetaSchema : RxJsonSchema = {
       type: 'string',
       primary: true,
     },
-    geoHazardTid: {
+    GeoHazardTID: {
       type: 'number',
     },
-    registrationTid: {
+    RegistrationTID: {
       type: 'number',
     },
-    contextKey: {
+    ref: {
       type: 'string',
     },
-    context: {
+    type: {
       type: 'string',
     },
+    error: {
+    },
+    fileSize: {
+      type: 'number'
+    },
+    AttachmentId: {
+      type: 'number'
+    },
+    AttachmentUploadId: {
+      type: 'string',
+    },
+    Photographer: {
+      type: 'string',
+    },
+    Copyright: {
+      type: 'string',
+    },
+    Aspect: {
+      type: 'number'
+    },
+    Comment: {
+      type: 'string',
+    },
+    AttachmentMimeType: {
+      type: 'string',
+    },
+    IsMainAttachment: {
+    }
   },
-  required: ['id', 'geoHazardTid', 'registrationTid'],
+  required: ['id', 'GeoHazardTID', 'RegistrationTID'],
 };

@@ -24,12 +24,25 @@ export const RegistrationSchema : RxJsonSchema = {
     lastSync: {
       type: 'number',
     },
+    syncError: {
+      type: 'string',
+    },
+    syncStatusCode: {
+      type: 'number',
+    },
     request: {
       type: 'object',
+      properties: {
+      }
     },
     response: {
       type: 'object',
+      properties: {
+      }
     },
+    changedRegistrationTid: {
+      type: 'number'
+    }
   },
   required: ['id', 'changed', 'geoHazard', 'syncStatus'],
   attachments: {

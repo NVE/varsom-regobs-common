@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, APP_INITIALIZER } from '@angular/core';
-import { RegistrationModule } from '@varsom-regobs-common/registration';
+import { FakeItemSyncCallbackService, RegistrationModule } from '@varsom-regobs-common/registration';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
@@ -58,6 +58,9 @@ export function initDb(dbService: OfflineDbService) {
     {
       provide: LocalStorageApiKeyProvider,
       useClass: LocalStorageApiKeyProvider,
+    },
+    {
+      provide: 'OfflineRegistrationSyncService', useClass: FakeItemSyncCallbackService
     },
     {
       provide: APP_INITIALIZER,

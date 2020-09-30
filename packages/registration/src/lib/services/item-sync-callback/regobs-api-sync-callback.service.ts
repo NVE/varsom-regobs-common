@@ -4,12 +4,12 @@ import { Observable, of, forkJoin } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
 import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
-import { map, catchError, concatMap, switchMap, tap, filter, take } from 'rxjs/operators';
+import { map, catchError, switchMap, tap, filter, take } from 'rxjs/operators';
 import { LanguageService, LangKey, LoggerService } from '@varsom-regobs-common/core';
 import { AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { HttpClient, HttpEventType, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
-import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
+import { NewAttachmentService } from '../add-new-attachment/new-attachment.service';
 import { WaterLevelMeasurementUploadModel } from '../../models/water-level-measurement-upload-model';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   constructor(private regobsApiRegistrationService: RegistrationService,
     private languageService: LanguageService,
     private apiAttachmentService: ApiAttachmentService,
-    private addNewAttachmentService: AddNewAttachmentService,
+    private newAttachmentService: NewAttachmentService,
     private loggerService: LoggerService,
     private httpClient: HttpClient,
     private progressService: ProgressService,
@@ -33,12 +33,11 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   }
 
   syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-    return this.languageService.language$.pipe(
-      concatMap((langKey) => this.insertOrUpdate(item, langKey))
-    );
+    return this.languageService.language$.pipe(take(1), switchMap((langKey) => this.insertOrUpdate(item, langKey)));
   }
 
-  insertOrUpdate(item: IRegistration, langKey: LangKey): Observable<ItemSyncCompleteStatus<IRegistration>> {
+  insertOrUpdate(item: IRegistration, langKey: LangKey
+  ): Observable<ItemSyncCompleteStatus<IRegistration>> {
     this.loggerService.debug('Start insertOrUpdate: ', item, langKey);
     return this.uploadAttachments(item).pipe(switchMap((result) => {
       this.loggerService.debug('Result from attachment upload: ', result);
@@ -59,18 +58,17 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
             error: uploadSuccess ? undefined : 'Could not upload attachments'
           })),
           catchError((err: HttpErrorResponse) => {
-            const errorMsg = err ? (err.error ? err.error : err.message) : '';
+            const errorMsg = err ? (err.message ? err.message : err.toString()) : 'Unknown error';
             return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
           }));
     }));
   }
 
   removeSuccessfulAttachments(item: IRegistration): Observable<IRegistration> {
-    return this.getAttachmentsToUpload(item).pipe(take(1), tap((attachmentsToUpload) => {
-      for (const attachmentUpload of attachmentsToUpload.filter((a) => !a.error)) {
-        this.addNewAttachmentService.removeAttachment(item.id, attachmentUpload);
-      }
-    }), map(() => item));
+    return this.getAttachmentsToUpload(item).pipe(take(1),
+      switchMap((attachmentsToUpload) => forkJoin(attachmentsToUpload.map((a) =>
+        this.newAttachmentService.removeAttachment$(item.id, a.id)))),
+      map(() => item));
   }
 
   uploadAttachments(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
@@ -88,9 +86,9 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   uploadAttachmentAndSetAttachmentUploadId(reg: IRegistration,
     attachmentUpload: AttachmentUploadEditModel): Observable<AttachmentUploadEditModel> {
     attachmentUpload.error = undefined;
-    return this.addNewAttachmentService.getBlob(reg.id, attachmentUpload).pipe(
+    return this.newAttachmentService.getBlob(reg.id, attachmentUpload).pipe(
       switchMap((blob) =>
-        this.uploadAttachmentWithProgress(attachmentUpload.fileUrl, blob)
+        this.uploadAttachmentWithProgress(attachmentUpload.id, blob)
           .pipe(map((uploadId) => {
             this.loggerService.debug('Attachment uploaded. Removing from attachment to upload and adding to request', attachmentUpload, reg);
             this.addAttachmentToRequest(uploadId, attachmentUpload, reg);
@@ -118,8 +116,10 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     if (attachmentUploadEditModel.type === 'WaterLevelMeasurementAttachment') {
       this.addWaterLevelAttachment(attachment, reg, attachmentUploadEditModel.ref);
       return;
-    } else if (attachmentUploadEditModel.type === 'DamageObsAttachment') {
+    }
+    if (attachmentUploadEditModel.type === 'DamageObsAttachment') {
       this.addDamageObsAttachment(attachment, reg, attachmentUploadEditModel.ref);
+      return;
     }
     if (!reg.request.Attachments) {
       reg.request.Attachments = [];
@@ -144,10 +144,10 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   }
 
   getAttachmentsToUpload(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
-    return this.addNewAttachmentService.getUploadedAttachments(item.id);
+    return this.newAttachmentService.getUploadedAttachments(item.id);
   }
 
-  uploadAttachmentWithProgress(fileUrl: string, blob: Blob) {
+  uploadAttachmentWithProgress(id: string, blob: Blob): Observable<string> {
     const attachmentPostPath = `${this.apiAttachmentService.rootUrl}${ApiAttachmentService.AttachmentPostPath}`;
     const formData = new FormData();
     formData.append('file', blob);
@@ -156,7 +156,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     }).pipe(tap((event) => {
       this.loggerService.debug('uploadAttachmentWithProgress got event:', event);
       if (event.type === HttpEventType.UploadProgress) {
-        this.progressService.setAttachmentProgress(fileUrl, event.total, event.loaded);
+        this.progressService.setAttachmentProgress(id, event.total, event.loaded);
       }
     }), filter((event) => event.type === HttpEventType.Response),
     map((event: HttpResponse<string>) => {

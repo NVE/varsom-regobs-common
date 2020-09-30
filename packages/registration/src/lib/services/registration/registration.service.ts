@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, forkJoin, timer, merge, EMPTY, combineLatest } from 'rxjs';
+import { Observable, from, Subscription, of, concat, forkJoin, timer, merge } from 'rxjs';
 import { GeoHazard, AppMode, LoggerService, AppModeService, uuidv4, ObservableHelperService } from '@varsom-regobs-common/core';
-import { switchMap, shareReplay, map, tap, catchError, debounceTime, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
+import { switchMap, shareReplay, map, tap, catchError, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
 import { IRegistration } from '../../models/registration.interface';
 import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { SyncStatus } from '../../models/sync-status.enum';
@@ -18,15 +18,12 @@ import { KdvService } from '../kdv/kdv.service';
 import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
 import { SummaryWithAttachments } from '../../models/summary/summary-with-attachments';
 import cloneDeep from 'clone-deep';
-import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
 import { IRegistrationType } from '../../models/registration-type.interface';
 import { FallbackSummaryProvider } from '../summary-providers/fallback-provider';
-import { RxAttachmentMetaCollection, RxRegistrationCollection } from '../../db/RxDB';
-import { RxDocument } from 'rxdb';
-import { AttachmentMeta } from '../../models/attachment-meta.interface';
+import { RxRegistrationCollection, RxRegistrationDocument } from '../../db/RxDB';
+import { NewAttachmentService } from '../add-new-attachment/new-attachment.service';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
-const SYNC_DEBOUNCE_TIME = 200;
 const SYNC_BUFFER_MS = 3 * 1000; // Wait at least 3 seconds before next sync attempt
 
 @Injectable({
@@ -42,10 +39,10 @@ export class RegistrationService {
     private loggerService: LoggerService,
     private progressService: ProgressService,
     private kdvService: KdvService,
-    private addNewAttachmentService: AddNewAttachmentService,
     private internetConnectivity: InternetConnectivity,
     private appModeService: AppModeService,
     private observableHelperService: ObservableHelperService,
+    private newAttachmentService: NewAttachmentService,
     @Inject('OfflineRegistrationSyncService') private offlineRegistrationSyncService: ItemSyncCallbackService<IRegistration>,
     // @Inject(SUMMARY_PROVIDER_TOKEN) private summaryProviders: ISummaryProvider[],
     private fallbackSummaryProvider: FallbackSummaryProvider,
@@ -90,8 +87,8 @@ export class RegistrationService {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
 
-  public cancelSync(): void {
-    this.progressService.resetSyncProgress();
+  public async cancelSync(): Promise<void> {
+    await this.progressService.resetSyncProgress();
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
     }
@@ -163,39 +160,56 @@ export class RegistrationService {
     return of([reg]).pipe(this.resetProgressAndSyncItems(), map((result) => result.length > 0 && !result[0].syncError));
   }
 
-  public addAttachment(id: string, geoHazardTid: GeoHazard, registrationTid: RegistrationTid, data: ArrayBuffer, mimeType: string): Observable<unknown> {
-    const attachmentId = uuidv4();
-    return this.getRegistrationOfflineDocumentById(id).pipe(take(1), switchMap((doc) =>
-      this.saveAttachmentMeta({
-        id: attachmentId,
-        geoHazardTid: geoHazardTid,
-        registrationTid: registrationTid
-      }).pipe(switchMap(() => from(doc.putAttachment({
-        id: attachmentId,
-        data,
-        type: mimeType
-      }
-      ))))));
-  }
+  // public addAttachment(id: string, geoHazardTid: GeoHazard, registrationTid: RegistrationTid, data: ArrayBuffer, mimeType: string): Observable<unknown> {
+  //   const attachmentId = uuidv4();
+  //   return this.getRegistrationOfflineDocumentById(id).pipe(take(1), switchMap((doc) =>
+  //     this.saveAttachmentMeta({
+  //       id: attachmentId,
+  //       GeoHazardTID: geoHazardTid,
+  //       RegistrationTID: registrationTid,
+  //       // fileSize: data.length,
+  //       AttachmentMimeType: mimeType,
+  //       ref: undefined, //TODO: add ref parameter
+  //       type: undefined, // TODO add type parameter
+  //     }).pipe(switchMap(() => from(doc.putAttachment({
+  //       id: attachmentId,
+  //       data,
+  //       type: mimeType
+  //     }
+  //     ))))));
+  // }
 
-  private getAttachmentMeta(id: string): Observable<AttachmentMeta> {
-    return this.getAttachmentMetaDbCollectionForAppMode().pipe(
-      switchMap((collection) => collection.findByIds$([id]).pipe(map((result) => result.get(id)))));
-  }
+  // private getAttachmentMeta(id: string): Observable<AttachmentUploadEditModel> {
+  //   return this.getAttachmentMetaDbCollectionForAppMode().pipe(
+  //     switchMap((collection) => collection.findByIds$([id]).pipe(map((result) => result.get(id)))));
+  // }
 
-  private saveAttachmentMeta(attachmentMetaData: AttachmentMeta) {
-    return this.getAttachmentMetaDbCollectionForAppMode().pipe(
-      take(1),
-      switchMap((dbCollection) => from(dbCollection.upsert(attachmentMetaData)) ));
-  }
+  // private saveAttachmentMeta(attachmentMetaData: AttachmentUploadEditModel) {
+  //   return this.getAttachmentMetaDbCollectionForAppMode().pipe(
+  //     take(1),
+  //     switchMap((dbCollection) => from(dbCollection.upsert(attachmentMetaData)) ));
+  // }
 
-  public getNewAttachments(id: string): Observable<{data: Blob, type: string, meta: AttachmentMeta}[]> {
-    return this.getRegistrationOfflineDocumentById(id).pipe(
-      switchMap((doc) => doc ? forkJoin(doc.allAttachments().map((attachment) =>
-        combineLatest([from(attachment.getData()), this.getAttachmentMeta(attachment.id)])
-          .pipe(map(([data, meta]) => ({ data, type: attachment.type, meta }) ))))
-        : of([])));
-  }
+  // /**
+  //  * Get new uploaded attachments for registration by id
+  //  */
+  // public getNewAttachments(id: string): Observable<AttachmentUploadEditModel[]> {
+  //   return this.getRegistrationOfflineDocumentById(id).pipe(
+  //     switchMap((doc) => doc ? forkJoin(doc.allAttachments().map((attachment) =>
+  //       this.getAttachmentMeta(attachment.id).pipe(take(1))))
+  //       : of([])));
+  // }
+
+  // /**
+  //  * Get new uploaded attachment blob by registration id and attachment id
+  //  */
+  // public getAttachmentBlob(id: string, attachmentId: string): Observable<Blob> {
+  //   return this.getRegistrationOfflineDocumentById(id).pipe(
+  //     filter((doc) => !!doc),
+  //     switchMap((doc) => of(doc.getAttachment(attachmentId))),
+  //     filter((attachment) => !!attachment),
+  //     switchMap((attachment) => from(attachment.getData())));
+  // }
 
   private getAutoSyncObservable() {
     return this.getAutosyncChangeTrigger().pipe(
@@ -209,23 +223,26 @@ export class RegistrationService {
   }
 
   private getAutosyncChangeTrigger() {
-    return merge(
-      this.registrationStorage$.pipe(map(() => 'registrations changed trigger')),
+    const networkOrTimerTrigger$ = merge(
       this.getNetworkOnlineObservable().pipe(map(() => 'network status online trigger')),
-      timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS).pipe(map(() => 'timer trigger'))
-    ).pipe(debounceTime(SYNC_DEBOUNCE_TIME));
+      timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS).pipe(map(() => 'timer trigger')));
+    return this.getRegistrationsToSyncObservable(false).pipe(
+      map((records) => records.length > 0),
+      distinctUntilChanged(),
+      filter((hasRecords) => hasRecords),
+      switchMap(() => networkOrTimerTrigger$));
   }
 
-  private resetProgressAndSyncItems() {
+  private resetProgressAndSyncItems(): (src: Observable<IRegistration[]>) => Observable<IRegistration[]> {
     return (src: Observable<IRegistration[]>) =>
-      src.pipe(tap((records) => this.progressService.resetSyncProgress(records.map((r) => r.id))),
+      src.pipe(concatMap((records) => from(this.progressService.resetSyncProgress(records.map((r) => r.id))).pipe(map(() => records))),
         this.flattenRegistrationsToSync(),
         tap((row) => this.progressService.setSyncProgress(row.item.id, row.error)),
         this.updateRowAndReturnItem(),
         toArray(),
-        catchError((error, caught) => {
+        catchError((error) => {
           this.loggerService.warn('Could not sync registrations', error);
-          return caught;
+          return of([]);
         }),
         tap(() => this.progressService.resetSyncProgress()));
   }
@@ -267,16 +284,6 @@ export class RegistrationService {
       }
     }
     return addIfEmpty ? this.generateEmptySummary(registrationTid).pipe(map((s) => [s])) : of([]);
-  }
-
-  private updateRegistrationChangedOnAttachmentUploaded() {
-    this.addNewAttachmentService.attachmentsChanged$.pipe(
-      tap((val) => this.loggerService.debug('Attachment changed', val)),
-      concatMap((change) => this.registrationStorage$.pipe(take(1), map((registrations) => registrations.find((r) => r.id === change.id)))),
-      filter((reg: IRegistration) => !!reg),
-      tap((val) => this.loggerService.debug('Attachment changed -> Update timestamp on registration.', val)),
-      switchMap((reg: IRegistration) => this.saveRegistration(reg)))
-      .subscribe();
   }
 
   private generateEmptySummary(registrationTid: RegistrationTid): Observable<Summary> {
@@ -414,7 +421,7 @@ export class RegistrationService {
   }
 
   public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
-    return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(
+    return this.newAttachmentService.getUploadedAttachments(reg.id).pipe(
       map((uploaded) =>
         [
           ...uploaded.filter((u) => u.RegistrationTID === registrationTid),
@@ -430,14 +437,15 @@ export class RegistrationService {
     return reg.response.Attachments.filter((a) => a.RegistrationTID === registrationTid);
   }
 
-  private getRegistrationOfflineDocumentById(id: string): Observable<RxDocument<IRegistration>> {
+  private getRegistrationOfflineDocumentById(id: string): Observable<RxRegistrationDocument> {
     return this.getRegistrationDbCollectionForAppMode().pipe(
       switchMap((dbCollection) => dbCollection.findByIds$([id])),
       map((result) => result.get(id)));
   }
 
   private getRegistrationObservable(): Observable<IRegistration[]> {
-    return this.getRegistrationDbCollectionForAppMode().pipe(switchMap((dbCollection) => dbCollection.find().$));
+    return this.getRegistrationDbCollectionForAppMode().pipe(
+      switchMap((dbCollection) => dbCollection.find().$.pipe(map((docs) => docs.map((doc) => doc.toJSON())))));
   }
 
   private getRegistrationsDbCollection(appMode: AppMode): RxRegistrationCollection {
@@ -448,13 +456,13 @@ export class RegistrationService {
     return this.appModeService.appMode$.pipe(map((appMode) => this.getRegistrationsDbCollection(appMode)));
   }
 
-  private getAttachmentMetaDbCollection(appMode: AppMode): RxAttachmentMetaCollection {
-    return this.offlineDbService.getDbCollection<RxAttachmentMetaCollection>(appMode, TABLE_NAMES.ATTACHMENT_META);
-  }
+  // private getAttachmentMetaDbCollection(appMode: AppMode): RxAttachmentMetaCollection {
+  //   return this.offlineDbService.getDbCollection<RxAttachmentMetaCollection>(appMode, TABLE_NAMES.ATTACHMENT_META);
+  // }
 
-  private getAttachmentMetaDbCollectionForAppMode(): Observable<RxAttachmentMetaCollection> {
-    return this.appModeService.appMode$.pipe(map((appMode) => this.getAttachmentMetaDbCollection(appMode)));
-  }
+  // private getAttachmentMetaDbCollectionForAppMode(): Observable<RxAttachmentMetaCollection> {
+  //   return this.appModeService.appMode$.pipe(map((appMode) => this.getAttachmentMetaDbCollection(appMode)));
+  // }
 
   private getNetworkOnlineObservable(): Observable<boolean> {
     return this.internetConnectivity.isOnline$.pipe(
@@ -466,31 +474,39 @@ export class RegistrationService {
 
   private filterWhenProgressIsAllreadyRunning() {
     return (src: Observable<IRegistration[]>) =>
-      src.pipe(withLatestFrom(this.progressService.syncProgress$),
+      src.pipe(withLatestFrom(this.progressService.registrationSyncProgress$),
         filter(([, syncProgress]) => !syncProgress.inProgress),
         map(([records]) => records));
   }
 
-  private getRegistrationsToSyncObservable() {
+  private getRegistrationsToSyncObservable(includeThrottle = false) {
     return this.registrationStorage$.pipe(
       switchMap((records) =>
-        forkJoin(records.map((reg) => this.shouldSync(reg).pipe(map((shouldSync) => ({ reg, shouldSync })))))),
+        forkJoin(records.map((reg) => this.shouldSync(reg, includeThrottle).pipe(map((shouldSync) => ({ reg, shouldSync })))))),
       map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)));
   }
 
-  private shouldSync(reg: IRegistration): Observable<boolean> {
+  private hasAnyNewAttachments(id: string): Observable<boolean> {
+    return this.newAttachmentService.getUploadedAttachments(id).pipe(map((attachments) => attachments.length > 0));
+  }
+
+  private isNotEmpty(reg: IRegistration): Observable<boolean> {
+    const notEmpty = hasAnyObservations(reg);
+    if (notEmpty) {
+      return of(true);
+    }
+    return this.hasAnyNewAttachments(reg.id);
+  }
+
+  private shouldSync(reg: IRegistration, includeThrottle = false): Observable<boolean> {
     if (reg.syncStatus === SyncStatus.Sync) {
-      if (this.shouldThrottle(reg)) {
+      if (includeThrottle && this.shouldThrottle(reg)) {
         return of(false);
       }
       if (reg.response && reg.response.RegId > 0) {
         return of(true); // Edit existing registration should sync even if empty (deleted observation)
       }
-      const notEmpty = hasAnyObservations(reg); // Only sync if any observations is added (not only obs location and time)
-      if (notEmpty) {
-        return of(true);
-      }
-      return this.addNewAttachmentService.getUploadedAttachments(reg.id).pipe(take(1), map((attachments) => attachments.length > 0));
+      return this.isNotEmpty(reg).pipe(take(1));
     }
     return of(false);
   }

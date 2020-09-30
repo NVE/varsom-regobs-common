@@ -13,7 +13,8 @@
       "clone-deep": "cloneDeep",
       "ngx-logger": "ngxLogger",
       "rxdb/plugins/core": "rxdbPluginsCore",
-      "rxdb/plugins/no-validate": "rxdbPluginsNoValidate"
+      "rxdb/plugins/no-validate": "rxdbPluginsNoValidate",
+      "fast-deep-equal": "deepEqual"
     }
   },
   "whitelistedNonPeerDependencies": []

@@ -1,4 +1,5 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit,  } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-blob-image-preview',
@@ -9,19 +10,21 @@ export class BlobImagePreviewComponent implements OnInit, OnDestroy {
 
   @Input() imgBlob: Blob;
 
-  imgSrc: string;
+  imgSrc: SafeUrl;
+  private blobUrl: string;
+
+  constructor(private sanitizer: DomSanitizer) {
+
+  }
 
   ngOnInit(): void {
-    const reader = new FileReader();
-    reader.readAsDataURL(this.imgBlob);
-    reader.onload = () => {
-      this.imgSrc = reader.result as string;
-    };
+    this.blobUrl = URL.createObjectURL(this.imgBlob);
+    this.imgSrc = this.sanitizer.bypassSecurityTrustUrl(this.blobUrl);
   }
 
   ngOnDestroy(): void {
-    if(this.imgSrc) {
-      URL.revokeObjectURL(this.imgSrc);
+    if(this.blobUrl) {
+      URL.revokeObjectURL(this.blobUrl);
     }
   }
 }

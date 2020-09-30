@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RegistrationService, IRegistration, SyncProgress, ProgressService, RegistrationTid } from '@varsom-regobs-common/registration';
+import { RegistrationService, IRegistration, ProgressService, RegistrationTid, SyncStatus, ISyncProgress, NewAttachmentService } from '@varsom-regobs-common/registration';
 import { from, Observable, of } from 'rxjs';
 import { AppMode, AppModeService, GeoHazard, LoggerService } from '@varsom-regobs-common/core';
 import { switchMap, tap } from 'rxjs/operators';
@@ -12,15 +12,15 @@ export class RegistrationComponent implements OnInit {
   title$: Observable<string>;
   registrations$: Observable<IRegistration[]>;
   appMode$: Observable<AppMode>;
-  // settings: IRegistrationSettings;
-  syncProgress$: Observable<SyncProgress>;
+  syncProgress$: Observable<ISyncProgress>;
 
   constructor(
     private registrationService: RegistrationService,
     private appModeService: AppModeService,
     // private settingsService: SettingsService,
     private loggerService: LoggerService,
-    private progressService: ProgressService
+    private progressService: ProgressService,
+    private newAttachmentService: NewAttachmentService,
   ) {
   }
 
@@ -33,14 +33,20 @@ export class RegistrationComponent implements OnInit {
     // this.settingsService.registrationSettings$.subscribe((settings) => {
     //   this.settings = settings;
     // });
-    this.syncProgress$ = this.progressService.syncProgress$;
+    this.syncProgress$ = this.progressService.registrationSyncProgress$;
   }
 
   async addRegistration(): Promise<void> {
     const draft = this.registrationService.createNewEmptyDraft(GeoHazard.Snow);
     // draft.request.Comment = this.appMode;
+    // draft.syncStatus = SyncStatus.Sync;
     const result = await this.registrationService.saveRegistration(draft).toPromise();
     this.loggerService.log('Added registration', result);
+  }
+
+  async syncRegistration(event: Event, reg: IRegistration): Promise<void> {
+    event.preventDefault();
+    await this.registrationService.saveRegistration({ ...reg, syncStatus: SyncStatus.Sync }, false, true).toPromise();
   }
 
   deleteRegistration(event: Event, id: string): void {
@@ -62,15 +68,14 @@ export class RegistrationComponent implements OnInit {
     this.registrationService.cancelSync();
   }
 
-  onFileChanged(reg: IRegistration, file: File): void {
-    from(file.arrayBuffer()).pipe(switchMap((data) =>
-      this.registrationService.addAttachment(
-        reg.id,
-        GeoHazard.Snow,
-        RegistrationTid.GeneralObservation,
-        data,
-        file.type
-      ))).subscribe();
+  async onFileChanged(reg: IRegistration, file: File): Promise<void> {
+    this.newAttachmentService.addAttachment(
+      reg.id,
+      file,
+      file.type,
+      GeoHazard.Snow,
+      RegistrationTid.GeneralObservation
+    );
   }
 
 }
