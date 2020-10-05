@@ -1,18 +1,18 @@
 import { RegistrationTid } from '../models/registration-tid.enum';
 import { IRegistration } from '../models/registration.interface';
-import { isEmpty } from '@varsom-regobs-common/core';
+import { isEmpty, GeoHazard } from '@varsom-regobs-common/core';
 import { ValidRegistrationType } from '../models/valid-registration.type';
 import { AttachmentEditModel, AttachmentViewModel, RegistrationEditModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import { SyncStatus } from '../registration.models';
 
-export function getAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+export function getAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentViewModel[] {
   if(!reg) {
     return [];
   }
   if(reg.syncStatus === SyncStatus.InSync && reg.response) {
-    this.getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
+    getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
   }
-  return this.getAttachmentsFromRegistrationViewModel(reg.request, registrationTid);
+  return getAttachmentsFromRegistrationViewModel(reg.request, registrationTid);
 }
 
 export function getAttachmentsFromRegistrationViewModel(viewModel: RegistrationEditModel | RegistrationViewModel, registrationTid?: RegistrationTid): AttachmentViewModel[] {
@@ -64,7 +64,17 @@ export function getRegistrationTids(): RegistrationTid[] {
 }
 
 export function hasAnyAttachments(reg: IRegistration, registrationTid: RegistrationTid): boolean {
-  return getAttachments(reg, registrationTid).length > 0;
+  const hasAttachmetns = getAttachments(reg, registrationTid).length > 0;
+  if(hasAttachmetns) {
+    return true;
+  }
+  if(registrationTid === RegistrationTid.WaterLevel2) {
+    return getWaterLevelAttachments(reg).length > 0;
+  }
+  if(registrationTid === RegistrationTid.DamageObs) {
+    return getDamageObsAttachments(reg).length > 0;
+  }
+  return false;
 }
 
 export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
@@ -109,26 +119,38 @@ export function isArrayType(tid: RegistrationTid): boolean {
   ].indexOf(tid) >= 0;
 }
 
-// export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
-//   const goHazardTids = new Map<GeoHazard, Array<RegistrationTid>>([
-//     [GeoHazard.Snow, [
-//       RegistrationTid.DangerObs,
-//       RegistrationTid.AvalancheObs,
-//       RegistrationTid.AvalancheActivityObs2,
-//       RegistrationTid.WeatherObservation,
-//       RegistrationTid.SnowSurfaceObservation,
-//       RegistrationTid.CompressionTest,
-//       RegistrationTid.SnowProfile2,
-//       RegistrationTid.AvalancheEvalProblem2,
-//       RegistrationTid.AvalancheEvaluation3
-//     ]],
-//     [GeoHazard.Ice, [RegistrationTid.IceCoverObs, RegistrationTid.IceThickness, RegistrationTid.DangerObs, RegistrationTid.Incident]],
-//     [GeoHazard.Water, [RegistrationTid.WaterLevel2, RegistrationTid.DamageObs]],
-//     [GeoHazard.Soil, [RegistrationTid.DangerObs, RegistrationTid.LandSlideObs]]
-//   ]);
-//   const generalObs = [RegistrationTid.GeneralObservation];
-//   return goHazardTids.get(geoHazard).concat(generalObs);
-// }
+export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
+  const commonTypes = [RegistrationTid.GeneralObservation];
+  const geoHazardValidTypes = new Map<GeoHazard, RegistrationTid[]>([
+    [GeoHazard.Snow, [
+      RegistrationTid.DangerObs,
+      RegistrationTid.AvalancheObs,
+      RegistrationTid.AvalancheActivityObs2,
+      RegistrationTid.WeatherObservation,
+      RegistrationTid.SnowSurfaceObservation,
+      RegistrationTid.CompressionTest,
+      RegistrationTid.SnowProfile2,
+      RegistrationTid.AvalancheEvalProblem2,
+      RegistrationTid.AvalancheEvaluation3,
+      RegistrationTid.Incident
+    ]],
+    [GeoHazard.Ice, [
+      RegistrationTid.IceCoverObs,
+      RegistrationTid.IceThickness,
+      RegistrationTid.DangerObs,
+      RegistrationTid.Incident
+    ]],
+    [GeoHazard.Water, [
+      RegistrationTid.WaterLevel2,
+      RegistrationTid.DamageObs
+    ]],
+    [GeoHazard.Soil, [
+      RegistrationTid.DangerObs,
+      RegistrationTid.LandSlideObs
+    ]]
+  ]);
+  return geoHazardValidTypes.get(geoHazard).concat(commonTypes);
+}
 
 export function getOrCreateNewRegistrationForm(reg: IRegistration, tid: RegistrationTid): ValidRegistrationType {
   if (isObservationEmptyForRegistrationTid(reg, tid)) {

@@ -46,13 +46,21 @@ export class RegistrationComponent implements OnInit {
 
   async syncRegistration(event: Event, reg: IRegistration): Promise<void> {
     event.preventDefault();
-    await this.registrationService.saveRegistration({ ...reg, syncStatus: SyncStatus.Sync }, false, true).toPromise();
+    await this.registrationService.saveAndSync(reg).toPromise();
   }
 
   deleteRegistration(event: Event, id: string): void {
     event.preventDefault();
     const result = this.registrationService.deleteRegistration(id).toPromise();
     this.loggerService.log('Deleted registration', result);
+  }
+
+  async testSaveRegistration(event: Event, reg: IRegistration): Promise<void> {
+    event.preventDefault();
+    reg.request.GeneralObservation = {
+      Comment: new Date().toISOString()
+    };
+    await this.registrationService.saveRegistration(reg, false).toPromise();
   }
 
   changeAppMode(appMode: AppMode): void {

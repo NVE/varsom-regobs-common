@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoggerService } from '@varsom-regobs-common/core';
-import { distinctUntilChanged, map, shareReplay, throttleTime } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { ISyncProgress } from '../../models/sync-progress.interface';
 import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { RxRegistrationSyncProgressCollection, RxUploadProgressCollection } from '../../db/RxDB';
@@ -19,16 +19,16 @@ export class ProgressService {
 
   constructor(private loggerService: LoggerService, private offlineDbService: OfflineDbService) {
     this.registrationSyncProgress$ = this.getRegistrationSyncProgressCollection().find().$.pipe(
-      throttleTime(100),
+      debounceTime(100),
       map((records) => records[0]),
       map((rec) => this.convertToSyncProgress(rec)),
-      distinctUntilChanged(deepEqual),
+      distinctUntilChanged((a, b) => deepEqual(a, b)),
       shareReplay(1)
     );
   }
 
   async resetSyncProgress(records: Array<string> = null): Promise<void> {
-    await this.getRegistrationSyncProgressCollection().upsert({
+    await this.getRegistrationSyncProgressCollection().atomicUpsert({
       id: SYNC_PROGRESS_ID,
       recordsLeft: records || [],
       startedTimestamp: moment().unix(),
@@ -46,7 +46,7 @@ export class ProgressService {
       if(error) {
         errors.push({ id: recordId, error});
       }
-      await this.getRegistrationSyncProgressCollection().upsert({
+      await this.getRegistrationSyncProgressCollection().atomicUpsert({
         id: SYNC_PROGRESS_ID,
         errors: errors,
         recordsLeft: docJson.recordsLeft.filter((r) => r !== recordId)
@@ -60,7 +60,7 @@ export class ProgressService {
 
   async setAttachmentProgress(imageId: string, totalBytes: number, complete: number): Promise<void> {
     this.loggerService.log(`Set attachment progress. Complete: ${complete}/${totalBytes}. ${imageId}`);
-    await this.getUploadProgressCollection().upsert({
+    await this.getUploadProgressCollection().atomicUpsert({
       id: imageId,
       totalBytes,
       complete

@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
-import { Observable, from, Subscription, of, concat, forkJoin, timer, merge } from 'rxjs';
+import { Observable, from, Subscription, of, concat, forkJoin, timer, merge, combineLatest } from 'rxjs';
 import { GeoHazard, AppMode, LoggerService, AppModeService, uuidv4, ObservableHelperService } from '@varsom-regobs-common/core';
 import { switchMap, shareReplay, map, tap, catchError, mergeMap, toArray, take, filter, withLatestFrom, distinctUntilChanged, concatMap } from 'rxjs/operators';
 import { IRegistration } from '../../models/registration.interface';
@@ -9,19 +9,18 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
+import { Summary, AttachmentViewModel, RegistrationViewModel, AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
 import {IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
-import { hasAnyObservations, getAttachments, isObservationEmptyForRegistrationTid } from '../../registration.helpers';
+import { getAttachments, getRegistrationTidsForGeoHazard, hasAnyObservations, isObservationEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
-import { ExistingOrNewAttachment } from '../../models/attachment-upload-edit.interface';
-import { SummaryWithAttachments } from '../../models/summary/summary-with-attachments';
 import cloneDeep from 'clone-deep';
 import { IRegistrationType } from '../../models/registration-type.interface';
 import { FallbackSummaryProvider } from '../summary-providers/fallback-provider';
 import { RxRegistrationCollection, RxRegistrationDocument } from '../../db/RxDB';
 import { NewAttachmentService } from '../add-new-attachment/new-attachment.service';
+import deepEqual from 'fast-deep-equal';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_BUFFER_MS = 3 * 1000; // Wait at least 3 seconds before next sync attempt
@@ -50,22 +49,56 @@ export class RegistrationService {
   ) {
     this.registrationStorage$ = this.getRegistrationObservable().pipe(tap((reg) => {
       this.loggerService.debug('Registrations changed', reg);
-    }), shareReplay(1), this.observableHelperService.enterZoneAndTickApplicationRef());
+    }), this.observableHelperService.enterZoneAndTickApplicationRef(), shareReplay(1));
     this.initAutoSync();
   }
 
-  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true, syncImmediately = true): Observable<unknown> {
+  public saveAndSync(reg: IRegistration): Observable<boolean> {
+    reg.syncStatus = SyncStatus.Draft; // Save as draft first and then try to sync
+    return this.saveRegistrationToOfflineStorage(reg).pipe(switchMap(() =>
+    {
+      reg.syncStatus = SyncStatus.Sync;
+      return this.saveRegistration(reg);
+    }));
+  }
+
+  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true): Observable<boolean> {
     if (updateChangedTimestamp) {
       reg.changed = moment().unix();
     }
-    if(reg.syncStatus === SyncStatus.Sync && syncImmediately) {
+    if(reg.syncStatus === SyncStatus.Sync) {
       return this.syncSingleRegistration(reg);
     }else{
-      return this.appModeService.appMode$.pipe(take(1), switchMap((appMode) => {
-        this.loggerService.debug('Save registration', reg, updateChangedTimestamp);
-        return from(this.getRegistrationsDbCollection(appMode).upsert(reg));
-      }));
+      return this.saveRegistrationToOfflineStorage(reg).pipe(map(() => true));
     }
+  }
+
+  private saveRegistrationToOfflineStorage(reg: IRegistration): Observable<RxRegistrationDocument> {
+    return this.getRegistrationOfflineDocumentById(reg.id).pipe(
+      take(1),
+      switchMap((doc) => doc ?
+        from(this.updateDocInOfflineStorage(doc, reg)) :
+        this.getRegistrationDbCollectionForAppMode().pipe(take(1), switchMap((collection) => from(collection.atomicUpsert(reg))))
+      ));
+  }
+
+  private updateDocInOfflineStorage(doc: RxRegistrationDocument, reg: IRegistration): Promise<RxRegistrationDocument> {
+    // We update doc instead of atomicUpdate, because when we use atomicUpdate attachments get lost...
+    return doc.atomicUpdate((oldData) => {
+      oldData.changed = reg.changed;
+      oldData.syncStatus = reg.syncStatus;
+      oldData.lastSync = reg.lastSync;
+      oldData.syncError = reg.syncError;
+      oldData.syncStatusCode = reg.syncStatusCode;
+      oldData.request = reg.request;
+      oldData.response = reg.response;
+      oldData.changedRegistrationTid = reg.changedRegistrationTid;
+      return oldData;
+    });
+  }
+
+  private getAttachments(id: string) {
+    return this.getRegistrationOfflineDocumentById(id).pipe(map((doc) => doc.allAttachments()));
   }
 
   public deleteRegistration(id: string): Observable<boolean> {
@@ -187,7 +220,7 @@ export class RegistrationService {
   // private saveAttachmentMeta(attachmentMetaData: AttachmentUploadEditModel) {
   //   return this.getAttachmentMetaDbCollectionForAppMode().pipe(
   //     take(1),
-  //     switchMap((dbCollection) => from(dbCollection.upsert(attachmentMetaData)) ));
+  //     switchMap((dbCollection) => from(dbCollection.atomicUpsert(attachmentMetaData)) ));
   // }
 
   // /**
@@ -228,7 +261,6 @@ export class RegistrationService {
       timer(SYNC_TIMER_TRIGGER_MS, SYNC_TIMER_TRIGGER_MS).pipe(map(() => 'timer trigger')));
     return this.getRegistrationsToSyncObservable(false).pipe(
       map((records) => records.length > 0),
-      distinctUntilChanged(),
       filter((hasRecords) => hasRecords),
       switchMap(() => networkOrTimerTrigger$));
   }
@@ -245,6 +277,30 @@ export class RegistrationService {
           return of([]);
         }),
         tap(() => this.progressService.resetSyncProgress()));
+  }
+
+  /***
+   * Check if registration has any data or attachments for registrationTid
+   */
+  hasAnyData(reg: IRegistration, registrationTid: RegistrationTid): Observable<boolean> {
+    return of(isObservationEmptyForRegistrationTid(reg, registrationTid)).pipe((switchMap((isEmpty) => {
+      if(!isEmpty) {
+        return of(true);
+      }
+      return this.newAttachmentService.getUploadedAttachments(reg.id).pipe(take(1),
+        map((newAttachments) => newAttachments.some((a) => a.RegistrationTID === registrationTid)));
+    })));
+  }
+
+  getRegistrationTypesWithAnyData(reg: IRegistration): Observable<IRegistrationType[]> {
+    return this.getRegistrationTypesForGeoHazard(reg.geoHazard).pipe(
+      switchMap((regTypes) => regTypes.length > 0 ? forkJoin(regTypes.map((regType) => this.hasAnyData(reg, regType.registrationTid)
+        .pipe(map((anyData) => ({  anyData, regType }))))) : of([])),
+      map((result) => result.filter((r) => r.anyData).map((r) => r.regType)));
+  }
+
+  public getSummaryForRegistrationTidById$(id: string, registrationTid: RegistrationTid): Observable<Summary[]> {
+    return this.getRetistrationById(id).pipe(switchMap((reg) => this.getSummaryForRegistrationTid(reg, registrationTid)));
   }
 
   /**
@@ -266,9 +322,13 @@ export class RegistrationService {
   }
 
   public getSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
-    return (reg.syncStatus === SyncStatus.InSync) ?
-      this.getResponseSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
-      : this.getDraftSummary(reg, registrationTid, addIfEmpty);
+    // return (reg.syncStatus === SyncStatus.InSync) ?
+    //   this.getResponseSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
+    //   : this.getDraftSummary(reg, registrationTid, addIfEmpty);
+    if(reg.changedRegistrationTid === registrationTid && reg.syncStatus !== SyncStatus.InSync) {
+      return this.getDraftSummary(reg, registrationTid, addIfEmpty);
+    }
+    return this.getResponseSummaryForRegistrationTid(reg, registrationTid, addIfEmpty);
   }
 
   public getRegistrationName(registrationTid: RegistrationTid): Observable<string> {
@@ -294,95 +354,66 @@ export class RegistrationService {
     })));
   }
 
-  public getRegistrationEditFromsWithSummaries(id: string): Observable<{ reg: IRegistration; forms: SummaryWithAttachments[] }> {
-    return this.registrationStorage$.pipe(
-      tap((val) => this.loggerService.debug(() => 'getRegistrationEditFromsWithSummaries', val, id)),
-      map((registrations) => registrations.find((r) => r.id === id)),
-      filter((val) => !!val),
-      switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
-        map((forms) => ({
-          reg,
-          forms
-        })))));
-  }
+  // public getRegistrationEditFromsWithSummaries(id: string): Observable<{ reg: IRegistration; forms: SummaryWithAttachments[] }> {
+  //   return this.registrationStorage$.pipe(
+  //     tap((val) => this.loggerService.debug(() => 'getRegistrationEditFromsWithSummaries', val, id)),
+  //     map((registrations) => registrations.find((r) => r.id === id)),
+  //     filter((val) => !!val),
+  //     switchMap((reg) => this.getRegistrationFormsWithSummaries(reg, false).pipe(
+  //       map((forms) => ({
+  //         reg,
+  //         forms
+  //       })))));
+  // }
 
-  public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
-    return this.getRegistrationTidsForGeoHazard(reg.geoHazard).pipe(
-      switchMap((registrationTypes) =>
-        forkJoin(this.getRegistrationTids(registrationTypes).map((registrationTid) =>
-          this.getSummaryAndAttachments(reg, registrationTid, generateEmptySummaries)))
-          .pipe(map((summaryAndAttachments) => this.mapToSummaryWithAttachments(registrationTypes, summaryAndAttachments)))
-      ));
-  }
+  // public getRegistrationFormsWithSummaries(reg: IRegistration, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
+  //   return this.getRegistrationTypesForGeoHazard(reg.geoHazard).pipe(
+  //     switchMap((registrationTypes) =>
+  //       forkJoin(this.getRegistrationTids(registrationTypes).map((registrationTid) =>
+  //         this.getSummaryAndAttachments(reg, registrationTid, generateEmptySummaries)))
+  //         .pipe(map((summaryAndAttachments) => this.mapToSummaryWithAttachments(registrationTypes, summaryAndAttachments)))
+  //     ));
+  // }
 
-  private mapToSummaryWithAttachments(
-    registrationTypes: IRegistrationType[],
-    summaryAndAttachments: { registrationTid: RegistrationTid; summaries: Summary[]; attachments: ExistingOrNewAttachment[] }[]):
-    SummaryWithAttachments[] {
-    return (registrationTypes || []).map((regType) => {
-      const summaryAndAttachmentsForRegType = summaryAndAttachments.find((s) => s.registrationTid === regType.registrationTid);
-      const result: SummaryWithAttachments = {
-        registrationTid: regType.registrationTid,
-        name: regType.name,
-        attachments: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.attachments) ? summaryAndAttachmentsForRegType.attachments : undefined,
-        summaries: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.summaries) ? summaryAndAttachmentsForRegType.summaries : undefined,
-        subTypes: this.mapToSummaryWithAttachments(regType.subTypes, summaryAndAttachments),
-      };
-      return result;
-    });
-  }
+  // private mapToSummaryWithAttachments(
+  //   registrationTypes: IRegistrationType[],
+  //   summaryAndAttachments: { registrationTid: RegistrationTid; summaries: Summary[]; attachments: ExistingOrNewAttachment[] }[]):
+  //   SummaryWithAttachments[] {
+  //   return (registrationTypes || []).map((regType) => {
+  //     const summaryAndAttachmentsForRegType = summaryAndAttachments.find((s) => s.registrationTid === regType.registrationTid);
+  //     const result: SummaryWithAttachments = {
+  //       registrationTid: regType.registrationTid,
+  //       name: regType.name,
+  //       attachments: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.attachments) ? summaryAndAttachmentsForRegType.attachments : undefined,
+  //       summaries: (summaryAndAttachmentsForRegType && summaryAndAttachmentsForRegType.summaries) ? summaryAndAttachmentsForRegType.summaries : undefined,
+  //       subTypes: this.mapToSummaryWithAttachments(regType.subTypes, summaryAndAttachments),
+  //     };
+  //     return result;
+  //   });
+  // }
 
-  private getRegistrationTids(registrationTypes: IRegistrationType[]): RegistrationTid[] {
-    const result: RegistrationTid[] = [];
-    for (const r of registrationTypes) {
-      result.push(r.registrationTid);
-      if (r.subTypes && r.subTypes.length > 0) {
-        result.push(...this.getRegistrationTids(r.subTypes));
-      }
-    }
-    return result;
-  }
+  // private getRegistrationTids(registrationTypes: IRegistrationType[]): RegistrationTid[] {
+  //   const result: RegistrationTid[] = [];
+  //   for (const r of registrationTypes) {
+  //     result.push(r.registrationTid);
+  //     if (r.subTypes && r.subTypes.length > 0) {
+  //       result.push(...this.getRegistrationTids(r.subTypes));
+  //     }
+  //   }
+  //   return result;
+  // }
 
-  public getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): Observable<IRegistrationType[]> {
-    const commonTypes = [RegistrationTid.GeneralObservation];
-    const geoHazardValidTypes = new Map<GeoHazard, RegistrationTid[]>([
-      [GeoHazard.Snow, [
-        RegistrationTid.DangerObs,
-        RegistrationTid.AvalancheObs,
-        RegistrationTid.AvalancheActivityObs2,
-        RegistrationTid.WeatherObservation,
-        RegistrationTid.SnowSurfaceObservation,
-        RegistrationTid.CompressionTest,
-        RegistrationTid.SnowProfile2,
-        RegistrationTid.AvalancheEvalProblem2,
-        RegistrationTid.AvalancheEvaluation3,
-        RegistrationTid.Incident
-      ]],
-      [GeoHazard.Ice, [
-        RegistrationTid.IceCoverObs,
-        RegistrationTid.IceThickness,
-        RegistrationTid.DangerObs,
-        RegistrationTid.Incident
-      ]],
-      [GeoHazard.Water, [
-        RegistrationTid.WaterLevel2,
-        RegistrationTid.DamageObs
-      ]],
-      [GeoHazard.Soil, [
-        RegistrationTid.DangerObs,
-        RegistrationTid.LandSlideObs
-      ]]
-    ]);
-    const registrationFormForGeoHazard = [...geoHazardValidTypes.get(geoHazard), ...commonTypes];
+  public getRegistrationTypesForGeoHazard(geoHazard: GeoHazard): Observable<IRegistrationType[]> {
+    const registrationTidsForGeoHazard = getRegistrationTidsForGeoHazard(geoHazard);
 
     const flatViewrepository$ = this.kdvService.getViewRepositoryByKeyObservable('RegistrationTypesV')
       .pipe(
         map((val) => this.parseViewRepositoryType(val[`${geoHazard}`])),
         map((result) => this.flattenRegistrationTypes(result)),
-        map((result) => result.filter((val) => registrationFormForGeoHazard.indexOf(val.registrationTid) >= 0))
+        map((result) => result.filter((val) => registrationTidsForGeoHazard.indexOf(val.registrationTid) >= 0))
       );
 
-    return of(registrationFormForGeoHazard).pipe(switchMap((registrationTids) =>
+    return of(registrationTidsForGeoHazard).pipe(switchMap((registrationTids) =>
       flatViewrepository$.pipe(
         map((vr) => registrationTids.map((registrationTid) => vr.find((v) => v.registrationTid === registrationTid)),
           filter((result) => !!result)
@@ -409,25 +440,121 @@ export class RegistrationService {
     });
   }
 
-  public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
-    const reg: IRegistration = this.editExisingRegistration(regViewModel);
-    return this.getRegistrationFormsWithSummaries(reg, generateEmptySummaries);
-  }
+  // private getLatestRegistrationDocumentRevision(id: string): Observable<string> {
+  //   return this.getRegistrationOfflineDocumentById(id).pipe(take(1), map((doc) => doc.revision));
+  // }
 
-  private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true) {
-    return this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
-      .pipe(withLatestFrom(this.getAttachmentForRegistration(reg, registrationTid)),
-        map(([summaries, attachments]) => ({ registrationTid, summaries, attachments })));
-  }
+  // public rollbackToRevision$(id: string, revId: string): Observable<unknown> {
+  //   return this.getRegistrationDbCollectionForAppMode().pipe(
+  //     switchMap((collection) =>
+  //       from(this.removeAllRevisionsUntil(id, revId, collection)))
+  //   );
+  // }
 
-  public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
-    return this.newAttachmentService.getUploadedAttachments(reg.id).pipe(
-      map((uploaded) =>
-        [
-          ...uploaded.filter((u) => u.RegistrationTID === registrationTid),
-          ...(reg.syncStatus === SyncStatus.InSync ? this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : getAttachments(reg, registrationTid))
-        ]
+  public saveRollbackState$(id: string): Observable<unknown> {
+    return combineLatest([this.getRegistrationDbCollectionForAppMode(), this.getRetistrationById(id)]).pipe(
+      take(1),
+      switchMap(([collection, reg]) =>
+        reg ? from(collection.upsertLocal(`undo_state_${id}`, { reg })) : of({})
       ));
+  }
+
+  public saveRollbackState(id: string): void {
+    this.saveRollbackState$(id).subscribe();
+  }
+
+  /**
+   * Rollback registration to last known undo state (as observable)
+   */
+  public rollbackChanges$(id: string): Observable<boolean>  {
+    return this.getRegistrationDbCollectionForAppMode().pipe(
+      switchMap((collection) => from(collection.getLocal(`undo_state_${id}`)).pipe(map((doc) => doc ?  doc['reg'] : undefined))),
+      switchMap((reg: IRegistration) => reg ?
+        this.saveRegistrationToOfflineStorage(reg).pipe(
+          switchMap(() => this.newAttachmentService.removeAttachmentsForRegistration$(id)),
+          map(() => true))
+        : of(false)));
+  }
+
+  /**
+   * Rollback registration to last known undo state
+   */
+  public rollbackChanges(id: string): void {
+    this.rollbackChanges$(id).subscribe();
+  }
+
+  // private getLatestRollbackRev$(id: string): Observable<string> {
+  //   return this.getRegistrationDbCollectionForAppMode().pipe(
+  //     switchMap((collection) => from(collection.getLocal(`latest_rev_${id}`)).pipe(map((doc) => doc ? doc.get('revId') : undefined)))
+  //   );
+  // }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // private async getRegistrationByRevision(id: string, revId: string, collection: RxRegistrationCollection): Promise<any> {
+  //   const res = await collection.pouch.get(id, {
+  //     rev: revId,
+  //     revs: true,
+  //     open_revs: 'all', // this allows me to also get the removed "docs"
+  //     revs_info: false // If true, includes a list of revisions of the document, and their availability.
+  //   });
+  //   if(res && res.length > 0 && res[0] && res[0].ok) {
+  //     return res[0].ok;
+  //   }
+  //   return undefined;
+  // }
+
+  // private async removeAllRevisionsUntil(id: string, revId: string, collection: RxRegistrationCollection): Promise<void> {
+  //   const revs = await collection.pouch.get(id, {
+  //     revs: true,
+  //     open_revs: 'all', // this allows me to also get the removed "docs"
+  //     revs_info: true
+  //   });
+  //   if(revs.length && revs[0].ok && revs[0].ok._revisions && revs[0].ok._revisions.ids && revs[0].ok._revisions.ids.length > 0) {
+  //     this.loggerService.debug(`Remove all document revisions until ${revId}:`, revs[0].ok._revisions.ids);
+  //     const start = revs[0].ok._revisions.start;
+  //     for(const rev of revs[0].ok._revisions.ids.reverse()) {
+  //       const sRev = `${start}-${rev}`;
+  //       if(sRev !== revId) {
+  //         try{
+  //           const doc = await collection.pouch.get(id, {
+  //             rev: rev,
+  //             revs: true,
+  //             open_revs: 'all'
+  //           });
+  //           if(doc && doc[0] && doc[0].ok) {
+  //             await collection.pouch.remove(id, rev);
+  //           }
+  //         }catch(err) {
+  //           this.loggerService.debug(err);
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
+
+  // public getRegistrationViewModelFormsWithSummaries(regViewModel: RegistrationViewModel, generateEmptySummaries = true): Observable<SummaryWithAttachments[]> {
+  //   const reg: IRegistration = this.editExisingRegistration(regViewModel);
+  //   return this.getRegistrationFormsWithSummaries(reg, generateEmptySummaries);
+  // }
+
+  // private getSummaryAndAttachments(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true) {
+  //   return this.getSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
+  //     .pipe(withLatestFrom(this.getAttachmentForRegistration(reg, registrationTid)),
+  //       map(([summaries, attachments]) => ({ registrationTid, summaries, attachments })));
+  // }
+
+  // public getAttachmentForRegistration(reg: IRegistration, registrationTid: RegistrationTid): Observable<ExistingOrNewAttachment[]> {
+  //   return this.newAttachmentService.getUploadedAttachments(reg.id).pipe(
+  //     map((uploaded) =>
+  //       [
+  //         ...uploaded.filter((u) => u.RegistrationTID === registrationTid),
+  //         ...(reg.syncStatus === SyncStatus.InSync ? this.getResponseAttachmentsForRegistrationTid(reg, registrationTid) : getAttachments(reg, registrationTid))
+  //       ]
+  //     ));
+  // }
+
+  public getAttachmentForRegistration(id: string, registrationTid: RegistrationTid): Observable<AttachmentEditModel[]> {
+    return this.getRetistrationById(id).pipe(map((reg) => getAttachments(reg, registrationTid)));
   }
 
   public getResponseAttachmentsForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): AttachmentViewModel[] {
@@ -445,7 +572,8 @@ export class RegistrationService {
 
   private getRegistrationObservable(): Observable<IRegistration[]> {
     return this.getRegistrationDbCollectionForAppMode().pipe(
-      switchMap((dbCollection) => dbCollection.find().$.pipe(map((docs) => docs.map((doc) => doc.toJSON())))));
+      switchMap((dbCollection) => dbCollection.find().$.pipe(map((docs) => docs.map((doc) => doc.toJSON())))),
+      distinctUntilChanged((a, b) => deepEqual(a, b)));
   }
 
   private getRegistrationsDbCollection(appMode: AppMode): RxRegistrationCollection {
@@ -482,7 +610,10 @@ export class RegistrationService {
   private getRegistrationsToSyncObservable(includeThrottle = false) {
     return this.registrationStorage$.pipe(
       switchMap((records) =>
-        forkJoin(records.map((reg) => this.shouldSync(reg, includeThrottle).pipe(map((shouldSync) => ({ reg, shouldSync })))))),
+        records.length > 0 ?
+          forkJoin(records.map((reg) => this.shouldSync(reg, includeThrottle).pipe(map((shouldSync) => ({ reg, shouldSync })))))
+          : of([])
+      ),
       map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)));
   }
 
@@ -561,7 +692,7 @@ export class RegistrationService {
     return (src: Observable<ItemSyncCompleteStatus<IRegistration>>) =>
       src.pipe(this.mapItemSyncCompleteStatusToRegistration(),
         switchMap((item: IRegistration) =>
-          this.saveRegistration(item, false, false)
+          this.saveRegistrationToOfflineStorage(item)
             .pipe(catchError((err) => {
               this.loggerService.error('Could not update record in offline storage', err);
               return of([]);

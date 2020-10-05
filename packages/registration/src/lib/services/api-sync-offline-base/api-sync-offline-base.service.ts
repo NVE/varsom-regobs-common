@@ -127,7 +127,7 @@ export abstract class ApiSyncOfflineBaseService<T>  {
       lastUpdated: moment().unix(),
       data
     };
-    return from(this.getDbCollection(appMode).upsert(meta));
+    return from(this.getDbCollection(appMode).atomicUpsert(meta));
   }
 
   /**

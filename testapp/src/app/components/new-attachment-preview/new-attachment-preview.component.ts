@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { NewAttachmentService, AttachmentUploadEditModel } from '@varsom-regobs-common/registration';
 import { map, switchMap, take, tap } from 'rxjs/operators';
 
@@ -18,7 +18,8 @@ export class NewAttachmentPreviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.newAttachments$ = this.newAttachmentService.getUploadedAttachments(this.id).pipe(
-      switchMap((attachments: AttachmentUploadEditModel[]) => forkJoin(attachments.map((a) => this.getAttacmentBlob(a)))),
+      switchMap((attachments: AttachmentUploadEditModel[]) =>
+        attachments.length > 0 ? forkJoin(attachments.map((a) => this.getAttacmentBlob(a))) : of([])),
       tap((att) => console.log('new attachments', att)));
   }
 
