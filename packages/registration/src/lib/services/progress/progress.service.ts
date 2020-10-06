@@ -54,8 +54,9 @@ export class ProgressService {
     }
   }
 
-  getAttachmentProgress(imageId: string): Observable<{total: number; complete: number}> {
-    return this.getUploadProgressCollection().findByIds$([imageId]).pipe(map((result) => result[0]));
+  getAttachmentProgress(imageId: string): Observable<{totalBytes: number; complete: number}> {
+    return this.getUploadProgressCollection().findByIds$([imageId]).pipe(
+      map((result) => result.get(imageId)), map((result) => result ? result.toJSON() : null));
   }
 
   async setAttachmentProgress(imageId: string, totalBytes: number, complete: number): Promise<void> {
