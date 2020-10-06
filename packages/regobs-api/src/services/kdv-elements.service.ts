@@ -85,7 +85,7 @@ module KdvElementsService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langkey?: 1 | 2 | 3 | 4 | 5;
+    langkey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
     isActive?: boolean;
   }
 }
