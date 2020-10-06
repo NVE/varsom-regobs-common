@@ -10,7 +10,7 @@ export function getAttachments(reg: IRegistration, registrationTid?: Registratio
     return [];
   }
   if(reg.syncStatus === SyncStatus.InSync && reg.response) {
-    getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
+    return getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
   }
   return getAttachmentsFromRegistrationViewModel(reg.request, registrationTid);
 }

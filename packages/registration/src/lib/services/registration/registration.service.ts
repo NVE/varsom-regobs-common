@@ -54,12 +54,8 @@ export class RegistrationService {
   }
 
   public saveAndSync(reg: IRegistration): Observable<boolean> {
-    reg.syncStatus = SyncStatus.Draft; // Save as draft first and then try to sync
-    return this.saveRegistrationToOfflineStorage(reg).pipe(switchMap(() =>
-    {
-      reg.syncStatus = SyncStatus.Sync;
-      return this.saveRegistration(reg);
-    }));
+    reg.syncStatus = SyncStatus.Sync;
+    return this.saveRegistration(reg);
   }
 
   public saveRegistration(reg: IRegistration, updateChangedTimestamp = true): Observable<boolean> {

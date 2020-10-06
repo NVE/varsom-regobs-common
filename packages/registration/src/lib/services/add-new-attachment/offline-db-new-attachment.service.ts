@@ -13,9 +13,9 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
   constructor(private offlineDbService: OfflineDbService, private appModeService: AppModeService, private loggerService: LoggerService) {
   }
 
-  addAttachment(id: string, data: Blob, mimeType: string, geoHazard: GeoHazard, registrationTid: RegistrationTid, type?: AttachmentType, ref?: string): void {
+  addAttachment(registrationId: string, data: Blob, mimeType: string, geoHazard: GeoHazard, registrationTid: RegistrationTid, type?: AttachmentType, ref?: string): void {
     const attachmentId = uuidv4();
-    this.getRegistrationOfflineDocumentById(id).pipe(take(1), switchMap((doc) =>
+    this.getRegistrationOfflineDocumentById(registrationId).pipe(take(1), switchMap((doc) =>
       this.saveAttachmentMeta$({
         id: attachmentId,
         AttachmentMimeType: mimeType,
@@ -42,41 +42,45 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
     })).subscribe();
   }
 
-  getUploadedAttachments(id: string): Observable<AttachmentUploadEditModel[]> {
-    return this.getRegistrationOfflineDocumentById(id).pipe(
+  getUploadedAttachments(registrationId: string): Observable<AttachmentUploadEditModel[]> {
+    return this.getRegistrationOfflineDocumentById(registrationId).pipe(
       switchMap((doc) => ((doc && doc.allAttachments().length > 0) ? this.getAttachmentMetaFromDocument(doc) : of([]))));
   }
 
-  getBlob(id: string, meta: AttachmentUploadEditModel): Observable<Blob> {
-    return this.getRegistrationOfflineDocumentById(id).pipe(
+  getUploadedAttachment(registrationId: string, attachmentId: string): Observable<AttachmentUploadEditModel> {
+    return this.getUploadedAttachments(registrationId).pipe(map((result) => result.find((a) => a.id === attachmentId)));
+  }
+
+  getBlob(registrationId: string, attachmentId: string): Observable<Blob> {
+    return this.getRegistrationOfflineDocumentById(registrationId).pipe(
       filter((doc) => !!doc),
-      switchMap((doc) => of(doc.getAttachment(meta.id))),
+      switchMap((doc) => of(doc.getAttachment(attachmentId))),
       filter((attachment) => !!attachment),
       switchMap((attachment) => from(attachment.getData())));
   }
 
-  removeAttachment(id: string, attachmentId: string): void {
-    this.removeAttachment$(id, attachmentId).subscribe();
+  removeAttachment(registrationId: string, attachmentId: string): void {
+    this.removeAttachment$(registrationId, attachmentId).subscribe();
   }
 
-  removeAttachmentsForRegistration(id: string): void {
-    this.removeAttachmentsForRegistration$(id).subscribe();
+  removeAttachmentsForRegistration(registrationId: string): void {
+    this.removeAttachmentsForRegistration$(registrationId).subscribe();
   }
 
-  removeAttachmentsForRegistration$(id: string): Observable<boolean[]> {
-    return this.getUploadedAttachments(id).pipe(
+  removeAttachmentsForRegistration$(registrationId: string): Observable<boolean[]> {
+    return this.getUploadedAttachments(registrationId).pipe(
       take(1),
-      switchMap((attachments) => attachments.length > 0 ? forkJoin(attachments.map((a) => this.removeAttachment$(id, a.id))) : of([])));
+      switchMap((attachments) => attachments.length > 0 ? forkJoin(attachments.map((a) => this.removeAttachment$(registrationId, a.id))) : of([])));
   }
 
-  removeAttachment$(id: string, attachmentId: string): Observable<boolean> {
-    return this.getRegistrationAttachmentDocument(id, attachmentId)
+  removeAttachment$(registrationId: string, attachmentId: string): Observable<boolean> {
+    return this.getRegistrationAttachmentDocument(registrationId, attachmentId)
       .pipe(take(1), switchMap((a) => from(a.remove())),
         switchMap(() => this.getAttachmentMetaDocument(attachmentId).pipe(take(1), switchMap((metaDoc) => from(metaDoc.remove())))));
   }
 
-  private getRegistrationAttachmentDocument(id: string, attachmentId: string) {
-    return this.getRegistrationOfflineDocumentById(id).pipe(
+  private getRegistrationAttachmentDocument(registrationId: string, attachmentId: string) {
+    return this.getRegistrationOfflineDocumentById(registrationId).pipe(
       filter((doc) => !!doc),
       map((doc) => doc.getAttachment(attachmentId)));
   }

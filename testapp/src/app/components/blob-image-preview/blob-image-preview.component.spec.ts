@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BlobImagePreviewComponent } from './blob-image-preview.component';
 
-describe('BlobImagePreviewComponent', () => {
+xdescribe('BlobImagePreviewComponent', () => {
   let component: BlobImagePreviewComponent;
   let fixture: ComponentFixture<BlobImagePreviewComponent>;
 
@@ -10,7 +10,7 @@ describe('BlobImagePreviewComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ BlobImagePreviewComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

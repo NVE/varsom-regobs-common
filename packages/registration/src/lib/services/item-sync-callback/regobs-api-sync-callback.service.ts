@@ -106,7 +106,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   uploadAttachmentAndSetAttachmentUploadId(reg: IRegistration,
     attachmentUpload: AttachmentUploadEditModel): Observable<AttachmentUploadEditModel> {
     attachmentUpload.error = undefined;
-    return this.newAttachmentService.getBlob(reg.id, attachmentUpload).pipe(
+    return this.newAttachmentService.getBlob(reg.id, attachmentUpload.id).pipe(
       switchMap((blob) =>
         this.uploadAttachmentWithProgress(attachmentUpload.id, blob).pipe(switchMap((uploadId) => {
           this.loggerService.debug('Attachment uploaded. Setting uploadId', attachmentUpload, uploadId);
