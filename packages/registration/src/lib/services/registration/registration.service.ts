@@ -97,8 +97,11 @@ export class RegistrationService {
   }
 
   public deleteRegistration(id: string): Observable<boolean> {
-    return this.getRegistrationOfflineDocumentById(id).pipe(take(1),
-      switchMap((doc) => (doc ? from(doc.remove()) : of(false))));
+    return this.getRegistrationOfflineDocumentById(id).pipe(
+      take(1),
+      switchMap((doc) => doc ? this.offlineRegistrationSyncService.deleteItem(doc.toJSON()).pipe(map(() => doc)) : of(undefined)),
+      switchMap((doc: RxRegistrationCollection) => doc ? from(doc.remove()) : of(false))
+    );
   }
 
   private shouldKeepWhenCleanup(reg: IRegistration) {
@@ -142,10 +145,23 @@ export class RegistrationService {
       )));
   }
 
-  public createNewEmptyDraft(geoHazard: GeoHazard, cleanupRegistrationStorage = true): IRegistration {
-    if (cleanupRegistrationStorage) {
-      // this.cleanUpRegistrationStorage();
-    }
+  public getAllRegistrations$(geoHazard?: GeoHazard): Observable<IRegistration[]> {
+    return this.getRegistrationDbCollectionForAppMode().pipe(
+      switchMap((collection) => collection.find().$),
+      map((docs) => docs.map((d) => d.toJSON())),
+      map((regs) => regs.filter((r) => geoHazard ? r.geoHazard === geoHazard : true)));
+  }
+
+  public deleteAllRegistrations$(geoHazard?: GeoHazard): Observable<unknown> {
+    return this.getAllRegistrations$(geoHazard).pipe(
+      switchMap((regs) => regs.length > 0 ? forkJoin(regs.map((reg) => this.deleteRegistration(reg.id))) : of({})));
+  }
+
+  public deleteAllRegistrations(geoHazard?: GeoHazard): void {
+    this.deleteAllRegistrations$(geoHazard).pipe(take(1)).subscribe();
+  }
+
+  public createNewEmptyDraft(geoHazard: GeoHazard): IRegistration {
     const id = uuidv4();
     const draft: IRegistration = {
       id,
