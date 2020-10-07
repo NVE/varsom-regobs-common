@@ -5,47 +5,68 @@ import { ValidRegistrationType } from '../models/valid-registration.type';
 import { AttachmentEditModel, AttachmentViewModel, RegistrationEditModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
 import { SyncStatus } from '../registration.models';
 
-export function getAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentViewModel[] {
+export function getAllAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
   if(!reg) {
     return [];
   }
   if(reg.syncStatus === SyncStatus.InSync && reg.response) {
-    return getAttachmentsFromRegistrationViewModel(reg.response, registrationTid);
+    return getAllAttachmentsFromResponse(reg, registrationTid);
   }
-  return getAttachmentsFromRegistrationViewModel(reg.request, registrationTid);
+  return getAllAttachmentsFromRequest(reg, registrationTid);
 }
 
-export function getAttachmentsFromRegistrationViewModel(viewModel: RegistrationEditModel | RegistrationViewModel, registrationTid?: RegistrationTid): AttachmentViewModel[] {
+export function getAttachmentsFromRegistrationViewModel(viewModel: RegistrationEditModel | RegistrationViewModel, registrationTid?: RegistrationTid): AttachmentEditModel[] {
   if(!viewModel || !viewModel.Attachments) {
     return [];
   }
-  return (viewModel.Attachments as AttachmentViewModel[]).filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
+  return (viewModel.Attachments as AttachmentViewModel[])
+    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true))
+    .map((a) => ({ ...a, type: 'Attachment'  }));
 }
 
-export function getDamageObsAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.DamageObs) {
+export function getDamageObsAttachments(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  if(!viewModel || !viewModel.DamageObs) {
     return [];
   }
-  return [].concat(...reg.request.DamageObs.map((item) => item.Attachments || []));
+  return [].concat(...viewModel.DamageObs.map((item) => item.Attachments || []))
+    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
-export function getWaterLevelAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.WaterLevel2 || !reg.request.WaterLevel2.WaterLevelMeasurement) {
+export function getWaterLevelAttachments(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  if(!viewModel || !viewModel.WaterLevel2 || !viewModel.WaterLevel2.WaterLevelMeasurement) {
     return [];
   }
-  return [].concat(...reg.request.WaterLevel2.WaterLevelMeasurement.map((item) => item.Attachments || []));
+  return [].concat(...viewModel.WaterLevel2.WaterLevelMeasurement.map((item) => item.Attachments || []))
+    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
-export function getAllAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  const attachments = getAttachments(reg);
-  const damageObsAttachments = getDamageObsAttachments(reg);
-  const waterLevelAttachmetns = getWaterLevelAttachments(reg);
+export function getAllAttachmentsFromViewModel(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  const attachments = getAttachmentsFromRegistrationViewModel(viewModel, registrationTid);
+  const damageObsAttachments = getDamageObsAttachments(viewModel, registrationTid);
+  const waterLevelAttachmetns = getWaterLevelAttachments(viewModel, registrationTid);
   return  [].concat(...attachments, ...damageObsAttachments, ...waterLevelAttachmetns);
 }
 
-// export function getAllAttachmentsToUpload(item: IRegistration) {
-//   return getAllAttachments(item).map(a => a as AttachmentUploadEditModel).filter((a) => !!a.fileUrl && !a.AttachmentUploadId); // Has file url but not attachment upload id
-// }
+export function getAllAttachmentsFromRequest(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  return  getAllAttachmentsFromViewModel(reg.request, registrationTid);
+}
+
+export function getAllAttachmentsFromResponse(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  return  getAllAttachmentsFromViewModel(reg.response, registrationTid);
+}
+
+export function deleteExistingAttachmentById(reg: IRegistration, attachmentId: number): void {
+  if(reg && reg.request) {
+    if(reg.request.Attachments && reg.request.Attachments.length > 0) {
+      reg.request.Attachments = reg.request.Attachments.filter((a) => a.AttachmentId !== attachmentId);
+    }
+    if(reg.request.WaterLevel2 && reg.request.WaterLevel2.WaterLevelMeasurement) {
+      for(const wlm of reg.request.WaterLevel2.WaterLevelMeasurement) {
+        wlm.Attachments = wlm.Attachments.filter((a) => a.AttachmentId !== attachmentId);
+      }
+    }
+  }
+}
 
 export function getPropertyName(registrationTid: RegistrationTid): string {
   return RegistrationTid[registrationTid];
@@ -63,20 +84,6 @@ export function getRegistrationTids(): RegistrationTid[] {
     .map((key) => RegistrationTid[key]).filter((val: RegistrationTid) => typeof (val) !== 'string');
 }
 
-export function hasAnyAttachments(reg: IRegistration, registrationTid: RegistrationTid): boolean {
-  const hasAttachmetns = getAttachments(reg, registrationTid).length > 0;
-  if(hasAttachmetns) {
-    return true;
-  }
-  if(registrationTid === RegistrationTid.WaterLevel2) {
-    return getWaterLevelAttachments(reg).length > 0;
-  }
-  if(registrationTid === RegistrationTid.DamageObs) {
-    return getDamageObsAttachments(reg).length > 0;
-  }
-  return false;
-}
-
 export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
   if (reg && registrationTid) {
     let hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
@@ -90,8 +97,7 @@ export function isObservationEmptyForRegistrationTid(reg: IRegistration, registr
     ) {
       hasRegistration = true;
     }
-    const hasAttachments = hasAnyAttachments(reg, registrationTid);
-    if (hasRegistration || hasAttachments) {
+    if (hasRegistration) {
       return false;
     }
   }

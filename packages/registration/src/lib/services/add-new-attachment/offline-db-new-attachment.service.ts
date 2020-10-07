@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { EMPTY, forkJoin, from, Observable, of } from 'rxjs';
+import { combineLatest, EMPTY, forkJoin, from, Observable, of } from 'rxjs';
 import { AppMode, AppModeService, GeoHazard, LoggerService, uuidv4 } from '@varsom-regobs-common/core';
 import { AttachmentType, AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { NewAttachmentService } from './new-attachment.service';
-import { catchError, filter, map, switchMap, take } from 'rxjs/operators';
+import { catchError, debounceTime, filter, map, startWith, switchMap, take } from 'rxjs/operators';
 import { RxAttachmentMetaCollection, RxAttachmentMetaDocument, RxRegistrationCollection, RxRegistrationDocument } from '../../db/RxDB';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 
@@ -23,7 +23,7 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
         RegistrationTID: registrationTid,
         type,
         ref,
-        fileSize: 0,
+        fileSize: data.size,
       }).pipe(switchMap(() => from(doc.putAttachment({
         id: attachmentId,
         data,
@@ -43,8 +43,13 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
   }
 
   getUploadedAttachments(registrationId: string): Observable<AttachmentUploadEditModel[]> {
-    return this.getRegistrationOfflineDocumentById(registrationId).pipe(
-      switchMap((doc) => ((doc && doc.allAttachments().length > 0) ? this.getAttachmentMetaFromDocument(doc) : of([]))));
+    return combineLatest([this.getRegistrationOfflineDocumentById(registrationId), this.getAnyChangesToMetaData$()]).pipe(
+      switchMap(([doc]) => ((doc && doc.allAttachments().length > 0) ? this.getAttachmentMetaFromDocument(doc) : of([]))));
+  }
+
+  private getAnyChangesToMetaData$() {
+    return this.getAttachmentMetaDbCollectionForAppMode().pipe(
+      switchMap((collection) => collection.$), startWith({}));
   }
 
   getUploadedAttachment(registrationId: string, attachmentId: string): Observable<AttachmentUploadEditModel> {
