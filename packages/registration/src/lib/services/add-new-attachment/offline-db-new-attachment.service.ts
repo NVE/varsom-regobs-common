@@ -4,7 +4,7 @@ import { AppMode, AppModeService, GeoHazard, LoggerService, uuidv4 } from '@vars
 import { AttachmentType, AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { NewAttachmentService } from './new-attachment.service';
-import { catchError, debounceTime, filter, map, startWith, switchMap, take } from 'rxjs/operators';
+import { catchError, filter, map, startWith, switchMap, take } from 'rxjs/operators';
 import { RxAttachmentMetaCollection, RxAttachmentMetaDocument, RxRegistrationCollection, RxRegistrationDocument } from '../../db/RxDB';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 

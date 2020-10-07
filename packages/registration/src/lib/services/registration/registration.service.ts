@@ -376,7 +376,7 @@ export class RegistrationService {
    */
   public rollbackChanges$(id: string): Observable<boolean>  {
     return this.getRegistrationDbCollectionForAppMode().pipe(
-      switchMap((collection) => from(collection.getLocal(`undo_state_${id}`)).pipe(map((doc) => doc ?  doc['reg'] : undefined))),
+      switchMap((collection) => from(collection.getLocal(`undo_state_${id}`)).pipe(map((doc) => doc ?  doc.get('reg') : undefined))),
       switchMap((reg: IRegistration) => reg ?
         this.saveRegistrationToOfflineStorage(reg).pipe(
           switchMap(() => this.newAttachmentService.removeAttachmentsForRegistration$(id)),
