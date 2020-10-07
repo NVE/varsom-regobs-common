@@ -103,7 +103,7 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
       switchMap((collection) => collection.findByIds$([id]).pipe(map((result) => result.get(id)))));
   }
 
-  public saveAttachmentMeta$(attachmentMetaData: AttachmentUploadEditModel) {
+  public saveAttachmentMeta$(attachmentMetaData: AttachmentUploadEditModel): Observable<RxAttachmentMetaDocument> {
     return this.getAttachmentMetaDbCollectionForAppMode().pipe(
       take(1),
       switchMap((dbCollection) => from(dbCollection.atomicUpsert(attachmentMetaData))));

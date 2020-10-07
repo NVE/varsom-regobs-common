@@ -678,6 +678,7 @@ export class RegistrationService {
         ...r.item,
         lastSync: moment().unix(),
         syncStatus: r.success ? SyncStatus.InSync : (r.statusCode === 0 ? SyncStatus.Sync : SyncStatus.Draft),
+        request: r.success ? cloneDeep(r.item.response) : cloneDeep(r.item.request),
         syncStatusCode: r.statusCode,
         syncError: r.error,
       })));
