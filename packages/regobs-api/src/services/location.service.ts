@@ -13,6 +13,7 @@ import { ObsLocationsResponseDtoV2 } from '../models/obs-locations-response-dto-
 })
 class LocationService extends __BaseService {
   static readonly LocationWithinRadiusPath = '/Location/WithinRadius';
+  static readonly LocationGetPath = '/Location/{locationId}';
 
   constructor(
     config: __Configuration,
@@ -87,6 +88,53 @@ class LocationService extends __BaseService {
       __map(_r => _r.body as Array<ObsLocationsResponseDtoV2>)
     );
   }
+
+  /**
+   * @param params The `LocationService.LocationGetParams` containing the following parameters:
+   *
+   * - `locationId`:
+   *
+   * - `langKey`:
+   *
+   * @return OK
+   */
+  LocationGetResponse(params: LocationService.LocationGetParams): __Observable<__StrictHttpResponse<{}>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    if (params.langKey != null) __params = __params.set('langKey', params.langKey.toString());
+    let req = new HttpRequest<any>(
+      'GET',
+      this.rootUrl + `/Location/${params.locationId}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      __filter(_r => _r instanceof HttpResponse),
+      __map((_r) => {
+        return _r as __StrictHttpResponse<{}>;
+      })
+    );
+  }
+  /**
+   * @param params The `LocationService.LocationGetParams` containing the following parameters:
+   *
+   * - `locationId`:
+   *
+   * - `langKey`:
+   *
+   * @return OK
+   */
+  LocationGet(params: LocationService.LocationGetParams): __Observable<{}> {
+    return this.LocationGetResponse(params).pipe(
+      __map(_r => _r.body as {})
+    );
+  }
 }
 
 module LocationService {
@@ -101,6 +149,14 @@ module LocationService {
     returnCount?: number;
     observerGuid?: string;
     geoHazardTypeIds?: Array<number>;
+  }
+
+  /**
+   * Parameters for LocationGet
+   */
+  export interface LocationGetParams {
+    locationId: number;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   }
 }
 

@@ -390,7 +390,7 @@ module RegistrationService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey: 1 | 2 | 3 | 4 | 5;
+    langKey: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   }
 
   /**
@@ -409,7 +409,7 @@ module RegistrationService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey?: 1 | 2 | 3 | 4 | 5;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   }
 
   /**
@@ -430,7 +430,7 @@ module RegistrationService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey?: 1 | 2 | 3 | 4 | 5;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
     /**
      * External reference id, must be unique for application and in GUID format
@@ -451,7 +451,7 @@ module RegistrationService {
     /**
      * 1 = norwegian, 2 = english
      */
-    langKey?: 1 | 2 | 3 | 4 | 5;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
     /**
      * External reference id, must be unique for application and in GUID format
