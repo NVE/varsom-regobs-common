@@ -7,13 +7,14 @@
       "moment": "moment",
       "@varsom-regobs-common/core": "VarsomRegobsCommonCore",
       "@varsom-regobs-common/regobs-api": "VarsomRegobsCommonRegobsApi",
-      "@nano-sql/core/lib/utilities": "NanoSqlUtilities",
-      "@nano-sql/core": "NanoSqlCore",
       "@ngx-translate/http-loader": "NgxTranslateHttpLoader",
       "@ngx-translate/core": "NgxTranslateCore",
       "ngx-connectivity": "NgxConnectivity",
       "clone-deep": "cloneDeep",
-      "ngx-logger": "ngxLogger"
+      "ngx-logger": "ngxLogger",
+      "rxdb/plugins/core": "rxdbPluginsCore",
+      "rxdb/plugins/no-validate": "rxdbPluginsNoValidate",
+      "fast-deep-equal": "deepEqual"
     }
   },
   "whitelistedNonPeerDependencies": []

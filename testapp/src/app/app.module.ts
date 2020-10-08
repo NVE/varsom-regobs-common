@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { RegistrationModule } from '@varsom-regobs-common/registration';
+import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { FakeItemSyncCallbackService, RegistrationModule } from '@varsom-regobs-common/registration';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
@@ -13,6 +13,20 @@ import { API_KEY_TOKEN, RegobsApiModuleWithConfig } from '@varsom-regobs-common/
 import { LocalStorageApiKeyProvider } from './local-storage-api-key.provider';
 import { LoggerModule, NgxLoggerLevel } from 'ngx-logger';
 import { HelptextsComponent } from './helptexts/helptexts.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { addRxPlugin } from 'rxdb';
+import { OfflineDbService } from '@varsom-regobs-common/registration';
+import { RegistrationFileUploadComponent } from './components/registration-file-upload/registration-file-upload.component';
+import { NewAttachmentPreviewComponent } from './components/new-attachment-preview/new-attachment-preview.component';
+import { BlobImagePreviewComponent } from './components/blob-image-preview/blob-image-preview.component';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+
+export function initDb(dbService: OfflineDbService) {
+  return (): Promise<void> =>  {
+    return import('pouchdb-adapter-indexeddb').then(addRxPlugin).then(() => dbService.initDatabase('indexeddb'));
+  };
+}
 
 @NgModule({
   declarations: [
@@ -21,15 +35,19 @@ import { HelptextsComponent } from './helptexts/helptexts.component';
     HomeComponent,
     RegistrationComponent,
     LanguageSelectComponent,
-    HelptextsComponent
+    HelptextsComponent,
+    RegistrationFileUploadComponent,
+    NewAttachmentPreviewComponent,
+    BlobImagePreviewComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     CoreModule,
     RegobsApiModuleWithConfig.forRoot(),
-    RegistrationModule.forRoot(),
+    RegistrationModule.forRoot({ adapter: 'indexeddb', autoSync: true }),
     AppRoutingModule,
+    TranslateModule.forRoot(),
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),
   ],
   providers: [
@@ -40,7 +58,16 @@ import { HelptextsComponent } from './helptexts/helptexts.component';
     {
       provide: LocalStorageApiKeyProvider,
       useClass: LocalStorageApiKeyProvider,
-    }
+    },
+    {
+      provide: 'OfflineRegistrationSyncService', useClass: FakeItemSyncCallbackService
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initDb,
+      multi: true,
+      deps: [OfflineDbService]
+    },
   ],
   bootstrap: [AppComponent]
 })

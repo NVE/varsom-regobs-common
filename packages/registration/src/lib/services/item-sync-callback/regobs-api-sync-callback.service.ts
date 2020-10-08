@@ -3,15 +3,15 @@ import { IRegistration } from '../../models/registration.interface';
 import { Observable, of, forkJoin } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.interface';
-import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel, DamageObsEditModel, WaterLevelMeasurementEditModel } from '@varsom-regobs-common/regobs-api';
-import { map, catchError, concatMap, switchMap, tap, filter, take } from 'rxjs/operators';
-import { LanguageService, LangKey } from '@varsom-regobs-common/core';
+import { RegistrationService, AttachmentService as ApiAttachmentService, AttachmentEditModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
+import { map, catchError, switchMap, tap, filter, take } from 'rxjs/operators';
+import { LanguageService, LangKey, LoggerService } from '@varsom-regobs-common/core';
 import { AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
-import { LoggerService } from '@varsom-regobs-common/core';
 import { HttpClient, HttpEventType, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { ProgressService } from '../progress/progress.service';
-import { AddNewAttachmentService } from '../add-new-attachment/add-new-attachment.service';
+import { NewAttachmentService } from '../add-new-attachment/new-attachment.service';
 import { WaterLevelMeasurementUploadModel } from '../../models/water-level-measurement-upload-model';
+import cloneDeep from 'clone-deep';
 
 @Injectable()
 export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRegistration> {
@@ -19,7 +19,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   constructor(private regobsApiRegistrationService: RegistrationService,
     private languageService: LanguageService,
     private apiAttachmentService: ApiAttachmentService,
-    private addNewAttachmentService: AddNewAttachmentService,
+    private newAttachmentService: NewAttachmentService,
     private loggerService: LoggerService,
     private httpClient: HttpClient,
     private progressService: ProgressService,
@@ -34,44 +34,61 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   }
 
   syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-    return this.languageService.language$.pipe(
-      concatMap((langKey) => this.insertOrUpdate(item, langKey))
-    );
+    return this.languageService.language$.pipe(take(1), switchMap((langKey) => this.insertOrUpdate(item, langKey)));
   }
 
-  insertOrUpdate(item: IRegistration, langKey: LangKey): Observable<ItemSyncCompleteStatus<IRegistration>> {
+  insertOrUpdate(item: IRegistration, langKey: LangKey
+  ): Observable<ItemSyncCompleteStatus<IRegistration>> {
     this.loggerService.debug('Start insertOrUpdate: ', item, langKey);
-    return this.uploadAttachments(item).pipe(switchMap((result) => {
-      this.loggerService.debug('Result from attachment upload: ', result);
+    return this.uploadAttachments(item).pipe(switchMap((uploadAttachmentResult) => {
+      this.loggerService.debug('Result from attachment upload: ', uploadAttachmentResult);
       this.loggerService.debug('Registration is now: ', item);
-      const uploadSuccess = !result.some((a) => a.error);
+      const uploadSuccess = !uploadAttachmentResult.some((a) => a.error);
       let attachmentStatusCode: number = undefined;
       if (!uploadSuccess) {
-        attachmentStatusCode = result.map((a) => (a.error as HttpErrorResponse).status || 0).reduce((pv, cv) => cv > pv ? cv : pv, 0);
+        attachmentStatusCode = uploadAttachmentResult.map((a) => (a.error as HttpErrorResponse).status || 0).reduce((pv, cv) => cv > pv ? cv : pv, 0);
       }
-      return (item.response ?
-        this.regobsApiRegistrationService.RegistrationInsertOrUpdate({ registration: item.request, id: item.response.RegId, langKey, externalReferenceId: item.id })
-        : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id }))
-        .pipe(switchMap((result) => this.removeSuccessfulAttachments(item).pipe(map(() => result))),
-          map((result) => ({
-            success: uploadSuccess,
-            item: ({ ...item, response: result }),
-            statusCode: attachmentStatusCode,
-            error: uploadSuccess ? undefined : 'Could not upload attachments'
-          })),
-          catchError((err: HttpErrorResponse) => {
-            const errorMsg = err ? (err.error ? err.error : err.message) : '';
-            return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
-          }));
+      // Set request attachments on temporary request item, so it will not be removed / invalid if failure
+      const clonedItem = cloneDeep(item);
+      this.setRequestAttachments(clonedItem, uploadAttachmentResult);
+      return this.callInsertOrUpdate(clonedItem, langKey).pipe(switchMap((result) => this.removeSuccessfulAttachments(clonedItem).pipe(map(() => result))),
+        map((result) => ({
+          success: uploadSuccess,
+          item: ({ ...cloneDeep(item), response: result }),
+          statusCode: attachmentStatusCode,
+          error: uploadSuccess ? undefined : 'Could not upload attachments'
+        })),
+        catchError((err: HttpErrorResponse) => {
+          const errorMsg = err ? (err.message ? err.message : err.toString()) : 'Unknown error';
+          return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
+        }));
     }));
   }
 
-  removeSuccessfulAttachments(item: IRegistration) {
-    return this.getAttachmentsToUpload(item).pipe(take(1), tap((attachmentsToUpload) => {
-      for (const attachmentUpload of attachmentsToUpload.filter((a) => !a.error)) {
-        this.addNewAttachmentService.removeAttachment(item.id, attachmentUpload);
+  /**
+   * Add uploaded attachments with uploadId to request attachments
+   **/
+  private setRequestAttachments(reg: IRegistration, uploadedAttachments: AttachmentUploadEditModel[]) {
+    if(uploadedAttachments && uploadedAttachments.length > 0) {
+      for(const uploadedAttachment of uploadedAttachments) {
+        if(uploadedAttachment.AttachmentUploadId) { // Only set request attachments with uploadId
+          this.addUploadedAttachmentToRequest(uploadedAttachment, reg);
+        }
       }
-    }), map(() => item));
+    }
+  }
+
+  private callInsertOrUpdate(item: IRegistration, langKey: LangKey): Observable<RegistrationViewModel> {
+    return item.response ?
+      this.regobsApiRegistrationService.RegistrationInsertOrUpdate({ registration: item.request, id: item.response.RegId, langKey, externalReferenceId: item.id })
+      : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id });
+  }
+
+  removeSuccessfulAttachments(item: IRegistration): Observable<IRegistration> {
+    return this.getAttachmentsToUpload(item).pipe(take(1),
+      switchMap((attachmentsToUpload) => attachmentsToUpload.length > 0 ? forkJoin(attachmentsToUpload.map((a) =>
+        this.newAttachmentService.removeAttachment$(item.id, a.id))) : of([])),
+      map(() => item));
   }
 
   uploadAttachments(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
@@ -89,14 +106,14 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   uploadAttachmentAndSetAttachmentUploadId(reg: IRegistration,
     attachmentUpload: AttachmentUploadEditModel): Observable<AttachmentUploadEditModel> {
     attachmentUpload.error = undefined;
-    return this.addNewAttachmentService.getBlob(reg.id, attachmentUpload).pipe(
+    return this.newAttachmentService.getBlob(reg.id, attachmentUpload.id).pipe(
       switchMap((blob) =>
-        this.uploadAttachmentWithProgress(attachmentUpload.fileUrl, blob)
-          .pipe(map((uploadId) => {
-            this.loggerService.debug('Attachment uploaded. Removing from attachment to upload and adding to request', attachmentUpload, reg);
-            this.addAttachmentToRequest(uploadId, attachmentUpload, reg);
-            return attachmentUpload;
-          }))),
+        this.uploadAttachmentWithProgress(attachmentUpload.id, blob).pipe(switchMap((uploadId) => {
+          this.loggerService.debug('Attachment uploaded. Setting uploadId', attachmentUpload, uploadId);
+          // this.addAttachmentToRequest(uploadId, attachmentUpload, reg);
+          attachmentUpload.AttachmentUploadId = uploadId;
+          return this.newAttachmentService.saveAttachmentMeta$(attachmentUpload).pipe(map(() => attachmentUpload));
+        }))),
       catchError((err: Error) => {
         this.loggerService.debug('Could not upload attachment. Setting error.', err);
         attachmentUpload.error = err;
@@ -104,9 +121,9 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       }));
   }
 
-  private addAttachmentToRequest(uploadId: string, attachmentUploadEditModel: AttachmentUploadEditModel, reg: IRegistration) {
+  private addUploadedAttachmentToRequest(attachmentUploadEditModel: AttachmentUploadEditModel, reg: IRegistration) {
     const attachment = {
-      AttachmentUploadId: uploadId,
+      AttachmentUploadId: attachmentUploadEditModel.AttachmentUploadId,
       Photographer: attachmentUploadEditModel.Photographer,
       Copyright: attachmentUploadEditModel.Copyright,
       Aspect: attachmentUploadEditModel.Aspect,
@@ -119,8 +136,10 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     if (attachmentUploadEditModel.type === 'WaterLevelMeasurementAttachment') {
       this.addWaterLevelAttachment(attachment, reg, attachmentUploadEditModel.ref);
       return;
-    } else if (attachmentUploadEditModel.type === 'DamageObsAttachment') {
+    }
+    if (attachmentUploadEditModel.type === 'DamageObsAttachment') {
       this.addDamageObsAttachment(attachment, reg, attachmentUploadEditModel.ref);
+      return;
     }
     if (!reg.request.Attachments) {
       reg.request.Attachments = [];
@@ -145,10 +164,10 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   }
 
   getAttachmentsToUpload(item: IRegistration): Observable<AttachmentUploadEditModel[]> {
-    return this.addNewAttachmentService.getUploadedAttachments(item.id);
+    return this.newAttachmentService.getUploadedAttachments(item.id);
   }
 
-  uploadAttachmentWithProgress(fileUrl: string, blob: Blob) {
+  uploadAttachmentWithProgress(id: string, blob: Blob): Observable<string> {
     const attachmentPostPath = `${this.apiAttachmentService.rootUrl}${ApiAttachmentService.AttachmentPostPath}`;
     const formData = new FormData();
     formData.append('file', blob);
@@ -157,7 +176,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     }).pipe(tap((event) => {
       this.loggerService.debug('uploadAttachmentWithProgress got event:', event);
       if (event.type === HttpEventType.UploadProgress) {
-        this.progressService.setAttachmentProgress(fileUrl, event.total, event.loaded);
+        this.progressService.setAttachmentProgress(id, event.total, event.loaded);
       }
     }), filter((event) => event.type === HttpEventType.Response),
     map((event: HttpResponse<string>) => {

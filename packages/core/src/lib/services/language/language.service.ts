@@ -19,7 +19,7 @@ export class LanguageService {
     this.langKeySubject = new BehaviorSubject(config.language);
   }
 
-  public setLanguage(langKey: LangKey) {
+  public setLanguage(langKey: LangKey): void {
     if (typeof langKey !== 'number') {
       throw new Error('Lang key must be a number!');
     }

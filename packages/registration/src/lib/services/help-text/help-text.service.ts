@@ -1,16 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { HelptextDto } from '@varsom-regobs-common/regobs-api';
-import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
-import { AppMode, LoggerService, LangKey, getLangKeyString, LanguageService, GeoHazard } from '@varsom-regobs-common/core';
-import { TABLE_NAMES } from '../../db/nSQL-db.config';
-import { HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
+import { HelptextDto, HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
+import {
+  AppMode,
+  LoggerService,
+  LangKey,
+  getLangKeyString,
+  LanguageService,
+  GeoHazard,
+  AppModeService } from '@varsom-regobs-common/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map} from 'rxjs/operators';
 import { of } from 'rxjs';
 import { OfflineDbService } from '../offline-db/offline-db.service';
+import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
 
-const VALID_HELP_TEXT_SECONDS = 604800; // 7 days
+const VALID_HELP_TEXT_SECONDS = 73200; // 12 hours
 const HELP_TEXTS_ASSETS_FOLDER = '/assets/helptexts';
 
 @Injectable({
@@ -20,14 +25,18 @@ export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
 
   constructor(protected offlineDbService: OfflineDbService,
     protected languageService: LanguageService,
+    protected appModeService: AppModeService,
     protected logger: LoggerService,
     private helpTextApiService: HelpTextApiService,
     private httpClient: HttpClient) {
     super({
-      offlineTableName: TABLE_NAMES.HELP_TEXTS,
       useLangKeyAsDbKey: true,
       validSeconds: VALID_HELP_TEXT_SECONDS
-    }, offlineDbService, languageService, logger);
+    }, offlineDbService, languageService, appModeService, logger);
+  }
+
+  public getTableName(appMode: AppMode): string {
+    return `${appMode.toLocaleLowerCase()}/helptexts`;
   }
 
   public getUpdatedData(_: AppMode, langKey: LangKey): Observable<HelptextDto[]> {
@@ -49,7 +58,7 @@ export class HelpTextService extends ApiSyncOfflineBaseService<HelptextDto[]> {
     map((helpText) => helpText ? helpText.Text : undefined));
   }
 
-  public hasHelpTextObservable(geoHazard: GeoHazard, registrationTid: number) {
+  public hasHelpTextObservable(geoHazard: GeoHazard, registrationTid: number): Observable<boolean> {
     return this.getHelpTextObservable(geoHazard, registrationTid).pipe(map((val) => !!val));
   }
 }

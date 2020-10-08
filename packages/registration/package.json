@@ -5,7 +5,6 @@
     "@angular/common": "^10.0.0",
     "@angular/core": "^10.0.0",
     "rxjs": "^6.0.0",
-    "@nano-sql/core": "^2.3.7",
     "moment": "^2.0.0",
     "@varsom-regobs-common/core": "^2.0.8",
     "@varsom-regobs-common/regobs-api": "^2.0.8",
@@ -14,7 +13,8 @@
     "@ngx-translate/http-loader": "^6.0.0",
     "ngx-connectivity": "^0.0.5",
     "clone-deep": "^4.0.1",
-    "fast-deep-equal": "^3.1.1"
+    "fast-deep-equal": "^3.1.1",
+    "rxdb": "^9.6.0"
   },
   "dependencies": {},
   "devDependencies": {}
