@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RegistrationService, IRegistration, ProgressService, RegistrationTid, SyncStatus, ISyncProgress, NewAttachmentService } from '@varsom-regobs-common/registration';
-import { from, Observable, of } from 'rxjs';
+import { RegistrationService, IRegistration, ProgressService, RegistrationTid, ISyncProgress, NewAttachmentService } from '@varsom-regobs-common/registration';
+import { Observable, of } from 'rxjs';
 import { AppMode, AppModeService, GeoHazard, LoggerService } from '@varsom-regobs-common/core';
-import { switchMap, tap } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Component({
   templateUrl: './registration.component.html',
@@ -17,7 +17,6 @@ export class RegistrationComponent implements OnInit {
   constructor(
     private registrationService: RegistrationService,
     private appModeService: AppModeService,
-    // private settingsService: SettingsService,
     private loggerService: LoggerService,
     private progressService: ProgressService,
     private newAttachmentService: NewAttachmentService,

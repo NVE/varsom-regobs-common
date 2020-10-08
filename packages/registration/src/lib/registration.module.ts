@@ -24,10 +24,9 @@ export interface IRegistrationModuleOptions {
   autoSync?: boolean;
 }
 
-export function initDb(dbService: OfflineDbService, options: OfflineDbServiceOptions) {
-  return (): Promise<void> =>  {
-    return dbService.initDatabase(options.adapter);
-  };
+export function initDb(dbService: OfflineDbService, options: OfflineDbServiceOptions): () => Promise<void> {
+  const res = () => dbService.initDatabase(options.adapter);
+  return res;
 }
 
 export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOptions): OfflineDbServiceOptions {
