@@ -8,3 +8,4 @@ export * from './lib/registration.models';
 export * from './lib/registration.helpers';
 export * from './lib/registration.pipes';
 export * from './lib/registration.db';
+export * from './lib/module.options';
