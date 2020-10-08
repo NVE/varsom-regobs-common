@@ -9,9 +9,9 @@ import { ItemSyncCompleteStatus } from '../../models/item-sync-complete-status.i
 import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callback.service';
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
-import { Summary, AttachmentViewModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
+import { Summary, AttachmentViewModel, RegistrationViewModel, RegistrationEditModel } from '@varsom-regobs-common/regobs-api';
 import {IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
-import { getAllAttachments, getRegistrationTidsForGeoHazard, hasAnyObservations, isObservationEmptyForRegistrationTid } from '../../registration.helpers';
+import { getAllAttachments, getAllAttachmentsFromViewModel, getRegistrationTidsForGeoHazard, hasAnyObservations, isObservationEmptyForRegistrationTid, isObservationModelEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
@@ -242,13 +242,46 @@ export class RegistrationService {
   /***
    * Check if registration has any data or attachments for registrationTid
    */
-  hasAnyData(reg: IRegistration, registrationTid: RegistrationTid): Observable<boolean> {
-    return of(isObservationEmptyForRegistrationTid(reg, registrationTid)).pipe((switchMap((isEmpty) => {
+  public hasAnyDataToShowInRegistrationTypes(reg: IRegistration, registrationTid: RegistrationTid, hideDrafts = true): Observable<boolean> {
+    const model = hideDrafts ? this.getRegModelToShowWhenHideDrafts(reg) : reg.request;
+    return of(isObservationModelEmptyForRegistrationTid(model, registrationTid)).pipe((switchMap((isEmpty) => {
       if(!isEmpty) {
         return of(true);
       }
-      return this.hasAnyAttachmentsForRegistrationTid$(reg, registrationTid).pipe(take(1));
+      return this.shouldNotHideDraftAndHasAnyAttachmentsForRegistrationTid$(reg, registrationTid);
     })));
+  }
+
+  private getRegModelToShowWhenHideDrafts(reg: IRegistration): RegistrationEditModel | RegistrationViewModel {
+    if(reg.syncStatus === SyncStatus.InSync && reg.response) {
+      return reg.response;
+    }
+    if(reg.syncStatus === SyncStatus.Draft) {
+      if(reg.syncError) {
+        return reg.request; // Show forms with error even if draft
+      }
+      if(reg.response) {
+        return reg.response;
+      }
+    }
+    return reg.request;
+  }
+
+  private shouldNotHideDraftAndHasAnyAttachmentsForRegistrationTid$(reg: IRegistration, registrationTid: RegistrationTid) {
+    return this.shouldHideDraft(reg, registrationTid) ? of(false) : this.hasAnyAttachmentsForRegistrationTid$(reg, registrationTid).pipe(take(1));
+  }
+
+  private shouldHideDraft(reg: IRegistration, registrationTid: RegistrationTid) {
+    if(reg.syncStatus === SyncStatus.Draft && reg.syncError) {
+      return false;
+    }
+    if(reg.response) {
+      const isEmpty = isObservationModelEmptyForRegistrationTid(reg.response, registrationTid);
+      const hasAnyResponseAttachments = getAllAttachmentsFromViewModel(reg.response).some((a) => a.RegistrationTID === registrationTid);
+      return isEmpty && !hasAnyResponseAttachments;
+    }
+
+    return true;
   }
 
   hasAnyAttachmentsForRegistrationTid$(reg: IRegistration, registrationTid: RegistrationTid): Observable<boolean>{
@@ -262,7 +295,7 @@ export class RegistrationService {
 
   getRegistrationTypesWithAnyData(reg: IRegistration): Observable<IRegistrationType[]> {
     return this.getRegistrationTypesForGeoHazard(reg.geoHazard).pipe(
-      switchMap((regTypes) => regTypes.length > 0 ? forkJoin(regTypes.map((regType) => this.hasAnyData(reg, regType.registrationTid)
+      switchMap((regTypes) => regTypes.length > 0 ? forkJoin(regTypes.map((regType) => this.hasAnyDataToShowInRegistrationTypes(reg, regType.registrationTid)
         .pipe(map((anyData) => ({  anyData, regType }))))) : of([])),
       map((result) => result.filter((r) => r.anyData).map((r) => r.regType)));
   }

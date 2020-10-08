@@ -68,15 +68,42 @@ export function deleteExistingAttachmentById(reg: IRegistration, attachmentId: n
   }
 }
 
+export function editExistingAttachmentById(reg: IRegistration, attachmentId: number, model: AttachmentEditModel): void {
+  if(reg && reg.request) {
+    if(reg.request.Attachments && reg.request.Attachments.length > 0) {
+      reg.request.Attachments = (reg.request.Attachments || []).map((a) => {
+        if(a.AttachmentId === attachmentId) {
+          return Object.assign(a, model);
+        }
+        return a;
+      });
+    }
+    if(reg.request.WaterLevel2 && reg.request.WaterLevel2.WaterLevelMeasurement) {
+      for(const wlm of reg.request.WaterLevel2.WaterLevelMeasurement) {
+        wlm.Attachments = (wlm.Attachments || []).map((a) => {
+          if(a.AttachmentId === attachmentId) {
+            return Object.assign(a, model);
+          }
+          return a;
+        });
+      }
+    }
+  }
+}
+
 export function getPropertyName(registrationTid: RegistrationTid): string {
   return RegistrationTid[registrationTid];
 }
 
-export function getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
-  if (reg && reg.request && registrationTid) {
-    return reg.request[getPropertyName(registrationTid)];
+export function getRegistationPropertyForModel(regModel: RegistrationEditModel | RegistrationViewModel, registrationTid: RegistrationTid): ValidRegistrationType {
+  if (regModel && registrationTid) {
+    return regModel[getPropertyName(registrationTid)];
   }
   return null;
+}
+
+export function getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
+  return getRegistationPropertyForModel(reg.request, registrationTid);
 }
 
 export function getRegistrationTids(): RegistrationTid[] {
@@ -84,16 +111,16 @@ export function getRegistrationTids(): RegistrationTid[] {
     .map((key) => RegistrationTid[key]).filter((val: RegistrationTid) => typeof (val) !== 'string');
 }
 
-export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
-  if (reg && registrationTid) {
-    let hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
+export function isObservationModelEmptyForRegistrationTid(regModel: RegistrationEditModel | RegistrationViewModel, registrationTid: RegistrationTid): boolean {
+  if (regModel && registrationTid) {
+    let hasRegistration = !isEmpty(getRegistationPropertyForModel(regModel, registrationTid));
     // Hack to snow profile tests
     if(
       !hasRegistration &&
       registrationTid === RegistrationTid.SnowProfile2 &&
-      reg.request &&
-      reg.request.CompressionTest &&
-      reg.request.CompressionTest.some(t => t.IncludeInSnowProfile)
+      regModel &&
+      regModel.CompressionTest &&
+      regModel.CompressionTest.some(t => t.IncludeInSnowProfile)
     ) {
       hasRegistration = true;
     }
@@ -102,6 +129,10 @@ export function isObservationEmptyForRegistrationTid(reg: IRegistration, registr
     }
   }
   return true;
+}
+
+export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
+  return isObservationModelEmptyForRegistrationTid(reg.request, registrationTid);
 }
 
 export function hasAnyObservations(reg: IRegistration): boolean {

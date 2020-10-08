@@ -24,7 +24,7 @@ export class NewAttachmentPreviewComponent implements OnInit {
   }
 
   private getAttacmentBlob(a: AttachmentUploadEditModel): Observable<{ data: Blob; type: string; meta: AttachmentUploadEditModel}> {
-    return this.newAttachmentService.getBlob(this.id, a).pipe(take(1), map((data: Blob) => ({
+    return this.newAttachmentService.getBlob(this.id, a.id).pipe(take(1), map((data: Blob) => ({
       data,
       type: a.AttachmentMimeType,
       meta: a
