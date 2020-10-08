@@ -7,4 +7,3 @@ export { HelpTextService } from './services/help-text/help-text.service';
 export { ProgressService } from './services/progress/progress.service';
 export { NewAttachmentService } from './services/add-new-attachment/new-attachment.service';
 export { OfflineDbNewAttachmentService } from './services/add-new-attachment/offline-db-new-attachment.service';
-// export { InMemoryAddNewAttachmentService } from './services/add-new-attachment/in-memory-add-new-attachment.service';

@@ -10,7 +10,6 @@ import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callbac
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 import { Summary, AttachmentViewModel, RegistrationViewModel, RegistrationEditModel } from '@varsom-regobs-common/regobs-api';
-import {IRegistrationModuleOptions, FOR_ROOT_OPTIONS_TOKEN } from '../../registration.module';
 import { getAllAttachments, getAllAttachmentsFromViewModel, getRegistrationTidsForGeoHazard, hasAnyObservations, isObservationEmptyForRegistrationTid, isObservationModelEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
@@ -23,6 +22,7 @@ import { NewAttachmentService } from '../add-new-attachment/new-attachment.servi
 import deepEqual from 'fast-deep-equal';
 import { AttachmentUploadEditModel, ExistingOrNewAttachment } from '../../registration.models';
 import { ExistingAttachmentType, NewAttachmentType } from '../../models/attachment-upload-edit.interface';
+import { FOR_ROOT_OPTIONS_TOKEN, IRegistrationModuleOptions } from '../../module.options';
 
 const SYNC_TIMER_TRIGGER_MS = 60 * 1000; // try to trigger sync every 60 seconds if nothing has changed to network conditions
 const SYNC_BUFFER_MS = 3 * 1000; // Wait at least 3 seconds before next sync attempt

@@ -1,11 +1,10 @@
-import { NgModule, ModuleWithProviders, InjectionToken, APP_INITIALIZER } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CoreModule } from '@varsom-regobs-common/core';
 import { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-item-sync-callback.service';
 import { RegobsApiSyncCallbackService } from './services/item-sync-callback/regobs-api-sync-callback.service';
 import { RegobsApiModuleWithConfig, KdvElementsService, HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
 import { TranslateModule } from '@ngx-translate/core';
-import { ISummaryProvider } from './services/summary-providers/summary-provider.interface';
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConnectivityInterceptor } from 'ngx-connectivity';
@@ -14,20 +13,7 @@ import { throwError } from 'rxjs';
 import { WeatherSummaryProvider } from './services/summary-providers/snow/weather/weather.summary-provider';
 import { RegobsRegistrationPipesModule } from './registration.pipes';
 import { OfflineDbNewAttachmentService } from './services/add-new-attachment/offline-db-new-attachment.service';
-import { OfflineDbService } from './registration.services';
-
-export const FOR_ROOT_OPTIONS_TOKEN = new InjectionToken<IRegistrationModuleOptions>('forRoot() Module configuration');
-export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Registration summary provider token');
-
-export interface IRegistrationModuleOptions {
-  adapter?: string;
-  autoSync?: boolean;
-}
-
-export function initDb(dbService: OfflineDbService, options: OfflineDbServiceOptions): () => Promise<void> {
-  const res = () => dbService.initDatabase(options.adapter);
-  return res;
-}
+import { FOR_ROOT_OPTIONS_TOKEN, IRegistrationModuleOptions, SUMMARY_PROVIDER_TOKEN } from './module.options';
 
 export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOptions): OfflineDbServiceOptions {
   const offlineDbServiceOptions = new OfflineDbServiceOptions();
@@ -92,7 +78,7 @@ export class RegistrationModule {
         },
         {
           provide: NewAttachmentService, useClass: OfflineDbNewAttachmentService
-        }
+        },
       ]
     });
   }
@@ -127,12 +113,6 @@ export class RegistrationModule {
         },
         { provide: KdvElementsService, useFactory: getFakeKdvElementsService },
         { provide: HelpTextApiService, useFactory: getFakeHelpTextApiService },
-        {
-          provide: APP_INITIALIZER,
-          useFactory: initDb,
-          multi: true,
-          deps: [OfflineDbService, OfflineDbServiceOptions]
-        },
       ]
     });
   }

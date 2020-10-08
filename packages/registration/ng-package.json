@@ -14,7 +14,8 @@
       "ngx-logger": "ngxLogger",
       "rxdb/plugins/core": "rxdbPluginsCore",
       "rxdb/plugins/no-validate": "rxdbPluginsNoValidate",
-      "fast-deep-equal": "deepEqual"
+      "fast-deep-equal": "deepEqual",
+      "rxdb": "rxdb"
     }
   },
   "whitelistedNonPeerDependencies": []
