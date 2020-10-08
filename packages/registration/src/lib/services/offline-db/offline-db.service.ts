@@ -128,7 +128,8 @@ export class OfflineDbService {
       adapter,
       pouchSettings: {
         revs_limit: 10, // Max 10 revisions to keep db small
-      }
+      },
+      ignoreDuplicate: true,
     });
 
     if (isDevMode()) {
