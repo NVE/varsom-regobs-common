@@ -70,7 +70,7 @@ export class ProgressService {
 
   private async getSyncProgressDocument() {
     const documents = await this.getRegistrationSyncProgressCollection().findByIds([SYNC_PROGRESS_ID]);
-    return documents.get(SYNC_PROGRESS_ID);
+    return documents?.get(SYNC_PROGRESS_ID);
   }
 
   private getRegistrationSyncProgressCollection(): RxRegistrationSyncProgressCollection {
