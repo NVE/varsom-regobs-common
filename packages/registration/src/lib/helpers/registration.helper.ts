@@ -1,52 +1,109 @@
 import { RegistrationTid } from '../models/registration-tid.enum';
 import { IRegistration } from '../models/registration.interface';
-import { isEmpty } from '@varsom-regobs-common/core';
+import { isEmpty, GeoHazard } from '@varsom-regobs-common/core';
 import { ValidRegistrationType } from '../models/valid-registration.type';
-import { AttachmentEditModel } from '@varsom-regobs-common/regobs-api';
-import { AttachmentUploadEditModel } from '../models/attachment-upload-edit.interface';
+import { AttachmentEditModel, AttachmentViewModel, RegistrationEditModel, RegistrationViewModel } from '@varsom-regobs-common/regobs-api';
+import { SyncStatus } from '../registration.models';
 
-export function getAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.Attachments) {
+export function getAllAttachments(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  if(!reg) {
     return [];
   }
-  return (reg.request.Attachments || [])
+  if(reg.syncStatus === SyncStatus.InSync && reg.response) {
+    return getAllAttachmentsFromResponse(reg, registrationTid);
+  }
+  return getAllAttachmentsFromRequest(reg, registrationTid);
+}
+
+export function getAttachmentsFromRegistrationViewModel(viewModel: RegistrationEditModel | RegistrationViewModel, registrationTid?: RegistrationTid): AttachmentEditModel[] {
+  if(!viewModel || !viewModel.Attachments) {
+    return [];
+  }
+  return (viewModel.Attachments as AttachmentViewModel[])
+    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true))
+    .map((a) => ({ ...a, type: 'Attachment'  }));
+}
+
+export function getDamageObsAttachments(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  if(!viewModel || !viewModel.DamageObs) {
+    return [];
+  }
+  return [].concat(...viewModel.DamageObs.map((item) => item.Attachments || []))
     .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
-export function getDamageObsAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.DamageObs) {
+export function getWaterLevelAttachments(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  if(!viewModel || !viewModel.WaterLevel2 || !viewModel.WaterLevel2.WaterLevelMeasurement) {
     return [];
   }
-  return [].concat(...reg.request.DamageObs.map((item) => item.Attachments || []));
+  return [].concat(...viewModel.WaterLevel2.WaterLevelMeasurement.map((item) => item.Attachments || []))
+    .filter((a) => ((registrationTid > 0) ? a.RegistrationTID === registrationTid : true));
 }
 
-export function getWaterLevelAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  if(!reg || !reg.request || !reg.request.WaterLevel2 || !reg.request.WaterLevel2.WaterLevelMeasurement) {
-    return [];
-  }
-  return [].concat(...reg.request.WaterLevel2.WaterLevelMeasurement.map((item) => item.Attachments || []));
-}
-
-export function getAllAttachments(reg: IRegistration):  AttachmentEditModel[] {
-  const attachments = getAttachments(reg);
-  const damageObsAttachments = getDamageObsAttachments(reg);
-  const waterLevelAttachmetns = getWaterLevelAttachments(reg);
+export function getAllAttachmentsFromViewModel(viewModel: RegistrationEditModel, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  const attachments = getAttachmentsFromRegistrationViewModel(viewModel, registrationTid);
+  const damageObsAttachments = getDamageObsAttachments(viewModel, registrationTid);
+  const waterLevelAttachmetns = getWaterLevelAttachments(viewModel, registrationTid);
   return  [].concat(...attachments, ...damageObsAttachments, ...waterLevelAttachmetns);
 }
 
-export function getAllAttachmentsToUpload(item: IRegistration) {
-  return getAllAttachments(item).map(a => a as AttachmentUploadEditModel).filter((a) => !!a.fileUrl && !a.AttachmentUploadId); // Has file url but not attachment upload id
+export function getAllAttachmentsFromRequest(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  return  getAllAttachmentsFromViewModel(reg.request, registrationTid);
 }
 
-export function getPropertyName(registrationTid: RegistrationTid) {
+export function getAllAttachmentsFromResponse(reg: IRegistration, registrationTid?: RegistrationTid):  AttachmentEditModel[] {
+  return  getAllAttachmentsFromViewModel(reg.response, registrationTid);
+}
+
+export function deleteExistingAttachmentById(reg: IRegistration, attachmentId: number): void {
+  if(reg && reg.request) {
+    if(reg.request.Attachments && reg.request.Attachments.length > 0) {
+      reg.request.Attachments = reg.request.Attachments.filter((a) => a.AttachmentId !== attachmentId);
+    }
+    if(reg.request.WaterLevel2 && reg.request.WaterLevel2.WaterLevelMeasurement) {
+      for(const wlm of reg.request.WaterLevel2.WaterLevelMeasurement) {
+        wlm.Attachments = wlm.Attachments.filter((a) => a.AttachmentId !== attachmentId);
+      }
+    }
+  }
+}
+
+export function editExistingAttachmentById(reg: IRegistration, attachmentId: number, model: AttachmentEditModel): void {
+  if(reg && reg.request) {
+    if(reg.request.Attachments && reg.request.Attachments.length > 0) {
+      reg.request.Attachments = (reg.request.Attachments || []).map((a) => {
+        if(a.AttachmentId === attachmentId) {
+          return Object.assign(a, model);
+        }
+        return a;
+      });
+    }
+    if(reg.request.WaterLevel2 && reg.request.WaterLevel2.WaterLevelMeasurement) {
+      for(const wlm of reg.request.WaterLevel2.WaterLevelMeasurement) {
+        wlm.Attachments = (wlm.Attachments || []).map((a) => {
+          if(a.AttachmentId === attachmentId) {
+            return Object.assign(a, model);
+          }
+          return a;
+        });
+      }
+    }
+  }
+}
+
+export function getPropertyName(registrationTid: RegistrationTid): string {
   return RegistrationTid[registrationTid];
 }
 
-export function getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
-  if (reg && reg.request && registrationTid) {
-    return reg.request[getPropertyName(registrationTid)];
+export function getRegistationPropertyForModel(regModel: RegistrationEditModel | RegistrationViewModel, registrationTid: RegistrationTid): ValidRegistrationType {
+  if (regModel && registrationTid) {
+    return regModel[getPropertyName(registrationTid)];
   }
   return null;
+}
+
+export function getRegistationProperty(reg: IRegistration, registrationTid: RegistrationTid): ValidRegistrationType {
+  return getRegistationPropertyForModel(reg.request, registrationTid);
 }
 
 export function getRegistrationTids(): RegistrationTid[] {
@@ -54,32 +111,31 @@ export function getRegistrationTids(): RegistrationTid[] {
     .map((key) => RegistrationTid[key]).filter((val: RegistrationTid) => typeof (val) !== 'string');
 }
 
-export function hasAnyAttachments(reg: IRegistration, registrationTid: RegistrationTid) {
-  return getAttachments(reg, registrationTid).length > 0;
-}
-
-export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid) {
-  if (reg && registrationTid) {
-    let hasRegistration = !isEmpty(getRegistationProperty(reg, registrationTid));
+export function isObservationModelEmptyForRegistrationTid(regModel: RegistrationEditModel | RegistrationViewModel, registrationTid: RegistrationTid): boolean {
+  if (regModel && registrationTid) {
+    let hasRegistration = !isEmpty(getRegistationPropertyForModel(regModel, registrationTid));
     // Hack to snow profile tests
     if(
       !hasRegistration &&
       registrationTid === RegistrationTid.SnowProfile2 &&
-      reg.request &&
-      reg.request.CompressionTest &&
-      reg.request.CompressionTest.some(t => t.IncludeInSnowProfile)
+      regModel &&
+      regModel.CompressionTest &&
+      regModel.CompressionTest.some(t => t.IncludeInSnowProfile)
     ) {
       hasRegistration = true;
     }
-    const hasAttachments = hasAnyAttachments(reg, registrationTid);
-    if (hasRegistration || hasAttachments) {
+    if (hasRegistration) {
       return false;
     }
   }
   return true;
 }
 
-export function hasAnyObservations(reg: IRegistration) {
+export function isObservationEmptyForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid): boolean {
+  return isObservationModelEmptyForRegistrationTid(reg.request, registrationTid);
+}
+
+export function hasAnyObservations(reg: IRegistration): boolean {
   if (reg === undefined || reg === null) {
     return false;
   }
@@ -87,7 +143,7 @@ export function hasAnyObservations(reg: IRegistration) {
   return registrationTids.some((x) => !isObservationEmptyForRegistrationTid(reg, x));
 }
 
-export function isArrayType(tid: RegistrationTid) {
+export function isArrayType(tid: RegistrationTid): boolean {
   return [
     RegistrationTid.AvalancheActivityObs,
     RegistrationTid.AvalancheActivityObs2,
@@ -100,26 +156,38 @@ export function isArrayType(tid: RegistrationTid) {
   ].indexOf(tid) >= 0;
 }
 
-// export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
-//   const goHazardTids = new Map<GeoHazard, Array<RegistrationTid>>([
-//     [GeoHazard.Snow, [
-//       RegistrationTid.DangerObs,
-//       RegistrationTid.AvalancheObs,
-//       RegistrationTid.AvalancheActivityObs2,
-//       RegistrationTid.WeatherObservation,
-//       RegistrationTid.SnowSurfaceObservation,
-//       RegistrationTid.CompressionTest,
-//       RegistrationTid.SnowProfile2,
-//       RegistrationTid.AvalancheEvalProblem2,
-//       RegistrationTid.AvalancheEvaluation3
-//     ]],
-//     [GeoHazard.Ice, [RegistrationTid.IceCoverObs, RegistrationTid.IceThickness, RegistrationTid.DangerObs, RegistrationTid.Incident]],
-//     [GeoHazard.Water, [RegistrationTid.WaterLevel2, RegistrationTid.DamageObs]],
-//     [GeoHazard.Soil, [RegistrationTid.DangerObs, RegistrationTid.LandSlideObs]]
-//   ]);
-//   const generalObs = [RegistrationTid.GeneralObservation];
-//   return goHazardTids.get(geoHazard).concat(generalObs);
-// }
+export function getRegistrationTidsForGeoHazard(geoHazard: GeoHazard): RegistrationTid[] {
+  const commonTypes = [RegistrationTid.GeneralObservation];
+  const geoHazardValidTypes = new Map<GeoHazard, RegistrationTid[]>([
+    [GeoHazard.Snow, [
+      RegistrationTid.DangerObs,
+      RegistrationTid.AvalancheObs,
+      RegistrationTid.AvalancheActivityObs2,
+      RegistrationTid.WeatherObservation,
+      RegistrationTid.SnowSurfaceObservation,
+      RegistrationTid.CompressionTest,
+      RegistrationTid.SnowProfile2,
+      RegistrationTid.AvalancheEvalProblem2,
+      RegistrationTid.AvalancheEvaluation3,
+      RegistrationTid.Incident
+    ]],
+    [GeoHazard.Ice, [
+      RegistrationTid.IceCoverObs,
+      RegistrationTid.IceThickness,
+      RegistrationTid.DangerObs,
+      RegistrationTid.Incident
+    ]],
+    [GeoHazard.Water, [
+      RegistrationTid.WaterLevel2,
+      RegistrationTid.DamageObs
+    ]],
+    [GeoHazard.Soil, [
+      RegistrationTid.DangerObs,
+      RegistrationTid.LandSlideObs
+    ]]
+  ]);
+  return geoHazardValidTypes.get(geoHazard).concat(commonTypes);
+}
 
 export function getOrCreateNewRegistrationForm(reg: IRegistration, tid: RegistrationTid): ValidRegistrationType {
   if (isObservationEmptyForRegistrationTid(reg, tid)) {

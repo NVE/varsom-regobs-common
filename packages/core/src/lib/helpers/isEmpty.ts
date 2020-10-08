@@ -13,7 +13,7 @@
  * isEmpty({test: 1}), // false
  * isEmpty({length: 3, custom_property: [1,2,3]}) // false
  */
-export function isEmpty(obj: Object | Array<Object>) {
+export function isEmpty(obj: Object | Array<Object>): boolean {
   if (obj === null || obj === undefined) {
     return true;
   }

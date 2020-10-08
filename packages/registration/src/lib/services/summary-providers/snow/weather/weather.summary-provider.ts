@@ -52,7 +52,7 @@ export class WeatherSummaryProvider extends BaseSummaryProvider<WeatherEditModel
         summaries.push(this.getTextSummary('Observations.WeatherObservation.CloudCover', `${model.CloudCover}%`));
       }
     }
-    return forkJoin(summaries);
+    return summaries.length > 0 ? forkJoin(summaries) : of([]);
   }
 
   private getWindDirectionValue(model: WeatherEditModel): Observable<string> {

@@ -1,0 +1,7 @@
+<div *ngIf="(newAttachments$ | async) as newAttachments">
+  <div *ngFor="let a of newAttachments">
+    <app-blob-image-preview [imgBlob]="a.data"></app-blob-image-preview>
+    <button (click)="deleteAttachment(a.meta.id)">slett vedlegg</button>
+  </div>
+ 
+</div>
