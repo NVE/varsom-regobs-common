@@ -7,13 +7,14 @@ import {
   addRxPlugin,
   RxJsonSchema
 } from 'rxdb/plugins/core';
-import { RxDBNoValidatePlugin } from 'rxdb/plugins/no-validate';
 import { RxRegistrationDatabase, RxRegistrationCollections } from '../../db/RxDB';
 import { GenericSchema } from '../../db/schemas/generic.schema';
 import { from, Observable } from 'rxjs';
 import { AttachmentMetaSchema } from '../../db/schemas/attachment-meta.schema';
 import { RegistrationSyncProgressSchema } from '../../db/schemas/registration-sync-progress.schema';
 import { UploadProgressSchema } from '../../db/schemas/upload-progress.schema';
+import { RxDBAttachmentsPlugin } from 'rxdb/plugins/attachments';
+import { RxDBLocalDocumentsPlugin } from 'rxdb/plugins/local-documents';
 
 export const TABLE_NAMES =  {
   REGISTRATION: 'registration',
@@ -57,26 +58,9 @@ const collections: Array<{name: string, schema: RxJsonSchema, instancePerAppMode
   },
 ];
 
-async function loadRxDBPlugins(): Promise<void> {
-  if (isDevMode()) {
-    await Promise.all([
-      // add dev-mode plugin
-      // which does many checks and add full error-messages
-      import('rxdb/plugins/dev-mode').then(
-        module => addRxPlugin(module)
-      ),
-
-      // we use the schema-validation only in dev-mode
-      // this validates each document if it is matching the jsonschema
-      import('rxdb/plugins/validate').then(
-        module => addRxPlugin(module)
-      )
-    ]);
-  } else {
-    // in production we use the no-validate module instead of the schema-validation
-    // to reduce the build-size
-    addRxPlugin(RxDBNoValidatePlugin);
-  }
+function loadRxDBPlugins(): void {
+  addRxPlugin(RxDBLocalDocumentsPlugin);
+  addRxPlugin(RxDBAttachmentsPlugin);
 }
 
 @Injectable({
@@ -121,7 +105,7 @@ export class OfflineDbService {
 
   private async create(adapter: string): Promise<RxRegistrationDatabase> {
 
-    await loadRxDBPlugins();
+    loadRxDBPlugins();
 
     const db = await createRxDatabase<{ [key: string]: RxRegistrationCollections}>({
       name: 'rxdb_regobs_registration',

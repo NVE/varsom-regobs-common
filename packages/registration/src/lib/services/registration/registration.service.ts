@@ -395,8 +395,16 @@ export class RegistrationService {
   public saveRollbackState$(id: string): Observable<unknown> {
     return combineLatest([this.getRegistrationDbCollectionForAppMode(), this.getRetistrationById(id)]).pipe(
       take(1),
+      tap(([collection, reg]) => {
+        if(!collection) {
+          this.loggerService.warn('No db collection found for appMode when saveRollbackState');
+        }
+        if(!reg) {
+          this.loggerService.warn('No registration found by id when saveRollbackState: ', id);
+        }
+      }),
       switchMap(([collection, reg]) =>
-        reg ? from(collection.upsertLocal(`undo_state_${id}`, { reg })) : of({})
+        (reg && collection) ? from(collection.upsertLocal(`undo_state_${id}`, { reg })) : of({})
       ));
   }
 
@@ -409,7 +417,12 @@ export class RegistrationService {
    */
   public rollbackChanges$(id: string): Observable<boolean>  {
     return this.getRegistrationDbCollectionForAppMode().pipe(
-      switchMap((collection) => from(collection.getLocal(`undo_state_${id}`)).pipe(map((doc) => doc ?  doc.get('reg') : undefined))),
+      tap((collection) => {
+        if(!collection) {
+          this.loggerService.warn('No db collection found for appMode when saveRollbackState');
+        }
+      }),
+      switchMap((collection) => collection ? from(collection.getLocal(`undo_state_${id}`)).pipe(map((doc) => doc ?  doc.get('reg') : undefined)): of(undefined)),
       switchMap((reg: IRegistration) => reg ?
         this.saveRegistrationToOfflineStorage(reg).pipe(
           switchMap(() => this.newAttachmentService.removeAttachmentsForRegistration$(id)),

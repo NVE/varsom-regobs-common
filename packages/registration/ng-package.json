@@ -15,7 +15,9 @@
       "rxdb/plugins/core": "rxdbPluginsCore",
       "rxdb/plugins/no-validate": "rxdbPluginsNoValidate",
       "fast-deep-equal": "deepEqual",
-      "rxdb": "rxdb"
+      "rxdb": "rxdb",
+      "rxdb/plugins/attachments":"rxdbPluginsAttachments",
+      "rxdb/plugins/local-documents": "rxdbPluginsLocalDocuments"
     }
   },
   "whitelistedNonPeerDependencies": []
