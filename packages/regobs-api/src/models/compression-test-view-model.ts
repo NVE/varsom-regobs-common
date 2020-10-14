@@ -1,12 +1,12 @@
 /* tslint:disable */
 export interface CompressionTestViewModel {
-  TapsFullPropagation?: number;
   CompressionTestName?: string;
+  PropagationName?: string;
   StabilityEvalName?: string;
   ComprTestFractureName?: string;
   CompressionTestTID?: number;
   TapsFracture?: number;
-  PropagationName?: string;
+  TapsFullPropagation?: number;
   PropagationTID?: number;
   FractureDepth?: number;
   StabilityEvalTID?: number;

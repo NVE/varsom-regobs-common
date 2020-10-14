@@ -1,7 +1,7 @@
 /* tslint:disable */
 export interface StratProfileLayerViewModel {
-  GrainFormSecondaryTID?: number;
   GrainFormPrimaryTName?: string;
+  GrainFormSecondaryTName?: string;
   HardnessTName?: string;
   HardnessBottomTName?: string;
   WetnessTName?: string;
@@ -9,7 +9,7 @@ export interface StratProfileLayerViewModel {
   DepthTop?: number;
   Thickness?: number;
   GrainFormPrimaryTID?: number;
-  GrainFormSecondaryTName?: string;
+  GrainFormSecondaryTID?: number;
   GrainSizeAvg?: number;
   GrainSizeAvgMax?: number;
   HardnessTID?: number;

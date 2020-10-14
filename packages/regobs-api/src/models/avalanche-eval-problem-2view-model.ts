@@ -1,7 +1,7 @@
 /* tslint:disable */
 export interface AvalancheEvalProblem2ViewModel {
-  AvalTriggerSimpleTID?: number;
   AvalProbabilityName?: string;
+  AvalTriggerSimpleName?: string;
   AvalCauseDepthName?: string;
   ExposedHeightComboName?: string;
   AvalancheExtName?: string;
@@ -14,7 +14,7 @@ export interface AvalancheEvalProblem2ViewModel {
   AvalCauseAttributeCrystalName?: string;
   AvalProbabilityTID?: number;
   AvalPropagationTID?: number;
-  AvalTriggerSimpleName?: string;
+  AvalTriggerSimpleTID?: number;
   AvalCauseDepthTID?: number;
   ValidExposition?: string;
   ExposedHeight1?: number;

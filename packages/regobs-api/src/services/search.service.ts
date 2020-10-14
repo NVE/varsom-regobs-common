@@ -35,6 +35,7 @@ class SearchService extends __BaseService {
    *     { "NumberOfRecords": 10 }
    * </code>
    * @param criteria Search criteria.
+   *             You may use these fields in 'OrderBy': DtObsTime, DtRegTime, DtChangeTime. Default is DtObsTime. A few other fields may also work. Descending order is default
    * @return OK
    */
   SearchSearchResponse(criteria: SearchCriteriaRequestDto): __Observable<__StrictHttpResponse<Array<RegistrationViewModel>>> {
@@ -65,6 +66,7 @@ class SearchService extends __BaseService {
    *     { "NumberOfRecords": 10 }
    * </code>
    * @param criteria Search criteria.
+   *             You may use these fields in 'OrderBy': DtObsTime, DtRegTime, DtChangeTime. Default is DtObsTime. A few other fields may also work. Descending order is default
    * @return OK
    */
   SearchSearch(criteria: SearchCriteriaRequestDto): __Observable<Array<RegistrationViewModel>> {
@@ -146,7 +148,8 @@ class SearchService extends __BaseService {
   }
 
   /**
-   * @param criteria Search criteria
+   * @param criteria Search criteria.
+   *             You may use these fields in 'OrderBy': DtObsTime, DtRegTime, DtChangeTime. Default is DtObsTime. A few other fields may also work. Descending order is default
    * @return OK
    */
   SearchAtAGlanceResponse(criteria: SearchCriteriaRequestDto): __Observable<__StrictHttpResponse<Array<AtAGlanceViewModel>>> {
@@ -172,7 +175,8 @@ class SearchService extends __BaseService {
     );
   }
   /**
-   * @param criteria Search criteria
+   * @param criteria Search criteria.
+   *             You may use these fields in 'OrderBy': DtObsTime, DtRegTime, DtChangeTime. Default is DtObsTime. A few other fields may also work. Descending order is default
    * @return OK
    */
   SearchAtAGlance(criteria: SearchCriteriaRequestDto): __Observable<Array<AtAGlanceViewModel>> {

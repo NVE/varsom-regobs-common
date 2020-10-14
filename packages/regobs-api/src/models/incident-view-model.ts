@@ -1,14 +1,14 @@
 /* tslint:disable */
 import { UrlViewModel } from './url-view-model';
 export interface IncidentViewModel {
-  DamageExtentTID?: number;
   GeoHazardName?: string;
+  ActivityInfluencedName?: string;
   DamageExtentName?: string;
   ForecastAccurateName?: string;
   IncidentURLs?: Array<UrlViewModel>;
   GeoHazardTID?: number;
   ActivityInfluencedTID?: number;
-  ActivityInfluencedName?: string;
+  DamageExtentTID?: number;
   ForecastAccurateTID?: number;
   DtEndTime?: string;
   IncidentHeader?: string;
