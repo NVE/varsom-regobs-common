@@ -1,6 +1,6 @@
 /* tslint:disable */
-import { IncidentEditModel } from './incident-edit-model';
 import { ObsLocationEditModel } from './obs-location-edit-model';
+import { AttachmentEditModel } from './attachment-edit-model';
 import { AvalancheActivityObs2EditModel } from './avalanche-activity-obs-2edit-model';
 import { AvalancheEvalProblem2EditModel } from './avalanche-eval-problem-2edit-model';
 import { AvalancheEvaluation3EditModel } from './avalanche-evaluation-3edit-model';
@@ -10,7 +10,7 @@ import { DangerObsEditModel } from './danger-obs-edit-model';
 import { GeneralObservationEditModel } from './general-observation-edit-model';
 import { IceCoverEditModel } from './ice-cover-edit-model';
 import { IceThicknessEditModel } from './ice-thickness-edit-model';
-import { AttachmentEditModel } from './attachment-edit-model';
+import { IncidentEditModel } from './incident-edit-model';
 import { LandslideEditModel } from './landslide-edit-model';
 import { SnowProfileEditModel } from './snow-profile-edit-model';
 import { SnowSurfaceEditModel } from './snow-surface-edit-model';
@@ -18,8 +18,8 @@ import { WeatherEditModel } from './weather-edit-model';
 import { Waterlevel2EditModel } from './waterlevel-2edit-model';
 import { DamageObsEditModel } from './damage-obs-edit-model';
 export interface RegistrationEditModel {
-  Incident?: IncidentEditModel;
   ObsLocation?: ObsLocationEditModel;
+  Attachments?: Array<AttachmentEditModel>;
   AvalancheActivityObs2?: Array<AvalancheActivityObs2EditModel>;
   AvalancheEvalProblem2?: Array<AvalancheEvalProblem2EditModel>;
   AvalancheEvaluation3?: AvalancheEvaluation3EditModel;
@@ -29,7 +29,7 @@ export interface RegistrationEditModel {
   GeneralObservation?: GeneralObservationEditModel;
   IceCoverObs?: IceCoverEditModel;
   IceThickness?: IceThicknessEditModel;
-  Attachments?: Array<AttachmentEditModel>;
+  Incident?: IncidentEditModel;
   LandSlideObs?: LandslideEditModel;
   SnowProfile2?: SnowProfileEditModel;
   SnowSurfaceObservation?: SnowSurfaceEditModel;

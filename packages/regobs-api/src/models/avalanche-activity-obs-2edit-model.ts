@@ -1,12 +1,12 @@
 /* tslint:disable */
 export interface AvalancheActivityObs2EditModel {
-  ExposedHeightComboTID?: number;
   EstimatedNumTID?: number;
+  DtStart?: string;
   DtEnd?: string;
   ValidExposition?: string;
   ExposedHeight1?: number;
   ExposedHeight2?: number;
-  DtStart?: string;
+  ExposedHeightComboTID?: number;
   AvalancheExtTID?: number;
   AvalCauseTID?: number;
   AvalTriggerSimpleTID?: number;

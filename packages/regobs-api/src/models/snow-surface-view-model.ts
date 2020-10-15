@@ -1,14 +1,14 @@
 /* tslint:disable */
 export interface SnowSurfaceViewModel {
-  NewSnowDepth24?: number;
   SnowWindDepth24?: number;
+  SurfaceWaterContentName?: string;
   SnowDriftName?: string;
   SnowSurfaceName?: string;
   SurfaceRougnessTID?: number;
   SurfaceRougnessName?: string;
   FootPenetration?: number;
   SnowDepth?: number;
-  SurfaceWaterContentName?: string;
+  NewSnowDepth24?: number;
   NewSnowLine?: number;
   SurfaceWaterContentTID?: number;
   SnowDriftTID?: number;
