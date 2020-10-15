@@ -1,8 +1,8 @@
 /* tslint:disable */
 import { UrlViewModel } from './url-view-model';
 export interface LandslideViewModel {
-  Comment?: string;
   LandSlideName?: string;
+  LandSlideTriggerName?: string;
   LandSlideSizeName?: string;
   GeoHazardName?: string;
   ActivityInfluencedName?: string;
@@ -12,7 +12,7 @@ export interface LandslideViewModel {
   LandSlideTID?: number;
   LandSlideTriggerTID?: number;
   LandSlideSizeTID?: number;
-  LandSlideTriggerName?: string;
+  Comment?: string;
   GeoHazardTID?: number;
   ActivityInfluencedTID?: number;
   ForecastAccurateTID?: number;

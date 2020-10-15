@@ -15,6 +15,7 @@ import { RegistrationSyncProgressSchema } from '../../db/schemas/registration-sy
 import { UploadProgressSchema } from '../../db/schemas/upload-progress.schema';
 import { RxDBAttachmentsPlugin } from 'rxdb/plugins/attachments';
 import { RxDBLocalDocumentsPlugin } from 'rxdb/plugins/local-documents';
+import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
 
 export const TABLE_NAMES =  {
   REGISTRATION: 'registration',
@@ -61,6 +62,7 @@ const collections: Array<{name: string, schema: RxJsonSchema, instancePerAppMode
 function loadRxDBPlugins(): void {
   addRxPlugin(RxDBLocalDocumentsPlugin);
   addRxPlugin(RxDBAttachmentsPlugin);
+  addRxPlugin(RxDBLeaderElectionPlugin);
 }
 
 @Injectable({
