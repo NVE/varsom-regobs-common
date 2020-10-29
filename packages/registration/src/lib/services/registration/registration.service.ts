@@ -66,10 +66,20 @@ export class RegistrationService {
       reg.changed = moment().unix();
     }
     if(reg.syncStatus === SyncStatus.Sync) {
-      return this.syncSingleRegistration(reg);
+      return this.saveAndSyncSingleRegistration(reg);
     }else{
       return this.saveRegistrationToOfflineStorage(reg).pipe(map(() => true));
     }
+  }
+
+  private saveAndSyncSingleRegistration(reg: IRegistration) {
+    if (this._registrationSyncSubscription) {
+      this._registrationSyncSubscription.unsubscribe();
+    }
+    return this.saveRegistrationToOfflineStorage(reg).pipe(switchMap(() => this.syncSingleRegistration(reg)), tap(() => {
+      this.loggerService.debug('Single registration synced. Start autosync.');
+      this.initAutoSync();
+    }));
   }
 
   private saveRegistrationToOfflineStorage(reg: IRegistration): Observable<RxRegistrationDocument> {
@@ -104,16 +114,6 @@ export class RegistrationService {
     );
   }
 
-  private shouldKeepWhenCleanup(reg: IRegistration) {
-    if (reg.syncStatus === SyncStatus.Sync) {
-      return true;
-    }
-    if (reg.syncStatus === SyncStatus.Draft && (reg.changed > moment().subtract(24, 'hours').unix())) {
-      return true;
-    }
-    return false;
-  }
-
   public getRetistrationById(id: string): Observable<IRegistration> {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
@@ -132,16 +132,17 @@ export class RegistrationService {
     }
   }
 
-  public getFirstDraftForGeoHazard(geoHazard: GeoHazard): Promise<IRegistration> {
-    return this.getDraftsForGeoHazardObservable(geoHazard)
+  public getFirstDraftForGeoHazard(geoHazard: GeoHazard, draftsOnly = true): Promise<IRegistration> {
+    return this.getDraftsForGeoHazardObservable(geoHazard, draftsOnly)
       .pipe(map((rows) => rows[0]), take(1)).toPromise();
   }
 
-  public getDraftsForGeoHazardObservable(geoHazard: GeoHazard): Observable<IRegistration[]> {
+  public getDraftsForGeoHazardObservable(geoHazard: GeoHazard, draftsOnly = true): Observable<IRegistration[]> {
     return this.registrationStorage$.pipe(map((records) =>
       records.filter((reg) =>
-        reg.request.GeoHazardTID === geoHazard &&
-        reg.syncStatus === SyncStatus.Draft
+        reg.request.GeoHazardTID === geoHazard
+        && (draftsOnly ? reg.syncStatus === SyncStatus.Draft : true)
+        //All items in registration storage is "drafts"/not complete until deleted from storage (when done)
       )));
   }
 

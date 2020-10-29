@@ -51,7 +51,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       // Set request attachments on temporary request item, so it will not be removed / invalid if failure
       const clonedItem = cloneDeep(item);
       this.setRequestAttachments(clonedItem, uploadAttachmentResult);
-      return this.callInsertOrUpdate(clonedItem, langKey).pipe(switchMap((result) => this.removeSuccessfulAttachments(clonedItem).pipe(map(() => result))),
+      return this.callInsertOrUpdate(clonedItem, langKey).pipe(switchMap((result) => this.removeAllNewAttachments(clonedItem).pipe(map(() => result))),
         map((result) => ({
           success: uploadSuccess,
           item: ({ ...cloneDeep(item), response: result }),
@@ -84,11 +84,8 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id });
   }
 
-  removeSuccessfulAttachments(item: IRegistration): Observable<IRegistration> {
-    return this.getAttachmentsToUpload(item).pipe(take(1),
-      switchMap((attachmentsToUpload) => attachmentsToUpload.length > 0 ? forkJoin(attachmentsToUpload.map((a) =>
-        this.newAttachmentService.removeAttachment$(item.id, a.id))) : of([])),
-      map(() => item));
+  removeAllNewAttachments(item: IRegistration): Observable<IRegistration> {
+    return this.newAttachmentService.removeAttachmentsForRegistration$(item.id).pipe(map(() => item));
   }
 
   uploadAttachments(item: IRegistration): Observable<AttachmentUploadEditModel[]> {

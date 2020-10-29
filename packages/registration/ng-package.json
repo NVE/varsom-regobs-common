@@ -17,7 +17,8 @@
       "fast-deep-equal": "deepEqual",
       "rxdb": "rxdb",
       "rxdb/plugins/attachments":"rxdbPluginsAttachments",
-      "rxdb/plugins/local-documents": "rxdbPluginsLocalDocuments"
+      "rxdb/plugins/local-documents": "rxdbPluginsLocalDocuments",
+      "rxdb/plugins/leader-election": "rxdbPluginsLeaderElection"
     }
   },
   "whitelistedNonPeerDependencies": []
