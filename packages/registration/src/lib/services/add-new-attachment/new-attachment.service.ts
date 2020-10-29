@@ -11,6 +11,6 @@ export abstract class NewAttachmentService {
   abstract getBlob(registrationId: string, attachmentId: string): Observable<Blob>;
   abstract removeAttachment(registrationId: string, attachmentId: string): void;
   abstract removeAttachment$(registrationId: string, attachmentId: string): Observable<boolean>;
-  abstract removeAttachmentsForRegistration(registrationId: string): void;
-  abstract removeAttachmentsForRegistration$(registrationId: string): Observable<boolean[]>;
+  abstract removeAttachmentsForRegistration(registrationId: string): Promise<void>;
+  abstract removeAttachmentsForRegistration$(registrationId: string): Observable<void>;
 }

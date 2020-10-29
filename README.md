@@ -38,3 +38,26 @@ npm link
 [https://docs.npmjs.com/cli/link]
 [https://angular.io/guide/creating-libraries]
 [https://medium.com/dailyjs/how-to-use-npm-link-7375b6219557]
+
+
+## How to create a new release
+
+Create new release branch in git flow:
+`git flow release start v3.0.5 develop`
+
+Bump package version to a new version in
+package.json
+packages/core/package.json
+packages/registration/package.json
+packages/regobs-api/package.json
+
+Remember to also update peerDependencies if breaking changes.
+
+Commit changes and push to origin (release branch)
+
+Finish release:
+`git flow release finish v3.0.5`
+`git push origin --tags`
+`git push origin master --tags`
+
+A new version is released in npm using Azure Devops

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { combineLatest, EMPTY, forkJoin, from, Observable, of } from 'rxjs';
+import { combineLatest, concat, EMPTY, forkJoin, from, Observable, of } from 'rxjs';
 import { AppMode, AppModeService, GeoHazard, LoggerService, uuidv4 } from '@varsom-regobs-common/core';
 import { AttachmentType, AttachmentUploadEditModel } from '../../models/attachment-upload-edit.interface';
 import { OfflineDbService, TABLE_NAMES } from '../offline-db/offline-db.service';
 import { NewAttachmentService } from './new-attachment.service';
-import { catchError, filter, map, startWith, switchMap, take } from 'rxjs/operators';
+import { catchError, filter, map, startWith, switchMap, take, toArray, withLatestFrom } from 'rxjs/operators';
 import { RxAttachmentMetaCollection, RxAttachmentMetaDocument, RxRegistrationCollection, RxRegistrationDocument } from '../../db/RxDB';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 
@@ -68,20 +68,32 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
     this.removeAttachment$(registrationId, attachmentId).subscribe();
   }
 
-  removeAttachmentsForRegistration(registrationId: string): void {
-    this.removeAttachmentsForRegistration$(registrationId).subscribe();
-  }
-
-  removeAttachmentsForRegistration$(registrationId: string): Observable<boolean[]> {
-    return this.getUploadedAttachments(registrationId).pipe(
-      take(1),
-      switchMap((attachments) => attachments.length > 0 ? forkJoin(attachments.map((a) => this.removeAttachment$(registrationId, a.id))) : of([])));
+  removeAttachmentsForRegistration$(registrationId: string): Observable<void> {
+    return from(this.removeAttachmentsForRegistration(registrationId));
   }
 
   removeAttachment$(registrationId: string, attachmentId: string): Observable<boolean> {
     return this.getRegistrationAttachmentDocument(registrationId, attachmentId)
       .pipe(take(1), switchMap((a) => from(a.remove())),
         switchMap(() => this.getAttachmentMetaDocument(attachmentId).pipe(take(1), switchMap((metaDoc) => from(metaDoc.remove())))));
+  }
+
+  async removeAttachmentsForRegistration(registrationId: string): Promise<void> {
+    const regDoc = await this.getRegistrationOfflineDocumentById(registrationId).pipe(take(1)).toPromise();
+    if(!regDoc) {
+      this.loggerService.debug('No registration document found!');
+      return;
+    }
+    const metaDocs = await this.getAttachmentMetaDocumentsFromRegistrationDocument(regDoc).pipe(take(1)).toPromise();
+    for(const metaDoc of metaDocs) {
+      try{
+        await metaDoc.remove();
+      }catch(err) {
+        this.loggerService.debug('Could not remove attachment meta document from registration document', metaDoc, err);
+      }
+    }
+    const collection = await this.getRegistrationDbCollectionForAppMode().pipe(take(1)).toPromise();
+    await collection.atomicUpsert(regDoc.toJSON()); // Removes attachments
   }
 
   private getRegistrationAttachmentDocument(registrationId: string, attachmentId: string) {
@@ -92,7 +104,7 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
 
   private getAttachmentMetaFromDocument(doc: RxRegistrationDocument) {
     return this.getAttachmentMetaDocumentsFromRegistrationDocument(doc)
-      .pipe(map((attachmentMetaDocs) => attachmentMetaDocs.map((mdoc) => mdoc.toJSON())));
+      .pipe(map((attachmentMetaDocs: RxAttachmentMetaDocument[]) => attachmentMetaDocs.filter((doc) => !!doc).map((mdoc) => mdoc.toJSON())));
   }
 
   private getAttachmentMetaDocumentsFromRegistrationDocument(doc: RxRegistrationDocument): Observable<RxAttachmentMetaDocument[]> {
