@@ -1,13 +1,13 @@
 {
   "name": "@varsom-regobs-common/registration",
-  "version": "3.0.7",
+  "version": "3.0.8",
   "peerDependencies": {
     "@angular/common": "^10.0.0",
     "@angular/core": "^10.0.0",
     "rxjs": "^6.0.0",
     "moment": "^2.0.0",
-    "@varsom-regobs-common/core": "^3.0.7",
-    "@varsom-regobs-common/regobs-api": "^3.0.7",
+    "@varsom-regobs-common/core": "^3.0.8",
+    "@varsom-regobs-common/regobs-api": "^3.0.8",
     "ngx-logger": "^4.0.0",
     "@ngx-translate/core": "^13.0.0",
     "@ngx-translate/http-loader": "^6.0.0",
