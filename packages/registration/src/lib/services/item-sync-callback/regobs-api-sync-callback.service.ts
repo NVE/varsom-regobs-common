@@ -59,10 +59,20 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
           error: uploadSuccess ? undefined : 'Could not upload attachments'
         })),
         catchError((err: HttpErrorResponse) => {
-          const errorMsg = err ? (err.message ? err.message : err.toString()) : 'Unknown error';
+          const errorMsg = this.getErrorModelStateMessageOrErrorMsg(err);
           return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
         }));
     }));
+  }
+
+  private getErrorModelStateMessageOrErrorMsg(err: HttpErrorResponse): string {
+    if(err && err.error) {
+      return JSON.stringify(err.error);
+    }
+    if(err && err.message) {
+      return err.message;
+    }
+    return 'Unknown error';
   }
 
   /**
