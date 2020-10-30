@@ -110,7 +110,14 @@ export class RegistrationService {
     return this.getRegistrationOfflineDocumentById(id).pipe(
       take(1),
       switchMap((doc) => doc ? this.offlineRegistrationSyncService.deleteItem(doc.toJSON()).pipe(map(() => doc)) : of(undefined)),
-      switchMap((doc: RxRegistrationCollection) => doc ? from(doc.remove()) : of(false))
+      switchMap((doc: RxRegistrationDocument) => doc ? from(doc.remove()) : of(false))
+    );
+  }
+
+  public deleteRegistrationFromOfflineStorage(id: string): Observable<unknown> {
+    return this.getRegistrationOfflineDocumentById(id).pipe(
+      take(1),
+      switchMap((doc) => doc ? from(doc.remove()) : of(false))
     );
   }
 
@@ -153,13 +160,13 @@ export class RegistrationService {
       map((regs) => regs.filter((r) => geoHazard ? r.geoHazard === geoHazard : true)));
   }
 
-  public deleteAllRegistrations$(geoHazard?: GeoHazard): Observable<unknown> {
+  public deleteAllRegistrationsFromOfflineStorage$(geoHazard?: GeoHazard): Observable<unknown> {
     return this.getAllRegistrations$(geoHazard).pipe(
-      switchMap((regs) => regs.length > 0 ? forkJoin(regs.map((reg) => this.deleteRegistration(reg.id))) : of({})));
+      switchMap((regs) => regs.length > 0 ? forkJoin(regs.map((reg) => this.deleteRegistrationFromOfflineStorage(reg.id))) : of({})));
   }
 
-  public deleteAllRegistrations(geoHazard?: GeoHazard): void {
-    this.deleteAllRegistrations$(geoHazard).pipe(take(1)).subscribe();
+  public deleteAllRegistrationsFromOfflineStorage(geoHazard?: GeoHazard): void {
+    this.deleteAllRegistrationsFromOfflineStorage$(geoHazard).pipe(take(1)).subscribe();
   }
 
   public createNewEmptyDraft(geoHazard: GeoHazard): IRegistration {
