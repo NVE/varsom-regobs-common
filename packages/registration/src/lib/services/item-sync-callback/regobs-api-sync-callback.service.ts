@@ -179,7 +179,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     const formData = new FormData();
     formData.append('file', blob);
     return this.httpClient.post(attachmentPostPath, formData, {
-      responseType: 'json', reportProgress: true, observe: 'events'
+      responseType: 'json', reportProgress: true, observe: 'events', headers: {'ngsw-bypass': '' }
     }).pipe(tap((event) => {
       this.loggerService.debug('uploadAttachmentWithProgress got event:', event);
       if (event.type === HttpEventType.UploadProgress) {
