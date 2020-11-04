@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/internal/Observable';
 import { HelptextDto, HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
 import {
   AppMode,
@@ -11,7 +10,7 @@ import {
   AppModeService } from '@varsom-regobs-common/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map} from 'rxjs/operators';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { OfflineDbService } from '../offline-db/offline-db.service';
 import { ApiSyncOfflineBaseService } from '../api-sync-offline-base/api-sync-offline-base.service';
 
