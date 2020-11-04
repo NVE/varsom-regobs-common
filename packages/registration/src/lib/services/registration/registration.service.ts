@@ -10,7 +10,7 @@ import { ItemSyncCallbackService } from '../item-sync-callback/item-sync-callbac
 import moment from 'moment';
 import { RegistrationTid } from '../../models/registration-tid.enum';
 import { Summary, AttachmentViewModel, RegistrationViewModel, RegistrationEditModel } from '@varsom-regobs-common/regobs-api';
-import { getAllAttachments, getAllAttachmentsFromViewModel, getRegistrationTidsForGeoHazard, hasAnyObservations, isObservationEmptyForRegistrationTid, isObservationModelEmptyForRegistrationTid } from '../../registration.helpers';
+import { getAllAttachments, getPropertyName, getRegistrationTidsForGeoHazard, hasAnyObservations, isArrayType, isObservationEmptyForRegistrationTid, isObservationModelEmptyForRegistrationTid } from '../../registration.helpers';
 import { ProgressService } from '../progress/progress.service';
 import { InternetConnectivity } from 'ngx-connectivity';
 import { KdvService } from '../kdv/kdv.service';
@@ -169,6 +169,32 @@ export class RegistrationService {
     this.deleteAllRegistrationsFromOfflineStorage$(geoHazard).pipe(take(1)).subscribe();
   }
 
+  public deleteForm(regId: string, registrationTid: RegistrationTid, index: number): Observable<unknown> {
+    return this.getRetistrationById(regId).pipe(
+      take(1),
+      map((reg) => {
+        const regToEdit = cloneDeep(reg);
+        this.makeExistingRegistrationEditable(regToEdit);
+        if(isArrayType(registrationTid) && regToEdit.request[getPropertyName(registrationTid)].length > index ) {
+          (regToEdit.request[getPropertyName(registrationTid)] as Array<unknown>).splice(index, 1);
+        }else if(!isArrayType(registrationTid)){
+          delete regToEdit.request[getPropertyName(registrationTid)];
+        }
+        return regToEdit;
+      }),
+      map((reg) => this.deleteExistingAttachmentsForRegistrationType(reg, registrationTid)),
+      switchMap((reg) => this.saveAndSync(reg, registrationTid))
+    );
+  }
+
+  private deleteExistingAttachmentsForRegistrationType(reg: IRegistration, registrationTid: RegistrationTid): IRegistration {
+    const regToEdit = cloneDeep(reg);
+    if(regToEdit && regToEdit.request && regToEdit.request.Attachments) {
+      regToEdit.request.Attachments = regToEdit.request.Attachments.filter((a) => a.RegistrationTID !== registrationTid);
+    }
+    return regToEdit;
+  }
+
   public createNewEmptyDraft(geoHazard: GeoHazard): IRegistration {
     const id = uuidv4();
     const draft: IRegistration = {
@@ -250,46 +276,21 @@ export class RegistrationService {
   /***
    * Check if registration has any data or attachments for registrationTid
    */
-  public hasAnyDataToShowInRegistrationTypes(reg: IRegistration, registrationTid: RegistrationTid, hideDrafts = true): Observable<boolean> {
-    const model = hideDrafts ? this.getRegModelToShowWhenHideDrafts(reg) : reg.request;
+  public hasAnyDataToShowInRegistrationTypes(reg: IRegistration, registrationTid: RegistrationTid): Observable<boolean> {
+    const model = this.getRegistrationEditOrViewModel(reg);
     return of(isObservationModelEmptyForRegistrationTid(model, registrationTid)).pipe((switchMap((isEmpty) => {
       if(!isEmpty) {
         return of(true);
       }
-      return this.shouldNotHideDraftAndHasAnyAttachmentsForRegistrationTid$(reg, registrationTid);
+      return this.hasAnyAttachmentsForRegistrationTid$(reg, registrationTid).pipe(take(1));
     })));
   }
 
-  private getRegModelToShowWhenHideDrafts(reg: IRegistration): RegistrationEditModel | RegistrationViewModel {
+  private getRegistrationEditOrViewModel(reg: IRegistration): RegistrationEditModel | RegistrationViewModel {
     if(reg.syncStatus === SyncStatus.InSync && reg.response) {
       return reg.response;
     }
-    if(reg.syncStatus === SyncStatus.Draft) {
-      if(reg.syncError) {
-        return reg.request; // Show forms with error even if draft
-      }
-      if(reg.response) {
-        return reg.response;
-      }
-    }
     return reg.request;
-  }
-
-  private shouldNotHideDraftAndHasAnyAttachmentsForRegistrationTid$(reg: IRegistration, registrationTid: RegistrationTid) {
-    return this.shouldHideDraft(reg, registrationTid) ? of(false) : this.hasAnyAttachmentsForRegistrationTid$(reg, registrationTid).pipe(take(1));
-  }
-
-  private shouldHideDraft(reg: IRegistration, registrationTid: RegistrationTid) {
-    if(reg.syncStatus === SyncStatus.Draft && reg.syncError) {
-      return false;
-    }
-    if(reg.response) {
-      const isEmpty = isObservationModelEmptyForRegistrationTid(reg.response, registrationTid);
-      const hasAnyResponseAttachments = getAllAttachmentsFromViewModel(reg.response).some((a) => a.RegistrationTID === registrationTid);
-      return isEmpty && !hasAnyResponseAttachments;
-    }
-
-    return true;
   }
 
   hasAnyAttachmentsForRegistrationTid$(reg: IRegistration, registrationTid: RegistrationTid): Observable<boolean>{
@@ -331,9 +332,6 @@ export class RegistrationService {
   }
 
   public getSummaryForRegistrationTid(reg: IRegistration, registrationTid: RegistrationTid, addIfEmpty = true): Observable<Summary[]> {
-    // return (reg.syncStatus === SyncStatus.InSync) ?
-    //   this.getResponseSummaryForRegistrationTid(reg, registrationTid, addIfEmpty)
-    //   : this.getDraftSummary(reg, registrationTid, addIfEmpty);
     if(reg.changedRegistrationTid === registrationTid && reg.syncStatus !== SyncStatus.InSync) {
       return this.getDraftSummary(reg, registrationTid, addIfEmpty);
     }

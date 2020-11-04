@@ -113,20 +113,7 @@ export function getRegistrationTids(): RegistrationTid[] {
 
 export function isObservationModelEmptyForRegistrationTid(regModel: RegistrationEditModel | RegistrationViewModel, registrationTid: RegistrationTid): boolean {
   if (regModel && registrationTid) {
-    let hasRegistration = !isEmpty(getRegistationPropertyForModel(regModel, registrationTid));
-    // Hack to snow profile tests
-    if(
-      !hasRegistration &&
-      registrationTid === RegistrationTid.SnowProfile2 &&
-      regModel &&
-      regModel.CompressionTest &&
-      regModel.CompressionTest.some(t => t.IncludeInSnowProfile)
-    ) {
-      hasRegistration = true;
-    }
-    if (hasRegistration) {
-      return false;
-    }
+    return isEmpty(getRegistationPropertyForModel(regModel, registrationTid));
   }
   return true;
 }
