@@ -7,4 +7,5 @@ export const SUMMARY_PROVIDER_TOKEN = new InjectionToken<ISummaryProvider>('Regi
 export interface IRegistrationModuleOptions {
   adapter?: string;
   autoSync?: boolean;
+  attachmentsSupported?: boolean;
 }
