@@ -121,7 +121,7 @@ export class RegistrationService {
     );
   }
 
-  public getRetistrationById(id: string): Observable<IRegistration> {
+  public getRegistrationById(id: string): Observable<IRegistration> {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
   }
 
@@ -170,7 +170,7 @@ export class RegistrationService {
   }
 
   public deleteForm(regId: string, registrationTid: RegistrationTid, index: number): Observable<unknown> {
-    return this.getRetistrationById(regId).pipe(
+    return this.getRegistrationById(regId).pipe(
       take(1),
       map((reg) => {
         const regToEdit = cloneDeep(reg);
@@ -310,7 +310,7 @@ export class RegistrationService {
   }
 
   public getSummaryForRegistrationTidById$(id: string, registrationTid: RegistrationTid): Observable<Summary[]> {
-    return this.getRetistrationById(id).pipe(switchMap((reg) => this.getSummaryForRegistrationTid(reg, registrationTid)));
+    return this.getRegistrationById(id).pipe(switchMap((reg) => this.getSummaryForRegistrationTid(reg, registrationTid)));
   }
 
   /**
@@ -399,7 +399,7 @@ export class RegistrationService {
   }
 
   public saveRollbackState$(id: string): Observable<unknown> {
-    return combineLatest([this.getRegistrationDbCollectionForAppMode(), this.getRetistrationById(id)]).pipe(
+    return combineLatest([this.getRegistrationDbCollectionForAppMode(), this.getRegistrationById(id)]).pipe(
       take(1),
       tap(([collection, reg]) => {
         if(!collection) {
@@ -449,7 +449,7 @@ export class RegistrationService {
 
   public getAllAttachmentsForRegistration$(id: string): Observable<ExistingOrNewAttachment[]> {
     return combineLatest([
-      this.getRetistrationById(id).pipe(map((reg) => getAllAttachments(reg))),
+      this.getRegistrationById(id).pipe(map((reg) => getAllAttachments(reg))),
       this.newAttachmentService.getUploadedAttachments(id)])
       .pipe(
         map(([existingAttachments, newAttachments]) => [
@@ -459,7 +459,7 @@ export class RegistrationService {
   }
 
   public getExistingAttachmentsForRegistrationTid$(id: string, registrationTid: RegistrationTid): Observable<AttachmentViewModel[]> {
-    return this.getRetistrationById(id).pipe(map((reg) => getAllAttachments(reg, registrationTid)));
+    return this.getRegistrationById(id).pipe(map((reg) => getAllAttachments(reg, registrationTid)));
   }
 
   public getNewAttachmentsForRegistrationTid$(id: string, registrationTid: RegistrationTid): Observable<AttachmentUploadEditModel[]> {
