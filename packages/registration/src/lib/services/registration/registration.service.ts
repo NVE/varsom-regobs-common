@@ -83,16 +83,12 @@ export class RegistrationService {
   }
 
   private saveRegistrationToOfflineStorage(reg: IRegistration): Observable<RxRegistrationDocument> {
-    if(this.options.attachmentsSupported === false) {
-      return this.getRegistrationDbCollectionForAppMode().pipe(take(1), switchMap((collection) => from(collection.atomicUpsert(reg))));
-    } else {
-      return this.getRegistrationOfflineDocumentById(reg.id).pipe(
-        take(1),
-        switchMap((doc) => doc ?
-          from(this.updateDocInOfflineStorage(doc, reg)) :
-          this.getRegistrationDbCollectionForAppMode().pipe(take(1), switchMap((collection) => from(collection.atomicUpsert(reg))))
-        ));
-    }
+    return this.getRegistrationOfflineDocumentById(reg.id).pipe(
+      take(1),
+      switchMap((doc) => doc ?
+        from(this.updateDocInOfflineStorage(doc, reg)) :
+        this.getRegistrationDbCollectionForAppMode().pipe(take(1), switchMap((collection) => from(collection.atomicUpsert(reg))))
+      ));
   }
 
   private updateDocInOfflineStorage(doc: RxRegistrationDocument, reg: IRegistration): Promise<RxRegistrationDocument> {
