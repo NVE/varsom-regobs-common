@@ -141,7 +141,7 @@ export class RegistrationService {
 
   public getFirstDraftForGeoHazard(geoHazard: GeoHazard, draftsOnly = true): Promise<IRegistration> {
     return this.getDraftsForGeoHazardObservable(geoHazard, draftsOnly)
-      .pipe(map((rows) => rows[0]), take(1)).toPromise();
+      .pipe(map((rows) => rows.sort((a, b) => b.changed - a.changed)[0]), take(1)).toPromise();
   }
 
   public getDraftsForGeoHazardObservable(geoHazard: GeoHazard, draftsOnly = true): Observable<IRegistration[]> {
@@ -177,22 +177,25 @@ export class RegistrationService {
         this.makeExistingRegistrationEditable(regToEdit);
         if(isArrayType(registrationTid) && regToEdit.request[getPropertyName(registrationTid)].length > index ) {
           (regToEdit.request[getPropertyName(registrationTid)] as Array<unknown>).splice(index, 1);
+          // Deletes images if no forms left in array
+          if((regToEdit.request[getPropertyName(registrationTid)] as Array<unknown>).length === 0) {
+            this.deleteExistingAttachmentsForRegistrationType(regToEdit, registrationTid);
+          }
         }else if(!isArrayType(registrationTid)){
           delete regToEdit.request[getPropertyName(registrationTid)];
+          this.deleteExistingAttachmentsForRegistrationType(regToEdit, registrationTid);
         }
         return regToEdit;
       }),
-      map((reg) => this.deleteExistingAttachmentsForRegistrationType(reg, registrationTid)),
       switchMap((reg) => this.saveAndSync(reg, registrationTid))
     );
   }
 
   private deleteExistingAttachmentsForRegistrationType(reg: IRegistration, registrationTid: RegistrationTid): IRegistration {
-    const regToEdit = cloneDeep(reg);
-    if(regToEdit && regToEdit.request && regToEdit.request.Attachments) {
-      regToEdit.request.Attachments = regToEdit.request.Attachments.filter((a) => a.RegistrationTID !== registrationTid);
+    if(reg && reg.request && reg.request.Attachments) {
+      reg.request.Attachments = reg.request.Attachments.filter((a) => a.RegistrationTID !== registrationTid);
     }
-    return regToEdit;
+    return reg;
   }
 
   public createNewEmptyDraft(geoHazard: GeoHazard): IRegistration {
