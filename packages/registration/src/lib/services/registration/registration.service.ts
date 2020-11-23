@@ -51,7 +51,7 @@ export class RegistrationService {
   ) {
     this.registrationStorage$ = this.getRegistrationObservable().pipe(tap((reg) => {
       this.loggerService.debug('Registrations changed', reg);
-    }), this.observableHelperService.enterZoneAndTickApplicationRef(), shareReplay(1));
+    }), shareReplay(1));
     this.initAutoSync();
   }
 
@@ -83,11 +83,9 @@ export class RegistrationService {
   }
 
   private saveRegistrationToOfflineStorage(reg: IRegistration): Observable<RxRegistrationDocument> {
-    return this.getRegistrationOfflineDocumentById(reg.id).pipe(
-      take(1),
-      switchMap((doc) => doc ?
-        from(this.updateDocInOfflineStorage(doc, reg)) :
-        this.getRegistrationDbCollectionForAppMode().pipe(take(1), switchMap((collection) => from(collection.atomicUpsert(reg))))
+    return this.getRegistrationDbCollectionForAppMode().pipe(take(1),
+      switchMap((collection) => from(collection.atomicUpsert(reg)).pipe((switchMap((doc) =>
+        this.getRegistrationObservable().pipe(take(1), map(() => doc)))))
       ));
   }
 
@@ -121,8 +119,17 @@ export class RegistrationService {
     );
   }
 
-  public getRegistrationById(id: string): Observable<IRegistration> {
+  /**
+   * Shared change feed on getRegistrationById. Might have some delay when saving.
+   */
+  public getRegistrationByIdShared$(id: string): Observable<IRegistration> {
     return this.registrationStorage$.pipe(map((registrations) => registrations.find((r) => r.id === id)));
+  }
+
+  public async getRegistrationById(id: string): Promise<IRegistration> {
+    const collection = await this.getRegistrationDbCollectionForAppMode().pipe(take(1)).toPromise();
+    const resultMap = await collection.findByIds([id]);
+    return resultMap.get(id)?.toJSON();
   }
 
   public async cancelSync(): Promise<void> {
@@ -170,7 +177,7 @@ export class RegistrationService {
   }
 
   public deleteForm(regId: string, registrationTid: RegistrationTid, index: number): Observable<unknown> {
-    return this.getRegistrationById(regId).pipe(
+    return this.getRegistrationByIdShared$(regId).pipe(
       take(1),
       map((reg) => {
         const regToEdit = cloneDeep(reg);
@@ -313,7 +320,7 @@ export class RegistrationService {
   }
 
   public getSummaryForRegistrationTidById$(id: string, registrationTid: RegistrationTid): Observable<Summary[]> {
-    return this.getRegistrationById(id).pipe(switchMap((reg) => this.getSummaryForRegistrationTid(reg, registrationTid)));
+    return this.getRegistrationByIdShared$(id).pipe(switchMap((reg) => this.getSummaryForRegistrationTid(reg, registrationTid)));
   }
 
   /**
@@ -452,7 +459,7 @@ export class RegistrationService {
 
   public getAllAttachmentsForRegistration$(id: string): Observable<ExistingOrNewAttachment[]> {
     return combineLatest([
-      this.getRegistrationById(id).pipe(map((reg) => getAllAttachments(reg))),
+      this.getRegistrationByIdShared$(id).pipe(map((reg) => getAllAttachments(reg))),
       this.newAttachmentService.getUploadedAttachments(id)])
       .pipe(
         map(([existingAttachments, newAttachments]) => [
@@ -462,7 +469,7 @@ export class RegistrationService {
   }
 
   public getExistingAttachmentsForRegistrationTid$(id: string, registrationTid: RegistrationTid): Observable<AttachmentViewModel[]> {
-    return this.getRegistrationById(id).pipe(map((reg) => getAllAttachments(reg, registrationTid)));
+    return this.getRegistrationByIdShared$(id).pipe(map((reg) => getAllAttachments(reg, registrationTid)));
   }
 
   public getNewAttachmentsForRegistrationTid$(id: string, registrationTid: RegistrationTid): Observable<AttachmentUploadEditModel[]> {
