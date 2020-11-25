@@ -4,6 +4,7 @@ export interface AttachmentUploadEditModel extends AttachmentEditModel {
   id: string;
   type: AttachmentType;
   fileSize?: number;
+  fileName?: string;
   error?: Error;
   ref?: string;  // Guid
 }
