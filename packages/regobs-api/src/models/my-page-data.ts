@@ -18,4 +18,5 @@ export interface MyPageData {
   MainGeohazardTID?: number;
   LastRegistrationDate?: string;
   DefaultMunicipality?: string;
+  Roles?: Array<string>;
 }
