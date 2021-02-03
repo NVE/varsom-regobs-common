@@ -225,6 +225,7 @@ export class RegistrationService {
 
   public editExisingRegistration(registrationViewModel: RegistrationViewModel): IRegistration {
     const reg = this.createNewEmptyDraft(registrationViewModel.GeoHazardTID);
+    reg.id = registrationViewModel.ExternalReferenceId || reg.id; // Keep the same id as reference id
     reg.request = cloneDeep(registrationViewModel);
     reg.response = cloneDeep(registrationViewModel);
     reg.syncStatus = SyncStatus.InSync;
