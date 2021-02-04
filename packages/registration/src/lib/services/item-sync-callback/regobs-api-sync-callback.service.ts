@@ -33,11 +33,11 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     return this.regobsApiRegistrationService.RegistrationDelete(item.response.RegId).pipe(map(() => true));
   }
 
-  syncItem(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-    return this.languageService.language$.pipe(take(1), switchMap((langKey) => this.insertOrUpdate(item, langKey)));
+  syncItem(item: IRegistration, ignoreVersionCheck: boolean): Observable<ItemSyncCompleteStatus<IRegistration>> {
+    return this.languageService.language$.pipe(take(1), switchMap((langKey) => this.insertOrUpdate(item, langKey, ignoreVersionCheck)));
   }
 
-  insertOrUpdate(item: IRegistration, langKey: LangKey
+  insertOrUpdate(item: IRegistration, langKey: LangKey, ignoreVersionCheck: boolean
   ): Observable<ItemSyncCompleteStatus<IRegistration>> {
     this.loggerService.debug('Start insertOrUpdate: ', item, langKey);
     return this.uploadAttachments(item).pipe(switchMap((uploadAttachmentResult) => {
@@ -51,7 +51,7 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       // Set request attachments on temporary request item, so it will not be removed / invalid if failure
       const clonedItem = cloneDeep(item);
       this.setRequestAttachments(clonedItem, uploadAttachmentResult);
-      return this.callInsertOrUpdate(clonedItem, langKey).pipe(switchMap((result) => this.removeAllNewAttachments(clonedItem).pipe(map(() => result))),
+      return this.callInsertOrUpdate(clonedItem, langKey, ignoreVersionCheck).pipe(switchMap((result) => this.removeAllNewAttachments(clonedItem).pipe(map(() => result))),
         map((result) => ({
           success: uploadSuccess,
           item: ({ ...cloneDeep(item), response: result }),
@@ -88,9 +88,14 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
     }
   }
 
-  private callInsertOrUpdate(item: IRegistration, langKey: LangKey): Observable<RegistrationViewModel> {
+  private callInsertOrUpdate(item: IRegistration, langKey: LangKey, ignoreVersionCheck?: boolean): Observable<RegistrationViewModel> {
     return item.response ?
-      this.regobsApiRegistrationService.RegistrationInsertOrUpdate({ registration: item.request, id: item.response.RegId, langKey, externalReferenceId: item.id })
+      this.regobsApiRegistrationService.RegistrationInsertOrUpdate({
+        registration: item.request,
+        id: item.response.RegId,
+        langKey,
+        externalReferenceId: item.id,
+        ignoreVersionCheck: ignoreVersionCheck })
       : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id });
   }
 
