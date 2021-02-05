@@ -188,6 +188,8 @@ class RegistrationService extends __BaseService {
    *
    * - `langKey`: 1 = norwegian, 2 = english
    *
+   * - `ignoreVersionCheck`: Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
+   *
    * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
    *
    * @return OK
@@ -199,6 +201,7 @@ class RegistrationService extends __BaseService {
     __body = params.registration;
 
     if (params.langKey != null) __params = __params.set('langKey', params.langKey.toString());
+    if (params.ignoreVersionCheck != null) __params = __params.set('ignoreVersionCheck', params.ignoreVersionCheck.toString());
     if (params.externalReferenceId != null) __params = __params.set('externalReferenceId', params.externalReferenceId.toString());
     let req = new HttpRequest<any>(
       'PUT',
@@ -225,6 +228,8 @@ class RegistrationService extends __BaseService {
    * - `id`: Set to regId if update existing registration, else leave blank
    *
    * - `langKey`: 1 = norwegian, 2 = english
+   *
+   * - `ignoreVersionCheck`: Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
    *
    * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
    *
@@ -431,6 +436,11 @@ module RegistrationService {
      * 1 = norwegian, 2 = english
      */
     langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+    /**
+     * Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
+     */
+    ignoreVersionCheck?: boolean;
 
     /**
      * External reference id, must be unique for application and in GUID format

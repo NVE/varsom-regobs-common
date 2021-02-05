@@ -55,28 +55,28 @@ export class RegistrationService {
     this.initAutoSync();
   }
 
-  public saveAndSync(reg: IRegistration, changedRegistrationTid: RegistrationTid = undefined): Observable<boolean> {
+  public saveAndSync(reg: IRegistration, changedRegistrationTid: RegistrationTid = undefined, ignoreVersionCheck = false): Observable<boolean> {
     reg.changedRegistrationTid = changedRegistrationTid;
     reg.syncStatus = SyncStatus.Sync;
-    return this.saveRegistration(reg);
+    return this.saveRegistration(reg, ignoreVersionCheck);
   }
 
-  public saveRegistration(reg: IRegistration, updateChangedTimestamp = true): Observable<boolean> {
+  public saveRegistration(reg: IRegistration, ignoreVersionCheck = false, updateChangedTimestamp = true): Observable<boolean> {
     if (updateChangedTimestamp) {
       reg.changed = moment().unix();
     }
     if(reg.syncStatus === SyncStatus.Sync) {
-      return this.saveAndSyncSingleRegistration(reg);
+      return this.saveAndSyncSingleRegistration(reg, ignoreVersionCheck);
     }else{
       return this.saveRegistrationToOfflineStorage(reg).pipe(map(() => true));
     }
   }
 
-  private saveAndSyncSingleRegistration(reg: IRegistration) {
+  private saveAndSyncSingleRegistration(reg: IRegistration, ignoreVersionCheck: boolean) {
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
     }
-    return this.saveRegistrationToOfflineStorage(reg).pipe(switchMap(() => this.syncSingleRegistration(reg)), tap(() => {
+    return this.saveRegistrationToOfflineStorage(reg).pipe(switchMap(() => this.syncSingleRegistration(reg, ignoreVersionCheck)), tap(() => {
       this.loggerService.debug('Single registration synced. Start autosync.');
       this.initAutoSync();
     }));
@@ -242,11 +242,11 @@ export class RegistrationService {
     return this.getRegistrationsToSyncObservable().pipe(take(1), this.resetProgressAndSyncItems());
   }
 
-  public syncSingleRegistration(reg: IRegistration): Observable<boolean> {
+  public syncSingleRegistration(reg: IRegistration, ignoreVersionCheck: boolean): Observable<boolean> {
     if (!reg) {
       return of(false);
     }
-    return of([reg]).pipe(this.resetProgressAndSyncItems(), map((result) => result.length > 0 && !result[0].syncError));
+    return of([reg]).pipe(this.resetProgressAndSyncItems(ignoreVersionCheck), map((result) => result.length > 0 && !result[0].syncError));
   }
 
   private getAutoSyncObservable() {
@@ -270,10 +270,10 @@ export class RegistrationService {
       switchMap(() => networkOrTimerTrigger$));
   }
 
-  private resetProgressAndSyncItems(): (src: Observable<IRegistration[]>) => Observable<IRegistration[]> {
+  private resetProgressAndSyncItems(ignoreVersionCheck = false): (src: Observable<IRegistration[]>) => Observable<IRegistration[]> {
     return (src: Observable<IRegistration[]>) =>
       src.pipe(concatMap((records) => from(this.progressService.resetSyncProgress(records.map((r) => r.id))).pipe(map(() => records))),
-        this.flattenRegistrationsToSync(),
+        this.flattenRegistrationsToSync(ignoreVersionCheck),
         tap((row) => this.progressService.setSyncProgress(row.item.id, row.error)),
         this.updateRowAndReturnItem(),
         toArray(),
@@ -575,15 +575,15 @@ export class RegistrationService {
     return timeout - msSinceLastSync;
   }
 
-  private flattenRegistrationsToSync() {
+  private flattenRegistrationsToSync(ignoreVersionCheck: boolean) {
     return (src: Observable<IRegistration[]>) =>
       src.pipe(mergeMap((rows) =>
-        concat(rows.map((row) => (this.syncRecord(row)))),
+        concat(rows.map((row) => (this.syncRecord(row, ignoreVersionCheck)))),
       ), mergeMap((r) => r));
   }
 
-  private syncRecord(item: IRegistration): Observable<ItemSyncCompleteStatus<IRegistration>> {
-    return this.offlineRegistrationSyncService.syncItem(item).pipe(
+  private syncRecord(item: IRegistration, ignoreVersionCheck: boolean): Observable<ItemSyncCompleteStatus<IRegistration>> {
+    return this.offlineRegistrationSyncService.syncItem(item, ignoreVersionCheck).pipe(
       catchError((err) => of(({ item, success: false, error: err }))),
       tap((result) => this.loggerService.log('Record sync complete', result)));
   }
