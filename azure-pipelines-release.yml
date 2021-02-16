@@ -1,0 +1,33 @@
+trigger:
+- develop
+
+pool:
+  vmImage: 'windows-latest'
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node 14.x'
+  inputs:
+    versionSpec: 14.x
+    checkLatest: true
+
+- task: Npm@1
+  displayName: 'npm install'
+  inputs:
+    verbose: false
+
+- task: Npm@1
+  displayName: 'npm run build'
+  inputs:
+    command: custom
+    verbose: false
+    customCommand: 'run build'
+
+- task: CopyFiles@1
+  displayName: 'Copy files to $(build.artifactStagingDirectory)'
+  inputs:
+    Contents: 'dist/varsom-regobs-common/**'
+    TargetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: drop'
+
