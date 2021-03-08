@@ -24,7 +24,7 @@ import { BlobImagePreviewComponent } from './components/blob-image-preview/blob-
 
 export function initDb(dbService: OfflineDbService) {
   return (): Promise<void> =>  {
-    return import('pouchdb-adapter-indexeddb').then(addRxPlugin).then(() => dbService.initDatabase('indexeddb'));
+    return import('pouchdb-adapter-idb').then(addRxPlugin).then(() => dbService.initDatabase('idb'));
   };
 }
 
@@ -45,7 +45,7 @@ export function initDb(dbService: OfflineDbService) {
     FormsModule,
     CoreModule,
     RegobsApiModuleWithConfig.forRoot(),
-    RegistrationModule.forRoot({ adapter: 'indexeddb', autoSync: true }),
+    RegistrationModule.forRoot({ adapter: 'idb', autoSync: true }),
     AppRoutingModule,
     TranslateModule.forRoot(),
     LoggerModule.forRoot({ level: NgxLoggerLevel.DEBUG }),

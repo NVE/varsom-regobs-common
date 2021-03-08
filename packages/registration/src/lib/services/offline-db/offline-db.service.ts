@@ -110,7 +110,7 @@ export class OfflineDbService {
     loadRxDBPlugins();
 
     const db = await createRxDatabase<{ [key: string]: RxRegistrationCollections}>({
-      name: 'rxdb_regobs_registration',
+      name: 'rxdb_regobs_registration_v2',
       adapter,
       pouchSettings: {
         revs_limit: 10, // Max 10 revisions to keep db small
