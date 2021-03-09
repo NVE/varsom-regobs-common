@@ -426,7 +426,9 @@ export class RegistrationService {
   }
 
   public saveRollbackState(id: string): void {
-    this.saveRollbackState$(id).subscribe();
+    this.saveRollbackState$(id).subscribe(() => null, (err) => {
+      this.loggerService.warn('Could not save rollback state', err);
+    });
   }
 
   /**
