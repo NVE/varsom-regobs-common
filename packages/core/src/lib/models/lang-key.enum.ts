@@ -1,12 +1,14 @@
 export enum LangKey {
-    no = 1,
+    nb = 1,
     en = 2,
     de = 3,
     sl = 4,
     sv = 5,
+    it = 6,
+    nn = 7,
 }
 
-export function getLangKeyString(langKey: LangKey) {
+export function getLangKeyString(langKey: LangKey): string {
   return LangKey[langKey];
 }
 

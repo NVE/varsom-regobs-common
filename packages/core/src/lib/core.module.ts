@@ -5,7 +5,7 @@ import { RegobsCorePipesModule } from './pipes';
 export const APP_CONFIG = new InjectionToken<AppConfig>('app.config');
 export const DEFAULT_APP_CONFIG: AppConfig = {
   appMode: AppMode.Prod,
-  language: LangKey.no,
+  language: LangKey.nb,
 };
 
 @NgModule({
