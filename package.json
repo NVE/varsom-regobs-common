@@ -5,7 +5,7 @@
     "ng": "ng",
     "eslint": "eslint",
     "start": "ng serve --open",
-    "build": "ng build core --prod && ng build regobs-api --prod && ng build registration --prod && npm run copy-registration-lib-assets && ng build --prod",
+    "build": "ng build core --prod && ng build regobs-api --prod && ng build registration --prod && ng build --prod",
     "copy-registration-lib-assets": "npm run cp:kdv-elements && npm run cp:helptexts",
     "cp:kdv-elements": "copyfiles -f packages/registration/src/assets/kdvelements/*.json dist/varsom-regobs-common/registration/assets/kdvelements",
     "cp:helptexts": "copyfiles -f packages/registration/src/assets/helptexts/*.json dist/varsom-regobs-common/registration/assets/helptexts",

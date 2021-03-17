@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@angular/core';
-import { APP_CONFIG } from '../../core.module';
-import { AppConfig } from '../../models';
+import { AppConfig } from '../../models/app-config.interface';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { LangKey } from '../../models/lang-key.enum';
+import { APP_CONFIG } from '../../models/app-config.interface';
 
 @Injectable({
   providedIn: 'root'

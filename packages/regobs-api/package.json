@@ -5,8 +5,8 @@
     "generate-swagger-api-module": "ng-swagger-gen -c ng-swagger-gen.json"
   },
   "peerDependencies": {
-    "@angular/common": "^10.0.0",
-    "@angular/core": "^10.0.0",
+    "@angular/common": "^11.0.0",
+    "@angular/core": "^11.0.0",
     "@varsom-regobs-common/core": "^3.0.20"
   },
   "devDependencies": {

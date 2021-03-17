@@ -536,6 +536,10 @@ export class RegistrationService {
       map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)));
   }
 
+  public isEmpty(reg: IRegistration): Observable<boolean> {
+    return this.isNotEmpty(reg).pipe(map((result) => !result));
+  }
+
   private isNotEmpty(reg: IRegistration): Observable<boolean> {
     const notEmpty = hasAnyObservations(reg);
     if (notEmpty) {

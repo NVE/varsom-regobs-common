@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@angular/core';
-import { AppMode } from '../../models';
+import { AppMode } from '../../models/app-mode.enum';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { AppConfig } from '../../models';
-import { APP_CONFIG } from '../../core.module';
+import { AppConfig } from '../../models/app-config.interface';
+import { APP_CONFIG } from '../../models/app-config.interface';
 
 @Injectable({
   providedIn: 'root'

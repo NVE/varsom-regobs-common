@@ -1,12 +1,6 @@
-import { NgModule, InjectionToken } from '@angular/core';
-import { AppConfig, AppMode, LangKey } from './models';
+import { NgModule } from '@angular/core';
+import { APP_CONFIG, DEFAULT_APP_CONFIG } from './models/app-config.interface';
 import { RegobsCorePipesModule } from './pipes';
-
-export const APP_CONFIG = new InjectionToken<AppConfig>('app.config');
-export const DEFAULT_APP_CONFIG: AppConfig = {
-  appMode: AppMode.Prod,
-  language: LangKey.nb,
-};
 
 @NgModule({
   declarations: [],
