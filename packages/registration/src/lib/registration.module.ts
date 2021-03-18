@@ -4,9 +4,9 @@ import { FakeItemSyncCallbackService } from './services/item-sync-callback/fake-
 import { RegobsApiSyncCallbackService } from './services/item-sync-callback/regobs-api-sync-callback.service';
 import { RegobsApiModuleWithConfig, KdvElementsService, HelptextService as HelpTextApiService } from '@varsom-regobs-common/regobs-api';
 import { OfflineDbServiceOptions } from './services/offline-db/offline-db-service.options';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { GeneralObservationSummaryProvider } from './services/summary-providers/general-observation/general-observation.summary-provider';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConnectivityInterceptor } from 'ngx-connectivity';
 import { NewAttachmentService } from './services/add-new-attachment/new-attachment.service';
 import { throwError } from 'rxjs';
@@ -14,6 +14,7 @@ import { WeatherSummaryProvider } from './services/summary-providers/snow/weathe
 import { RegobsRegistrationPipesModule } from './registration.pipes';
 import { OfflineDbNewAttachmentService } from './services/add-new-attachment/offline-db-new-attachment.service';
 import { FOR_ROOT_OPTIONS_TOKEN, IRegistrationModuleOptions, SUMMARY_PROVIDER_TOKEN } from './module.options';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 export function offlineDbServiceOptionsFactory(options?: IRegistrationModuleOptions): OfflineDbServiceOptions {
   const offlineDbServiceOptions = new OfflineDbServiceOptions();
@@ -37,11 +38,23 @@ export function getFakeHelpTextApiService(): unknown {
   return fakeService;
 }
 
+export function createTranslateLoader(http: HttpClient): TranslateHttpLoader  {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+export const translateModuleForRoot = TranslateModule.forRoot({
+  loader: {
+    provide: TranslateLoader,
+    useFactory: createTranslateLoader,
+    deps: [HttpClient]
+  }
+});
+
 @NgModule({
   imports: [
     CoreModule,
     RegobsApiModuleWithConfig,
-    TranslateModule,
+    translateModuleForRoot,
   ],
   declarations: [],
   exports: [
@@ -79,6 +92,7 @@ export class RegistrationModule {
         {
           provide: NewAttachmentService, useClass: OfflineDbNewAttachmentService
         },
+        TranslateService,
       ]
     });
   }
