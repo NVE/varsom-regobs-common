@@ -7,7 +7,6 @@
     "declaration": false,
     "module": "esnext",
     "moduleResolution": "node",
-    "emitDecoratorMetadata": false,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
