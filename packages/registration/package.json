@@ -2,9 +2,9 @@
   "name": "@varsom-regobs-common/registration",
   "version": "3.0.20",
   "peerDependencies": {
-    "@angular/common": "^11.0.0",
-    "@angular/core": "^11.0.0",
-    "rxjs": "^6.0.0",
+    "@angular/common": "^12.0.0",
+    "@angular/core": "^12.0.0",
+    "rxjs": "^7.0.0",
     "moment": "^2.0.0",
     "@varsom-regobs-common/core": "^3.0.20",
     "@varsom-regobs-common/regobs-api": "^3.0.20",
