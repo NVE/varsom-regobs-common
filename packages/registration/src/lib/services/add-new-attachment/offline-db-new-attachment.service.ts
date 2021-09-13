@@ -10,8 +10,12 @@ import { RegistrationTid } from '../../models/registration-tid.enum';
 
 @Injectable()
 export class OfflineDbNewAttachmentService implements NewAttachmentService {
-  constructor(private offlineDbService: OfflineDbService, private appModeService: AppModeService, private loggerService: LoggerService) {
-  }
+
+  constructor(
+    private offlineDbService: OfflineDbService,
+    protected appModeService: AppModeService,
+    protected loggerService: LoggerService
+  ) {}
 
   addAttachment(registrationId: string, data: Blob, mimeType: string, geoHazard: GeoHazard, registrationTid: RegistrationTid, type?: AttachmentType, ref?: string): void {
     const attachmentId = uuidv4();
@@ -134,7 +138,7 @@ export class OfflineDbNewAttachmentService implements NewAttachmentService {
     return this.offlineDbService.getDbCollection<RxAttachmentMetaCollection>(appMode, TABLE_NAMES.ATTACHMENT_META);
   }
 
-  private getRegistrationOfflineDocumentById(id: string): Observable<RxRegistrationDocument> {
+  protected getRegistrationOfflineDocumentById(id: string): Observable<RxRegistrationDocument> {
     return this.getRegistrationDbCollectionForAppMode().pipe(
       switchMap((dbCollection) => dbCollection.findByIds$([id])),
       map((result) => result.get(id)));

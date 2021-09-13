@@ -73,6 +73,7 @@ export class RegistrationService {
   }
 
   private saveAndSyncSingleRegistration(reg: IRegistration, ignoreVersionCheck: boolean) {
+    // Hvorfor kalles unsubscribe på denne?
     if (this._registrationSyncSubscription) {
       this._registrationSyncSubscription.unsubscribe();
     }
@@ -246,7 +247,10 @@ export class RegistrationService {
     if (!reg) {
       return of(false);
     }
-    return of([reg]).pipe(this.resetProgressAndSyncItems(ignoreVersionCheck), map((result) => result.length > 0 && !result[0].syncError));
+    return of([reg]).pipe(
+      this.resetProgressAndSyncItems(ignoreVersionCheck),
+      map((result) => result.length > 0 && !result[0].syncError)
+    );
   }
 
   private getAutoSyncObservable() {
@@ -272,8 +276,15 @@ export class RegistrationService {
 
   private resetProgressAndSyncItems(ignoreVersionCheck = false): (src: Observable<IRegistration[]>) => Observable<IRegistration[]> {
     return (src: Observable<IRegistration[]>) =>
-      src.pipe(concatMap((records) => from(this.progressService.resetSyncProgress(records.map((r) => r.id))).pipe(map(() => records))),
+      src.pipe(
+        // Reset sync status
+        concatMap((records) => from(
+          this.progressService.resetSyncProgress(records.map((r) => r.id))
+        ).pipe(map(() => records))),
+
+        // Innsending skjer langt inni her
         this.flattenRegistrationsToSync(ignoreVersionCheck),
+
         tap((row) => this.progressService.setSyncProgress(row.item.id, row.error)),
         this.updateRowAndReturnItem(),
         toArray(),
@@ -530,35 +541,37 @@ export class RegistrationService {
     return this.registrationStorage$.pipe(
       switchMap((records) =>
         records.length > 0 ?
-          forkJoin(records.map((reg) => this.shouldSync(reg, includeThrottle).pipe(map((shouldSync) => ({ reg, shouldSync })))))
+          from(Promise.all(records.map((reg) => this.shouldSync(reg, includeThrottle).then((shouldSync) => ({ reg, shouldSync })))))
+          // forkJoin(records.map((reg) => this.shouldSync(reg, includeThrottle).pipe(map((shouldSync) => ({ reg, shouldSync })))))
           : of([])
       ),
       map((result) => result.filter((result) => result.shouldSync).map((result) => result.reg)));
   }
 
-  public isEmpty(reg: IRegistration): Observable<boolean> {
-    return this.isNotEmpty(reg).pipe(map((result) => !result));
+  public async isEmpty(reg: IRegistration): Promise<boolean> {
+    const isNotEmpty = await this.isNotEmpty(reg);
+    return !isNotEmpty;
   }
 
-  private isNotEmpty(reg: IRegistration): Observable<boolean> {
+  private isNotEmpty(reg: IRegistration): Promise<boolean> {
     const notEmpty = hasAnyObservations(reg);
     if (notEmpty) {
-      return of(true);
+      return Promise.resolve(true);
     }
-    return this.hasRegistrationAnyAttachment$(reg.id);
+    return this.hasRegistrationAnyAttachment$(reg.id).pipe(take(1)).toPromise();
   }
 
-  private shouldSync(reg: IRegistration, includeThrottle = false): Observable<boolean> {
+  private async shouldSync(reg: IRegistration, includeThrottle = false): Promise<boolean> {
     if (reg.syncStatus === SyncStatus.Sync) {
       if (includeThrottle && this.shouldThrottle(reg)) {
-        return of(false);
+        return false;
       }
       if (reg.response && reg.response.RegId > 0) {
-        return of(true); // Edit existing registration should sync even if empty (deleted observation)
+        return true; // Edit existing registration should sync even if empty (deleted observation)
       }
-      return this.isNotEmpty(reg).pipe(take(1));
+      return await this.isNotEmpty(reg);
     }
-    return of(false);
+    return false;
   }
 
   private shouldThrottle(reg: IRegistration) {

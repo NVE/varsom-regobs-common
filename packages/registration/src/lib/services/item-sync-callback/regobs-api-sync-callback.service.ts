@@ -51,17 +51,20 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
       // Set request attachments on temporary request item, so it will not be removed / invalid if failure
       const clonedItem = cloneDeep(item);
       this.setRequestAttachments(clonedItem, uploadAttachmentResult);
-      return this.callInsertOrUpdate(clonedItem, langKey, ignoreVersionCheck).pipe(switchMap((result) => this.removeAllNewAttachments(clonedItem).pipe(map(() => result))),
-        map((result) => ({
-          success: uploadSuccess,
-          item: ({ ...cloneDeep(item), response: result }),
-          statusCode: attachmentStatusCode,
-          error: uploadSuccess ? undefined : 'Could not upload attachments'
-        })),
-        catchError((err: HttpErrorResponse) => {
-          const errorMsg = this.getErrorModelStateMessageOrErrorMsg(err);
-          return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
-        }));
+      return this.callInsertOrUpdate(clonedItem, langKey, ignoreVersionCheck)
+        // TODO: Hvorfor removeAllNewAttachments her?
+        .pipe(switchMap((result) => this.removeAllNewAttachments(clonedItem).pipe(map(() => result))),
+          map((result) => ({
+            success: uploadSuccess,
+            item: ({ ...cloneDeep(item), response: result }),
+            statusCode: attachmentStatusCode,
+            error: uploadSuccess ? undefined : 'Could not upload attachments'
+          })),
+          catchError((err: HttpErrorResponse) => {
+            const errorMsg = this.getErrorModelStateMessageOrErrorMsg(err);
+            return of(({ success: false, item: item, statusCode: err.status, error: errorMsg }));
+          })
+        );
     }));
   }
 
@@ -89,14 +92,22 @@ export class RegobsApiSyncCallbackService implements ItemSyncCallbackService<IRe
   }
 
   private callInsertOrUpdate(item: IRegistration, langKey: LangKey, ignoreVersionCheck?: boolean): Observable<RegistrationViewModel> {
+    // TODO: Hvorfor trenger vi både RegistrationInsertOrUpdate og RegistrationInsert?
+    // Kunne vi bare brukt InsertOrUpdate hver gang?
     return item.response ?
+      // PUT
       this.regobsApiRegistrationService.RegistrationInsertOrUpdate({
         registration: item.request,
         id: item.response.RegId,
         langKey,
         externalReferenceId: item.id,
         ignoreVersionCheck: ignoreVersionCheck })
-      : this.regobsApiRegistrationService.RegistrationInsert({ registration: item.request, langKey, externalReferenceId: item.id });
+      // POST
+      : this.regobsApiRegistrationService.RegistrationInsert({
+        registration: item.request,
+        langKey,
+        externalReferenceId: item.id
+      });
   }
 
   removeAllNewAttachments(item: IRegistration): Observable<IRegistration> {
