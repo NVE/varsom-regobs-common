@@ -1,6 +1,6 @@
 {
   "name": "@varsom-regobs-common/core",
-  "version": "3.0.20",
+  "version": "3.0.21",
   "peerDependencies": {
     "@angular/common": "^12.0.0",
     "@angular/core": "^12.0.0",
