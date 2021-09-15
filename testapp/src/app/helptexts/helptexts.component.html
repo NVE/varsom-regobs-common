@@ -1,6 +1,6 @@
 <div *ngIf="appModeService.appMode$ | async as appMode">
     <label for="appMode">App Mode:</label>
-    <select id="appMode" [(ngModel)]="appMode" (ngModelChange)="changeAppMode($event)">
+    <select id="appMode" [value]="appMode" (change)="changeAppMode($event.target.value)">
         <option value="PROD">Prod</option>
         <option value="TEST">Test</option>
         <option value="DEMO">Demo</option>
