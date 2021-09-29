@@ -28,9 +28,21 @@ import { SnowCoverObsViewModel } from './snow-cover-obs-view-model';
 import { WaterLevelViewModel } from './water-level-view-model';
 export interface RegistrationViewModel {
   RegId?: number;
+
+  /**
+   * Ekstern referanse ID. Må være unik for Applikasjon.
+   */
   ExternalReferenceId?: string;
   GeoHazardName?: string;
+
+  /**
+   * Timestamp for registrert i systemet. (Read-Only)
+   */
   DtRegTime?: string;
+
+  /**
+   * Timestamp for endret i systemet. (Read-Only)
+   */
   DtChangeTime?: string;
   SourceName?: string;
   Observer?: ObserverViewModel;
@@ -62,8 +74,20 @@ export interface RegistrationViewModel {
   AvalancheEvaluation2?: AvalancheEvaluation2ViewModel;
   SnowCoverObs?: SnowCoverObsViewModel;
   WaterLevel?: WaterLevelViewModel;
+
+  /**
+   * Sett naturfare. Tabellen brukes av alle naturfarer (snø, jord, vann, is). The GeoHazardKD unique identifier
+   */
   GeoHazardTID: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 100 | 110 | 200 | 999;
+
+  /**
+   * Kildereferanse på en registrering. F.eks. har brukeren sette dette selv eller er det referert til fra nyheter. The SourceKD unique identifier
+   */
   SourceTID?: number;
+
+  /**
+   * Tiden da observasjonen ble gjort.
+   */
   DtObsTime: string;
   ObserverGroupID?: number;
   ObserverGroupName?: string;

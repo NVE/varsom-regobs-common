@@ -6,6 +6,5 @@ export interface CreateTripDto {
   Lat?: string;
   Lng?: string;
   ObservationExpectedMinutes?: number;
-  ObserverGuid?: string;
   TripTypeID?: number;
 }

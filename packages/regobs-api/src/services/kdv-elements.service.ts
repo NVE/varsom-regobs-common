@@ -24,11 +24,11 @@ class KdvElementsService extends __BaseService {
   /**
    * @param params The `KdvElementsService.KdvElementsGetKdvsParams` containing the following parameters:
    *
-   * - `sortOrder`:
+   * - `sortOrder`: False returns data types sorted by id
    *
-   * - `langkey`: 1 = norwegian, 2 = english
+   * - `langkey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk. Norwegian is the default language if none is selected. If a language key does not exist the default is english (LangKey 6 does not work)
    *
-   * - `isActive`:
+   * - `isActive`: False returns data types that are no longer in use
    *
    * @return OK
    */
@@ -59,11 +59,11 @@ class KdvElementsService extends __BaseService {
   /**
    * @param params The `KdvElementsService.KdvElementsGetKdvsParams` containing the following parameters:
    *
-   * - `sortOrder`:
+   * - `sortOrder`: False returns data types sorted by id
    *
-   * - `langkey`: 1 = norwegian, 2 = english
+   * - `langkey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk. Norwegian is the default language if none is selected. If a language key does not exist the default is english (LangKey 6 does not work)
    *
-   * - `isActive`:
+   * - `isActive`: False returns data types that are no longer in use
    *
    * @return OK
    */
@@ -80,12 +80,20 @@ module KdvElementsService {
    * Parameters for KdvElementsGetKdvs
    */
   export interface KdvElementsGetKdvsParams {
+
+    /**
+     * False returns data types sorted by id
+     */
     sortOrder?: boolean;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk. Norwegian is the default language if none is selected. If a language key does not exist the default is english (LangKey 6 does not work)
      */
     langkey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+    /**
+     * False returns data types that are no longer in use
+     */
     isActive?: boolean;
   }
 }

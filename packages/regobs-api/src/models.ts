@@ -81,8 +81,8 @@ export { RegistrationTypeCriteriaDto } from './models/registration-type-criteria
 export { WithinRadiusCriteriaDto } from './models/within-radius-criteria-dto';
 export { WithinExtentCriteriaDto } from './models/within-extent-criteria-dto';
 export { PositionDto } from './models/position-dto';
+export { SearchCriteriaExclUserRequestDto } from './models/search-criteria-excl-user-request-dto';
 export { SearchCountResponseDto } from './models/search-count-response-dto';
-export { SearchSideBarRequestDto } from './models/search-side-bar-request-dto';
 export { SearchSideBarDto } from './models/search-side-bar-dto';
 export { RegistrationTypeDto } from './models/registration-type-dto';
 export { ObserverCompetenceLevelDto } from './models/observer-competence-level-dto';
@@ -91,6 +91,7 @@ export { RegistrationTypeSubTypeDto } from './models/registration-type-sub-type-
 export { ForecastRegionDto } from './models/forecast-region-dto';
 export { CountyDto } from './models/county-dto';
 export { ForecastRegionSubRegionDto } from './models/forecast-region-sub-region-dto';
+export { SearchSideBarRequestDto } from './models/search-side-bar-request-dto';
 export { AtAGlanceViewModel } from './models/at-aglance-view-model';
 export { FinishTripDto } from './models/finish-trip-dto';
 export { CreateTripDto } from './models/create-trip-dto';

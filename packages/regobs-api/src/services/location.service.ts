@@ -33,8 +33,6 @@ class LocationService extends __BaseService {
    *
    * - `returnCount`:
    *
-   * - `observerGuid`:
-   *
    * - `geoHazardTypeIds`:
    *
    * @return OK
@@ -47,7 +45,6 @@ class LocationService extends __BaseService {
     if (params.longitude != null) __params = __params.set('longitude', params.longitude.toString());
     if (params.latitude != null) __params = __params.set('latitude', params.latitude.toString());
     if (params.returnCount != null) __params = __params.set('returnCount', params.returnCount.toString());
-    if (params.observerGuid != null) __params = __params.set('observerGuid', params.observerGuid.toString());
     (params.geoHazardTypeIds || []).forEach(val => {if (val != null) __params = __params.append('geoHazardTypeIds', val.toString())});
     let req = new HttpRequest<any>(
       'GET',
@@ -76,8 +73,6 @@ class LocationService extends __BaseService {
    * - `latitude`:
    *
    * - `returnCount`:
-   *
-   * - `observerGuid`:
    *
    * - `geoHazardTypeIds`:
    *
@@ -147,7 +142,6 @@ module LocationService {
     longitude: number;
     latitude: number;
     returnCount?: number;
-    observerGuid?: string;
     geoHazardTypeIds?: Array<number>;
   }
 
