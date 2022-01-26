@@ -217,6 +217,7 @@ export class RegistrationService {
         GeoHazardTID: geoHazard,
         DtObsTime: undefined,
         ObsLocation: {
+          Latitude: 0, Longitude: 0
         },
         Attachments: []
       },
