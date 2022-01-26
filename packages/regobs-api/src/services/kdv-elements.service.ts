@@ -24,11 +24,11 @@ class KdvElementsService extends __BaseService {
   /**
    * @param params The `KdvElementsService.KdvElementsGetKdvsParams` containing the following parameters:
    *
-   * - `sortOrder`:
+   * - `sortOrder`: False returns data types sorted by id
    *
-   * - `langkey`: 1 = norwegian, 2 = english
+   * - `langkey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 7 = norwegian nynorsk, 8 = french. Norwegian is the default language if none is selected. Default langKey is norwegian
    *
-   * - `isActive`:
+   * - `isActive`: False returns data types that are no longer in use
    *
    * @return OK
    */
@@ -59,11 +59,11 @@ class KdvElementsService extends __BaseService {
   /**
    * @param params The `KdvElementsService.KdvElementsGetKdvsParams` containing the following parameters:
    *
-   * - `sortOrder`:
+   * - `sortOrder`: False returns data types sorted by id
    *
-   * - `langkey`: 1 = norwegian, 2 = english
+   * - `langkey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 7 = norwegian nynorsk, 8 = french. Norwegian is the default language if none is selected. Default langKey is norwegian
    *
-   * - `isActive`:
+   * - `isActive`: False returns data types that are no longer in use
    *
    * @return OK
    */
@@ -80,12 +80,20 @@ module KdvElementsService {
    * Parameters for KdvElementsGetKdvs
    */
   export interface KdvElementsGetKdvsParams {
+
+    /**
+     * False returns data types sorted by id
+     */
     sortOrder?: boolean;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 7 = norwegian nynorsk, 8 = french. Norwegian is the default language if none is selected. Default langKey is norwegian
      */
-    langkey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    langkey?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+    /**
+     * False returns data types that are no longer in use
+     */
     isActive?: boolean;
   }
 }

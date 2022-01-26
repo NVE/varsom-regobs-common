@@ -6,34 +6,7 @@ import { WithinExtentCriteriaDto } from './within-extent-criteria-dto';
 /**
  * Use this to filter out registrations.
  */
-export interface SearchCriteriaRequestDto {
-
-  /**
-   * Find registrations made by the observer with given ID
-   */
-  ObserverId?: number;
-
-  /**
-   * Find registrations made by the observer with given GUID.
-   * This attribute is  deprecated and will be removed in the future.
-   */
-  ObserverGuid?: string;
-
-  /**
-   * Find registrations made by the observers in a specific group
-   */
-  GroupId?: number;
-
-  /**
-   * Find registrations made by observers with specific competence level IDs
-   * Use /Search/SearchCriteria to find out which competence levels are used for different geo hazards.
-   */
-  ObserverCompetence?: Array<number>;
-
-  /**
-   * Find registrations made by the observer with given nick name
-   */
-  ObserverNickName?: string;
+export interface SearchCriteriaExclUserRequestDto {
 
   /**
    * Find a registration with a specific unique ID. You may also use GET /Registration/{regId}/{langKey}

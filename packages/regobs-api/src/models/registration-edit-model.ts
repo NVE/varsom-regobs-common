@@ -18,6 +18,10 @@ import { WeatherEditModel } from './weather-edit-model';
 import { Waterlevel2EditModel } from './waterlevel-2edit-model';
 import { DamageObsEditModel } from './damage-obs-edit-model';
 export interface RegistrationEditModel {
+
+  /**
+   * The observation location object. Latitude and longitute are needed to create a new registration.
+   */
   ObsLocation?: ObsLocationEditModel;
   Attachments?: Array<AttachmentEditModel>;
   AvalancheActivityObs2?: Array<AvalancheActivityObs2EditModel>;
@@ -36,8 +40,20 @@ export interface RegistrationEditModel {
   WeatherObservation?: WeatherEditModel;
   WaterLevel2?: Waterlevel2EditModel;
   DamageObs?: Array<DamageObsEditModel>;
+
+  /**
+   * Sett naturfare. Tabellen brukes av alle naturfarer (snø, jord, vann, is). The GeoHazardKD unique identifier
+   */
   GeoHazardTID: 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 100 | 110 | 200 | 999;
+
+  /**
+   * Kildereferanse på en registrering. F.eks. har brukeren sette dette selv eller er det referert til fra nyheter. The SourceKD unique identifier
+   */
   SourceTID?: number;
+
+  /**
+   * Tiden da observasjonen ble gjort.
+   */
   DtObsTime: string;
   DtChangeTime?: string;
   ObserverGroupID?: number;

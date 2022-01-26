@@ -6,6 +6,8 @@ export interface SnowProfileEditModel {
   StratProfile?: StratProfileEditModel;
   Comment?: string;
   IsProfileToGround?: boolean;
+  Exposition?: number;
+  SlopeAngle?: number;
   SnowTemp?: SnowTempModel;
   SnowDensity?: Array<SnowDensityModel>;
 }

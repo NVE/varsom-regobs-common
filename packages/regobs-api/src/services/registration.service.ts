@@ -33,7 +33,7 @@ class RegistrationService extends __BaseService {
    *
    * - `regId`: Registration Id
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * @return OK
    */
@@ -65,7 +65,7 @@ class RegistrationService extends __BaseService {
    *
    * - `regId`: Registration Id
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * @return OK
    */
@@ -128,7 +128,7 @@ class RegistrationService extends __BaseService {
    *
    * - `format`:
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * @return OK
    */
@@ -169,7 +169,7 @@ class RegistrationService extends __BaseService {
    *
    * - `format`:
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * @return OK
    */
@@ -186,7 +186,7 @@ class RegistrationService extends __BaseService {
    *
    * - `id`: Set to regId if update existing registration, else leave blank
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * - `ignoreVersionCheck`: Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
    *
@@ -227,7 +227,7 @@ class RegistrationService extends __BaseService {
    *
    * - `id`: Set to regId if update existing registration, else leave blank
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
    * - `ignoreVersionCheck`: Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
    *
@@ -276,13 +276,34 @@ class RegistrationService extends __BaseService {
   }
 
   /**
+   * Example critera for creating a new registration with one form.
+   *
+   *     {
+   *         "GeoHazardTID": 20,
+   *         "ObsLocation": {
+   *         "DtObsTime": "2021-06-25T13:18:00.000Z",
+   *             "Latitude": 60.919917123811992,
+   *             "Longitude": 7.210167614875667,
+   *         },
+   *         "LandSlideObs": {
+   *             "LandSlideTID": 2,
+   *             "LandSlideTriggerTID": 0,
+   *             "LandSlideSizeTID": 0,
+   *             "Comment": "Flomskred på FV5627 løsnet fra vegskjæring 0-50m. Anslått skredvolum på veg: mindre enn 10m^3.Blokkert veglengde: Kun i grøft.",
+   *             "GeoHazardTID": 20,
+   *             "ActivityInfluencedTID": 220,
+   *             "ForecastAccurateTID": 0,
+   *             "DamageExtentTID": 0,
+   *             "DtLandSlideTime": "2021-06-25T08:10:00+02:00",
+   *         }
+   *     }
    * @param params The `RegistrationService.RegistrationInsertParams` containing the following parameters:
    *
-   * - `registration`: Registration data
+   * - `registration`: ObsLocation, GeoHazardTID and DtObsTime are mandatory.
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
-   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   * - `externalReferenceId`: Unique identifier for registration (must be in GUID format).
    *
    * @return OK
    */
@@ -311,13 +332,34 @@ class RegistrationService extends __BaseService {
     );
   }
   /**
+   * Example critera for creating a new registration with one form.
+   *
+   *     {
+   *         "GeoHazardTID": 20,
+   *         "ObsLocation": {
+   *         "DtObsTime": "2021-06-25T13:18:00.000Z",
+   *             "Latitude": 60.919917123811992,
+   *             "Longitude": 7.210167614875667,
+   *         },
+   *         "LandSlideObs": {
+   *             "LandSlideTID": 2,
+   *             "LandSlideTriggerTID": 0,
+   *             "LandSlideSizeTID": 0,
+   *             "Comment": "Flomskred på FV5627 løsnet fra vegskjæring 0-50m. Anslått skredvolum på veg: mindre enn 10m^3.Blokkert veglengde: Kun i grøft.",
+   *             "GeoHazardTID": 20,
+   *             "ActivityInfluencedTID": 220,
+   *             "ForecastAccurateTID": 0,
+   *             "DamageExtentTID": 0,
+   *             "DtLandSlideTime": "2021-06-25T08:10:00+02:00",
+   *         }
+   *     }
    * @param params The `RegistrationService.RegistrationInsertParams` containing the following parameters:
    *
-   * - `registration`: Registration data
+   * - `registration`: ObsLocation, GeoHazardTID and DtObsTime are mandatory.
    *
-   * - `langKey`: 1 = norwegian, 2 = english
+   * - `langKey`: 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
    *
-   * - `externalReferenceId`: External reference id, must be unique for application and in GUID format
+   * - `externalReferenceId`: Unique identifier for registration (must be in GUID format).
    *
    * @return OK
    */
@@ -393,9 +435,9 @@ module RegistrationService {
     regId: number;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
      */
-    langKey: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    langKey: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   }
 
   /**
@@ -412,9 +454,9 @@ module RegistrationService {
     format: number;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
      */
-    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   }
 
   /**
@@ -433,9 +475,9 @@ module RegistrationService {
     id: number;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
      */
-    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
     /**
      * Set this to true if you want to replace the last saved version of this registration even if your copy is outdated
@@ -454,17 +496,17 @@ module RegistrationService {
   export interface RegistrationInsertParams {
 
     /**
-     * Registration data
+     * ObsLocation, GeoHazardTID and DtObsTime are mandatory.
      */
     registration: RegistrationEditModel;
 
     /**
-     * 1 = norwegian, 2 = english
+     * 1 = norwegian, 2 = english, 3 = german, 4 = slovenian, 5 = swedish, 6 = italian, 7 = norwegian nynorsk.
      */
-    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    langKey?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
     /**
-     * External reference id, must be unique for application and in GUID format
+     * Unique identifier for registration (must be in GUID format).
      */
     externalReferenceId?: string;
   }

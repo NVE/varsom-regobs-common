@@ -59,9 +59,8 @@ class TripService extends __BaseService {
 
   /**
    * @param trip undefined
-   * @return OK
    */
-  TripPostResponse(trip: CreateTripDto): __Observable<__StrictHttpResponse<{}>> {
+  TripPostResponse(trip: CreateTripDto): __Observable<__StrictHttpResponse<null>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
@@ -79,17 +78,16 @@ class TripService extends __BaseService {
     return this.http.request<any>(req).pipe(
       __filter(_r => _r instanceof HttpResponse),
       __map((_r) => {
-        return _r as __StrictHttpResponse<{}>;
+        return _r as __StrictHttpResponse<null>;
       })
     );
   }
   /**
    * @param trip undefined
-   * @return OK
    */
-  TripPost(trip: CreateTripDto): __Observable<{}> {
+  TripPost(trip: CreateTripDto): __Observable<null> {
     return this.TripPostResponse(trip).pipe(
-      __map(_r => _r.body as {})
+      __map(_r => _r.body as null)
     );
   }
 }
