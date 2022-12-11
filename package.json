@@ -37,7 +37,7 @@
     "ngx-logger": "^4.2.1",
     "pouchdb-adapter-idb": "^7.2.2",
     "pouchdb-adapter-memory": "^7.2.2",
-    "rxdb": "^9.15.0",
+    "rxdb": "^13.15.0",
     "rxjs": "^6.6.6",
     "tslib": "^2.1.0",
     "zone.js": "~0.11.4"
