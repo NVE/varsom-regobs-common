@@ -1,6 +1,7 @@
 # VarsomRegobsCommon
 
-==This project is no longer maintained==
+[!Note]
+**This project is no longer maintained.**
 The current version of Regobs is here: https://github.com/NVE/regobs4
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.5.
