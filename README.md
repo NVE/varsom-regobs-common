@@ -1,6 +1,6 @@
 # VarsomRegobsCommon
 
-[!Note]
+[!NOTE]
 **This project is no longer maintained.**
 The current version of Regobs is here: https://github.com/NVE/regobs4
 
